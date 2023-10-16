@@ -1,11 +1,11 @@
-# Defines RevPop library target.
+# Defines R-Squared library target.
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
-project( RevPop LANGUAGES CXX C)
+project( R-Squared LANGUAGES CXX C)
 
-set( BLOCKCHAIN_NAME "RevPop" )
+set( BLOCKCHAIN_NAME "R-Squared" )
 
 set( CLI_CLIENT_EXECUTABLE_NAME graphene_client )
-set( GUI_CLIENT_EXECUTABLE_NAME RevPop )
+set( GUI_CLIENT_EXECUTABLE_NAME R-Squared )
 set( CUSTOM_URL_SCHEME "gcs" )
 set( INSTALLER_APP_ID "68ad7005-8eee-49c9-95ce-9eed97e5b347" )
 
@@ -235,7 +235,7 @@ add_compiler_flag_if_available("-Wunused-but-set-parameter")
 
 if( WIN32 )
 
-    message( STATUS "Configuring RevPop on WIN32")
+    message( STATUS "Configuring R-Squared on WIN32")
 
     if ( MINGW )
         message( STATUS "Windows build using MinGW" )
@@ -260,15 +260,15 @@ else( WIN32 ) # Apple AND Linux
 
     if( APPLE )
         # Apple Specific Options Here
-        message( STATUS "Configuring RevPop on OS X" )
+        message( STATUS "Configuring R-Squared on OS X" )
         set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++ -Wall -fvisibility-inlines-hidden -fvisibility=hidden" )
     else( APPLE )
         if ( "${CMAKE_SYSTEM_NAME}" STREQUAL "OpenBSD" )
             # OpenBSD Specific Options
-            message( STATUS "Configuring RevPop on OpenBSD" )
+            message( STATUS "Configuring R-Squared on OpenBSD" )
         else()
             # Linux Specific Options Here
-            message( STATUS "Configuring RevPop on Linux" )
+            message( STATUS "Configuring R-Squared on Linux" )
             set( rt_library rt )
         endif()
         # Common Linux & OpenBSD Options
@@ -308,7 +308,7 @@ if ( NOT MSVC AND FULL_STATIC_BUILD )
     set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static -static-libstdc++ -static-libgcc" )
 endif ( NOT MSVC AND FULL_STATIC_BUILD )
 
-set(ENABLE_COVERAGE_TESTING FALSE CACHE BOOL "Build RevPop for code coverage analysis")
+set(ENABLE_COVERAGE_TESTING FALSE CACHE BOOL "Build R-Squared for code coverage analysis")
 
 if(ENABLE_COVERAGE_TESTING)
     SET(CMAKE_CXX_FLAGS "--coverage ${CMAKE_CXX_FLAGS}")
@@ -338,18 +338,18 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-set(CPACK_PACKAGE_DESCRIPTION "A client for the RevPop network")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A client for the RevPop network")
+set(CPACK_PACKAGE_DESCRIPTION "A client for the R-Squared network")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A client for the R-Squared network")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "RevPop ${CPACK_PACKAGE_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "R-Squared ${CPACK_PACKAGE_VERSION}")
 
 if(WIN32)
  SET(CPACK_GENERATOR "ZIP;NSIS")
- set(CPACK_PACKAGE_NAME "RevPop") # override above
+ set(CPACK_PACKAGE_NAME "R-Squared") # override above
  set(CPACK_NSIS_EXECUTABLES_DIRECTORY .)
- set(CPACK_NSIS_PACKAGE_NAME "RevPop v${CPACK_PACKAGE_VERSION}")
+ set(CPACK_NSIS_PACKAGE_NAME "R-Squared v${CPACK_PACKAGE_VERSION}")
  set(CPACK_NSIS_DISPLAY_NAME "${CPACK_NSIS_PACKAGE_NAME}")
- set(CPACK_NSIS_DEFINES "  !define MUI_STARTMENUPAGE_DEFAULTFOLDER \\\"RevPop\\\"")
+ set(CPACK_NSIS_DEFINES "  !define MUI_STARTMENUPAGE_DEFAULTFOLDER \\\"R-Squared\\\"")
  # it seems like windows zip files usually don't have a single directory inside them, unix tgz frequently do
  SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 

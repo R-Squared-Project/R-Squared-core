@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2018-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC <rsquaredlabscontact@gmail.com>, and contributors.
  *
  * The MIT License
  *
@@ -196,7 +197,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
                                           htlc_id_type start, uint32_t limit) const;
       vector<htlc_object> list_htlcs(const htlc_id_type lower_bound_id, uint32_t limit) const;
 
-      // RevPop personal data
+      // R-Squared personal data
       vector<personal_data_object> get_personal_data( const account_id_type subject_account,
                                                       const account_id_type operator_account ) const;
       fc::optional<personal_data_object> get_last_personal_data( const account_id_type subject_account,

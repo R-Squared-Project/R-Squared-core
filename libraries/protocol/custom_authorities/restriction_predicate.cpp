@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2019 Contributors.
  * Copyright (c) 2019-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC <rsquaredlabscontact@gmail.com>, and contributors.Revolution
  *
  * The MIT License
  *

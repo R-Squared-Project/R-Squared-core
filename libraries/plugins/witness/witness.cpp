@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2018-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC <rsquaredlabscontact@gmail.com>, and contributors.
  *
  * The MIT License
  *
@@ -50,13 +51,13 @@ namespace bpo = boost::program_options;
 void new_chain_banner( const graphene::chain::database& db )
 {
    ilog("\n"
-      "********************************\n"
-      "*                              *\n"
-      "*   ------- NEW CHAIN ------   *\n"
-      "*   -  Welcome to RevPop!  -   *\n"
-      "*   ------------------------   *\n"
-      "*                              *\n"
-      "********************************\n"
+      "*******************************\n"
+      "*                             *\n"
+      "*  ------- NEW CHAIN -------  *\n"
+      "*  - Welcome to R-Squared! -  *\n"
+      "*  -------------------------  *\n"
+      "*                             *\n"
+      "*******************************\n"
       "\n");
    if( db.get_slot_at_time( fc::time_point::now() ) > 200 )
    {
@@ -214,7 +215,7 @@ void witness_plugin::plugin_startup()
       ilog("No witness configured.");
    }
 
-   // RevPop
+   // R-Squared
    check_resources();
 
    _network_broadcast_api = std::make_shared< app::network_broadcast_api >( std::ref( app() ) );

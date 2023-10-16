@@ -1229,7 +1229,7 @@ BOOST_AUTO_TEST_CASE(verify_account_authority)
 
          // bad keys
          flat_set<public_key_type> bad_public_keys;
-         bad_public_keys.emplace(public_key_type("RVP6MkMxwBjFWmcDjXRoJ4mW9Hd4LCSPwtv9tKG1qYW5Kgu4AhoZy"));
+         bad_public_keys.emplace(public_key_type("RQRX6MkMxwBjFWmcDjXRoJ4mW9Hd4LCSPwtv9tKG1qYW5Kgu4AhoZy"));
          BOOST_CHECK(!db_api.verify_account_authority( "nathan", bad_public_keys));
 
       } FC_LOG_AND_RETHROW()

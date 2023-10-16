@@ -1,15 +1,15 @@
-RevPop Core
+R-Squared Core
 ==============
 
 * [Getting Started](#getting-started)
 * [Using the API](#using-the-api)
 
-RevPop Core is the RevPop blockchain implementation and command-line interface.
+R-Squared Core is the R-Squared blockchain implementation and command-line interface.
 
 |Branch|Build Status|
 |---|---|
-|`master`|[![](https://github.com/Revolution-Populi/revpop-core/workflows/Ubuntu%20Release/badge.svg?branch=master)](https://github.com/Revolution-Populi/revpop-core/actions?query=workflow%3A"Ubuntu+Release"+branch%3Amaster) [![](https://github.com/Revolution-Populi/revpop-core/workflows/Ubuntu%20Debug/badge.svg?branch=master)](https://github.com/Revolution-Populi/revpop-core/actions?query=workflow%3A"Ubuntu+Debug"+branch%3Amaster)|
-|`development`|[![](https://github.com/Revolution-Populi/revpop-core/workflows/Ubuntu%20Release/badge.svg?branch=development)](https://github.com/Revolution-Populi/revpop-core/actions?query=workflow%3A"Ubuntu+Release"+branch%3Adevelopment) [![](https://github.com/Revolution-Populi/revpop-core/workflows/Ubuntu%20Debug/badge.svg?branch=development)](https://github.com/Revolution-Populi/revpop-core/actions?query=workflow%3A"Ubuntu+Debug"+branch%3Adevelopment)|
+|`master`|[![](https://github.com/R-Squared-Project/R-Squared-core/workflows/Ubuntu%20Release/badge.svg?branch=master)](https://github.com/R-Squared-Project/R-Squared-core/actions?query=workflow%3A"Ubuntu+Release"+branch%3Amaster) [![](https://github.com/R-Squared-Project/R-Squared-core/workflows/Ubuntu%20Debug/badge.svg?branch=master)](https://github.com/R-Squared-Project/R-Squared-core/actions?query=workflow%3A"Ubuntu+Debug"+branch%3Amaster)|
+|`development`|[![](https://github.com/R-Squared-Project/R-Squared-core/workflows/Ubuntu%20Release/badge.svg?branch=development)](https://github.com/R-Squared-Project/R-Squared-core/actions?query=workflow%3A"Ubuntu+Release"+branch%3Adevelopment) [![](https://github.com/R-Squared-Project/R-Squared-core/workflows/Ubuntu%20Debug/badge.svg?branch=development)](https://github.com/R-Squared-Project/R-Squared-core/actions?query=workflow%3A"Ubuntu+Debug"+branch%3Adevelopment)|
 
 Quick start using Docker
 -----------------------
@@ -19,7 +19,7 @@ A Dockerfile can be used to build and run a fully functional blockchain node. [R
 Getting Started
 ---------------
 Build instructions and additional documentation are available in the
-[Wiki](https://github.com/Revolution-Populi/revpop-core/wiki).
+[Wiki](https://github.com/R-Squared-Project/R-Squared-core/wiki).
 
 We recommend building on Ubuntu 18.04 LTS (64-bit)
 
@@ -30,8 +30,8 @@ We recommend building on Ubuntu 18.04 LTS (64-bit)
 
 **Build Script:**
 
-    git clone https://github.com/Revolution-Populi/revpop-core.git
-    cd revpop-core
+    git clone https://github.com/R-Squared-Project/R-Squared-core.git
+    cd r-squared-core
     git checkout master # may substitute "master" with current release tag
     git submodule update --init --recursive
     mkdir build
@@ -41,7 +41,7 @@ We recommend building on Ubuntu 18.04 LTS (64-bit)
 
 **Upgrade Script:** (prepend to the Build Script above if you built a prior release):
 
-    git remote set-url origin https://github.com/Revolution-Populi/revpop-core.git
+    git remote set-url origin https://github.com/R-Squared-Project/R-Squared-core.git
     git checkout master
     git remote set-head origin --auto
     git pull
@@ -51,11 +51,11 @@ We recommend building on Ubuntu 18.04 LTS (64-bit)
 
 **NOTE:** Versions of [Boost](http://www.boost.org/) since 1.58 are supported. Newer versions may work, but
 have not been tested well. If your system came pre-installed with a version of Boost that you do not wish to use, you may
-manually build your preferred version and use it with RevPop by specifying it on the CMake command line.
+manually build your preferred version and use it with R-Squared by specifying it on the CMake command line.
 
   Example: `cmake -DBOOST_ROOT=/path/to/boost ..`
 
-**NOTE:** RevPop requires a 64-bit operating system to build, and will not build on a 32-bit OS.
+**NOTE:** R-Squared requires a 64-bit operating system to build, and will not build on a 32-bit OS.
 
 **After Building**, the `witness_node` can be launched with:
 
@@ -89,7 +89,7 @@ To import your initial balance:
 If you send private keys over this connection, `rpc-endpoint` should be bound to localhost for security.
 
 Use `help` to see all available wallet commands. Source definition and listing of all commands is available
-[here](https://github.com/Revolution-Populi/revpop-core/blob/master/libraries/wallet/include/graphene/wallet/wallet.hpp).
+[here](https://github.com/R-Squared-Project/R-Squared-core/blob/master/libraries/wallet/include/graphene/wallet/wallet.hpp).
 
 Using the API
 -------------

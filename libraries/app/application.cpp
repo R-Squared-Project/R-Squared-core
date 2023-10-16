@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC <rsquaredlabscontact@gmail.com>, and contributors.
  * 
  * The MIT License
  *
@@ -122,7 +123,7 @@ application_impl::~application_impl()
 
 void application_impl::reset_p2p_node(const fc::path& data_dir)
 { try {
-   _p2p_network = std::make_shared<net::node>("RevPop Reference Implementation");
+   _p2p_network = std::make_shared<net::node>("R-Squared Reference Implementation");
 
    _p2p_network->load_configuration(data_dir / "p2p");
    _p2p_network->set_node_delegate(shared_from_this());
