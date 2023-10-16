@@ -31,7 +31,7 @@ namespace graphene { namespace protocol {
     * @defgroup workers The Blockchain Worker System
     * @ingroup operations
     *
-    * RevPop blockchains allow the creation of special "workers" which are elected positions paid by the blockchain
+    * R-Squared blockchains allow the creation of special "workers" which are elected positions paid by the blockchain
     * for services they provide. There may be several types of workers, and the semantics of how and when they are paid
     * are defined by the @ref graphene::chain::worker_type enumeration.
     * All workers are elected by core stakeholder approval, by

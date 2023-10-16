@@ -30,8 +30,8 @@ RUN \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD . /revpop-core
-WORKDIR /revpop-core
+ADD . /rsquared-core
+WORKDIR /rsquared-core
 
 # Compile
 RUN \
@@ -51,24 +51,24 @@ RUN \
     install -s programs/witness_node/witness_node programs/genesis_util/get_dev_key programs/cli_wallet/cli_wallet /usr/local/bin && \
     #
     # Obtain version
-    mkdir /etc/revpop && \
-    git rev-parse --short HEAD > /etc/revpop/version && \
+    mkdir /etc/rsquared && \
+    git rev-parse --short HEAD > /etc/rsquared/version && \
     cd / && \
-    rm -rf /revpop-core
+    rm -rf /rsquared-core
 
 FROM phusion/baseimage:18.04-1.0.0 AS run
 
 COPY --from=build /usr/local/bin /usr/local/bin
-COPY --from=build /etc/revpop/version /etc/revpop/version
+COPY --from=build /etc/rsquared/version /etc/rsquared/version
 
 # Home directory $HOME
 WORKDIR /
-RUN useradd -s /bin/bash -m -d /var/lib/revpop revpop
-ENV HOME /var/lib/revpop
-RUN chown revpop:revpop -R /var/lib/revpop
+RUN useradd -s /bin/bash -m -d /var/lib/rsquared rsquared
+ENV HOME /var/lib/rsquared
+RUN chown rsquared:rsquared -R /var/lib/rsquared
 
 # Volume
-VOLUME ["/var/lib/revpop", "/etc/revpop"]
+VOLUME ["/var/lib/rsquared", "/etc/rsquared"]
 
 # rpc service:
 EXPOSE 8090
@@ -76,8 +76,8 @@ EXPOSE 8090
 EXPOSE 2771
 
 # default exec/config files
-ADD docker/default_config.ini /etc/revpop/config.ini
-ADD docker/default_logging.ini /etc/revpop/logging.ini
+ADD docker/default_config.ini /etc/rsquared/config.ini
+ADD docker/default_logging.ini /etc/rsquared/logging.ini
 ADD docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod a+x /usr/local/bin/entrypoint.sh
 

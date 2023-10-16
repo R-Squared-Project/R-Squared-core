@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2018-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC <rsquaredlabscontact@gmail.com>, and contributors.
  *
  * The MIT License
  *
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
     {
         ACTORS((nathan)(bob));
         // Nathan and Bob create some user issued assets
-        // Nathan deposits RVP to the fee pool
+        // Nathan deposits RQRX to the fee pool
         // Nathan claimes fee pool of her asset and can't claim pool of Bob's asset
 
         const share_type core_prec = asset::scaled_precision( asset_id_type()(db).precision );
@@ -152,7 +153,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
 
         };
 
-        // deposit 100 RVP to the fee pool of NATHANUSD asset
+        // deposit 100 RQRX to the fee pool of NATHANUSD asset
         fund_fee_pool( nathan_id(db), nathanusd_id(db), _core(100).amount );
 
         // New reference for core_asset after having produced blocks
@@ -161,7 +162,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
         // can't claim pool because it is empty
         GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, nathancoin_id, _core(1), core_asset_hf), fc::exception );
 
-        // deposit 300 RVP to the fee pool of NATHANCOIN asset
+        // deposit 300 RQRX to the fee pool of NATHANCOIN asset
         fund_fee_pool( nathan_id(db), nathancoin_id(db), _core(300).amount );
 
         // Test amount of CORE in fee pools
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
         // can't pay fee in the same asset whose pool is being drained
         GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, nathancoin_id, _core(200), nathancoin_id(db) ), fc::exception );
 
-        // can claim RVP back from the fee pool
+        // can claim RQRX back from the fee pool
         claim_pool( nathan_id, nathancoin_id, _core(200), core_asset_hf );
         BOOST_CHECK( nathancoin_id(db).dynamic_asset_data_id(db).fee_pool == _core(100).amount );
 

@@ -42,7 +42,7 @@ using namespace graphene::chain::test;
 using namespace graphene::app;
 
 extern std::string GRAPHENE_TESTING_ES_URL;
-const std::string es_index_prefix = "revpop-";
+const std::string es_index_prefix = "rsquared-";
 const std::string es_obj_index_prefix = "objects-";
 
 BOOST_FIXTURE_TEST_SUITE( elasticsearch_tests, database_fixture )

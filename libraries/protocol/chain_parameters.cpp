@@ -55,8 +55,8 @@ namespace graphene { namespace protocol {
       to.accounts_per_fee_scale = from.accounts_per_fee_scale;
       to.account_fee_scale_bitshifts = from.account_fee_scale_bitshifts;
       to.max_authority_depth = from.max_authority_depth;
-      to.revpop_witnesses_top_max = from.revpop_witnesses_top_max;
-      to.revpop_witnesses_active_max = from.revpop_witnesses_active_max;
+      to.rsquared_witnesses_top_max = from.rsquared_witnesses_top_max;
+      to.rsquared_witnesses_active_max = from.rsquared_witnesses_active_max;
       to.extensions = from.extensions;
    }
 
@@ -112,8 +112,8 @@ namespace graphene { namespace protocol {
       }
       if( extensions.value.electoral_threshold.valid() )
       {
-         FC_ASSERT( *extensions.value.electoral_threshold <= revpop_witnesses_active_max,
-                    "The electoral_threshold parameter can not be more than " + revpop_witnesses_active_max );
+         FC_ASSERT( *extensions.value.electoral_threshold <= rsquared_witnesses_active_max,
+                    "The electoral_threshold parameter can not be more than " + rsquared_witnesses_active_max );
       }
    }
 

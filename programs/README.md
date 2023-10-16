@@ -1,10 +1,10 @@
-# RevPop Programs
+# R-Squared Programs
 
-The RevPop programs are a collection of binaries to run the blockchain, interact with it or utilities.
+The R-Squared programs are a collection of binaries to run the blockchain, interact with it or utilities.
 
-The main program is the `witness_node`, used to run a RevPop block producer, API or plugin node. The second in importance is the `cli_wallet`, used to interact with the blockchain. This 2 programs are the most used by the community and updated by the developers, rest of the programs are utilities.
+The main program is the `witness_node`, used to run a R-Squared block producer, API or plugin node. The second in importance is the `cli_wallet`, used to interact with the blockchain. This 2 programs are the most used by the community and updated by the developers, rest of the programs are utilities.
 
-Programs in here are part of the **RevPop-core** project and are maintained by the RevPop core team and contributors.
+Programs in here are part of the **R-Squared-core** project and are maintained by the R-Squared core team and contributors.
 
 
 # Available Programs

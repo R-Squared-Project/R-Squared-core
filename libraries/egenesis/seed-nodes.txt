@@ -1,3 +1,3 @@
-"testnet1.revolutionpopuli.com:2771",   // RevolutionPopuli    (Oregon, USA)
-"testnet2.revolutionpopuli.com:2771",   // RevolutionPopuli    (N.Virginia, USA)
-"testnet3.revolutionpopuli.com:2771",   // RevolutionPopuli    (Frankfurt, Germany)
+"node01.rsquared.digital:2771",   // R-Squared Labs LLC    (USA)
+"node02.rsquared.digital:2771",   // R-Squared Labs LLC    (USA)
+"node03.rsquared.digital:2771",   // R-Squared Labs LLC    (Germany)
