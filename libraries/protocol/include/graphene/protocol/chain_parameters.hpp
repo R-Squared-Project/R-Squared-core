@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -77,8 +78,8 @@ namespace graphene { namespace protocol {
       uint16_t                accounts_per_fee_scale              = GRAPHENE_DEFAULT_ACCOUNTS_PER_FEE_SCALE; ///< number of accounts between fee scalings
       uint8_t                 account_fee_scale_bitshifts         = GRAPHENE_DEFAULT_ACCOUNT_FEE_SCALE_BITSHIFTS; ///< number of times to left bitshift account registration fee at each scaling
       uint8_t                 max_authority_depth                 = GRAPHENE_MAX_SIG_CHECK_DEPTH;
-      uint8_t                 revpop_witnesses_top_max            = REVPOP_WITNESSES_TOP_MAX; ///< limit witnesses top list to max 63 (consensus algorithm)
-      uint8_t                 revpop_witnesses_active_max         = REVPOP_WITNESSES_ACTIVE_MAX; ///< randomly choose max 21 active witnesses (consensus algorithm)
+      uint8_t                 rsquared_witnesses_top_max            = RSQUARED_WITNESSES_TOP_MAX; ///< limit witnesses top list to max 63 (consensus algorithm)
+      uint8_t                 rsquared_witnesses_active_max         = RSQUARED_WITNESSES_ACTIVE_MAX; ///< randomly choose max 21 active witnesses (consensus algorithm)
 
       struct ext
       {
@@ -161,8 +162,8 @@ FC_REFLECT( graphene::protocol::chain_parameters,
             (accounts_per_fee_scale)
             (account_fee_scale_bitshifts)
             (max_authority_depth)
-            (revpop_witnesses_top_max)
-            (revpop_witnesses_active_max)
+            (rsquared_witnesses_top_max)
+            (rsquared_witnesses_active_max)
             (extensions)
           )
 

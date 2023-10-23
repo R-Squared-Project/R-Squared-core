@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -333,7 +334,7 @@ std::shared_ptr<boost::program_options::variables_map> database_fixture_base::in
       fc::set_option( options, "elasticsearch-operation-string", true );
       fc::set_option( options, "elasticsearch-mode", uint16_t(2) );
 
-      fixture.es_index_prefix = string("revpop-") + fc::to_string(uint64_t(rand())) + "-";
+      fixture.es_index_prefix = string("rsquared-") + fc::to_string(uint64_t(rand())) + "-";
       BOOST_TEST_MESSAGE( string("ES index prefix is ") + fixture.es_index_prefix );
       fc::set_option( options, "elasticsearch-index-prefix", fixture.es_index_prefix );
    }

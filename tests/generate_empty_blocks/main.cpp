@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -58,7 +59,7 @@ int main( int argc, char** argv )
 {
    try
    {
-      bpo::options_description cli_options("RevPop empty blocks");
+      bpo::options_description cli_options("R-Squared empty blocks");
       cli_options.add_options()
             ("help,h", "Print this help message and exit.")
             ("data-dir", bpo::value<boost::filesystem::path>()->default_value("empty_blocks_data_dir"), "Directory containing generator database")

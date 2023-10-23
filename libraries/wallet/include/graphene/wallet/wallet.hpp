@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -500,7 +501,7 @@ class wallet_api
        */
       string  gethelp(const string& method)const;
 
-      /** Loads a specified RevPop wallet.
+      /** Loads a specified R-Squared wallet.
        *
        * The current wallet is closed before the new wallet is loaded.
        *
@@ -689,7 +690,7 @@ class wallet_api
       /** Transfer an amount from one account to another.
        * @param from the name or id of the account sending the funds
        * @param to the name or id of the account receiving the funds
-       * @param amount the amount to send (in nominal units -- to send half of a RVP, specify 0.5)
+       * @param amount the amount to send (in nominal units -- to send half of a RQRX, specify 0.5)
        * @param asset_symbol_or_id the symbol or id of the asset to send
        * @param memo a memo to attach to the transaction.  The memo will be encrypted in the
        *             transaction and readable for the receiver.  There is no length limit
@@ -773,8 +774,8 @@ class wallet_api
 
       /** Place a limit order attempting to sell one asset for another.
        *
-       * Buying and selling are the same operation on RevPop; if you want to buy RVP
-       * with USD, you should sell USD for RVP.
+       * Buying and selling are the same operation on R-Squared; if you want to buy RQRX
+       * with USD, you should sell USD for RQRX.
        *
        * The blockchain will attempt to sell the \c symbol_or_id_to_sell for as
        * much \c symbol_or_id_to_receive as possible, as long as the price is at

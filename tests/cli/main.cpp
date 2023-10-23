@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 John Jones, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -411,8 +412,8 @@ BOOST_FIXTURE_TEST_CASE( create_new_account, cli_fixture )
       BOOST_CHECK(con.wallet_api_ptr->import_key("jmjatlanta", bki.wif_priv_key));
       con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
 
-      // attempt to give jmjatlanta some revpop
-      BOOST_TEST_MESSAGE("Transferring revpop from Nathan to jmjatlanta");
+      // attempt to give jmjatlanta some rsquared
+      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to jmjatlanta");
       signed_transaction transfer_tx = con.wallet_api_ptr->transfer(
          "nathan", "jmjatlanta", "10000", "1.3.0", "Here are some CORE token for your new account", true
       );
@@ -926,8 +927,8 @@ BOOST_FIXTURE_TEST_CASE( account_history_pagination, cli_fixture )
    {
       INVOKE(create_new_account);
 
-      // attempt to give jmjatlanta some revpop
-      BOOST_TEST_MESSAGE("Transferring revpop from Nathan to jmjatlanta");
+      // attempt to give jmjatlanta some rsquared
+      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to jmjatlanta");
       for(int i = 1; i <= 199; i++)
       {
          signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "jmjatlanta", std::to_string(i),
@@ -1033,12 +1034,12 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
       create_multisig_acct_tx.operations.push_back(account_create_op);
       con.wallet_api_ptr->sign_transaction(create_multisig_acct_tx, true);
 
-      // attempt to give cifer.test some revpop
-      BOOST_TEST_MESSAGE("Transferring revpop from Nathan to cifer.test");
-      signed_transaction transfer_tx1 = con.wallet_api_ptr->transfer("nathan", "cifer.test", "10000", "1.3.0", "Here are some RVP for your new account", true);
+      // attempt to give cifer.test some rsquared
+      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to cifer.test");
+      signed_transaction transfer_tx1 = con.wallet_api_ptr->transfer("nathan", "cifer.test", "10000", "1.3.0", "Here are some RQRX for your new account", true);
 
       // transfer bts from cifer.test to nathan
-      BOOST_TEST_MESSAGE("Transferring revpop from cifer.test to nathan");
+      BOOST_TEST_MESSAGE("Transferring rsquared from cifer.test to nathan");
       auto dyn_props = app1->chain_database()->get_dynamic_global_properties();
       account_object cifer_test = con.wallet_api_ptr->get_account("cifer.test");
 
@@ -1209,8 +1210,8 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
                "alice", "nathan", "nathan", true);
          con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
-         // attempt to give alice some revpop
-         BOOST_TEST_MESSAGE("Transferring revpop from Nathan to alice");
+         // attempt to give alice some rsquared
+         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to alice");
          signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "alice", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
       }
@@ -1223,14 +1224,14 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
                "bob", "nathan", "nathan", true);
          // this should cause resync which will import the keys of alice and bob
          generate_block(app1);
-         // attempt to give bob some revpop
-         BOOST_TEST_MESSAGE("Transferring revpop from Nathan to Bob");
+         // attempt to give bob some rsquared
+         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to Bob");
          signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "bob", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
          con.wallet_api_ptr->issue_asset("bob", "5", "BOBCOIN", "Here are your BOBCOINs", true);
       }
 
-      BOOST_TEST_MESSAGE("Alice has agreed to buy 3 BOBCOIN from Bob for 3 RVP. Alice creates an HTLC");
+      BOOST_TEST_MESSAGE("Alice has agreed to buy 3 BOBCOIN from Bob for 3 RQRX. Alice creates an HTLC");
       // create an HTLC
       std::string preimage_string = "My Secret";
       fc::sha256 preimage_md = fc::sha256::hash(preimage_string);
@@ -1300,7 +1301,7 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
       }
 
       // TODO: Bob can look at Alice's history to see her preimage
-      // Bob can use the preimage to retrieve his RVP
+      // Bob can use the preimage to retrieve his RQRX
       {
          BOOST_TEST_MESSAGE("Bob uses Alice's preimage to retrieve the BOBCOIN");
          std::string secret = "My Secret";
@@ -1332,7 +1333,7 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
 static string encapsulate( const graphene::wallet::signed_message& msg )
 {
    fc::stringstream encapsulated;
-   encapsulated << "-----BEGIN REVPOP SIGNED MESSAGE-----\n"
+   encapsulated << "-----BEGIN RSQUARED SIGNED MESSAGE-----\n"
                 << msg.message << '\n'
                 << "-----BEGIN META-----\n"
                 << "account=" << msg.meta.account << '\n'
@@ -1341,7 +1342,7 @@ static string encapsulate( const graphene::wallet::signed_message& msg )
                 << "timestamp=" << msg.meta.time << '\n'
                 << "-----BEGIN SIGNATURE-----\n"
                 << fc::to_hex( (const char*)msg.signature->data(), msg.signature->size() ) << '\n'
-                << "-----END REVPOP SIGNED MESSAGE-----";
+                << "-----END RSQUARED SIGNED MESSAGE-----";
    return encapsulated.str();
 }
 
@@ -1753,8 +1754,8 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
                "alice", "nathan", "nathan", true);
          con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
-         // attempt to give alice some revpop
-         BOOST_TEST_MESSAGE("Transferring revpop from Nathan to alice");
+         // attempt to give alice some rsquared
+         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to alice");
          signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "alice", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
       }
@@ -1767,14 +1768,14 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
                "bob", "nathan", "nathan", true);
          // this should cause resync which will import the keys of alice and bob
          generate_block(app1);
-         // attempt to give bob some revpop
-         BOOST_TEST_MESSAGE("Transferring revpop from Nathan to Bob");
+         // attempt to give bob some rsquared
+         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to Bob");
          signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "bob", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
          con.wallet_api_ptr->issue_asset("bob", "5", "BOBCOIN", "Here are your BOBCOINs", true);
       }
 
-      BOOST_TEST_MESSAGE("Alice has agreed to buy 3 BOBCOIN from Bob for 3 RVP. Alice creates an HTLC");
+      BOOST_TEST_MESSAGE("Alice has agreed to buy 3 BOBCOIN from Bob for 3 RQRX. Alice creates an HTLC");
       // create an HTLC
       std::string preimage_string = "My Super Long Secret that is larger than 50 charaters. How do I look?\n";
       fc::hash160 preimage_md = fc::hash160::hash(preimage_string);
@@ -1857,7 +1858,7 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
          BOOST_CHECK( hist[0].description.find("with preimage \"4d792") != hist[0].description.npos);
       }
 
-      // Bob can use the preimage to retrieve his RVP
+      // Bob can use the preimage to retrieve his RQRX
       {
          BOOST_TEST_MESSAGE("Bob uses Alice's preimage to retrieve the BOBCOIN");
          con.wallet_api_ptr->htlc_redeem(alice_htlc_id_as_string, "bob", preimage_string, true);

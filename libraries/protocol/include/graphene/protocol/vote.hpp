@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -45,7 +46,7 @@ namespace graphene { namespace protocol {
  *
  * In JSON, a vote_id_type is represented as a string "type:instance", i.e. "1:5" would be type 1 and instance 5.
  *
- * @note In the RevPop protocol, vote_id_type instances are unique across types; that is to say, if an object of
+ * @note In the R-Squared protocol, vote_id_type instances are unique across types; that is to say, if an object of
  * type 1 has instance 4, an object of type 0 may not also have instance 4. In other words, the type is not a
  * namespace for instances; it is only an informational field.
  */
