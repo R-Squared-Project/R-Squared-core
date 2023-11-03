@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015-2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  * 
  * The MIT License
  *
@@ -85,8 +86,8 @@ int main(int argc, char** argv) {
    auto node = std::make_unique<graphene::app::application>();
    fc::oexception unhandled_exception;
    try {
-      bpo::options_description app_options("RevPop Witness Node");
-      bpo::options_description cfg_options("RevPop Witness Node");
+      bpo::options_description app_options("R-Squared Witness Node");
+      bpo::options_description cfg_options("R-Squared Witness Node");
       std::string default_plugins = "witness account_history market_history grouped_orders "
                                     "api_helper_indexes custom_operations";
       app_options.add_options()
@@ -230,7 +231,7 @@ int main(int argc, char** argv) {
       }, SIGQUIT );
 #endif
 
-      ilog("Started RevPop node on a chain with ${h} blocks.", ("h", node->chain_database()->head_block_num()));
+      ilog("Started R-Squared node on a chain with ${h} blocks.", ("h", node->chain_database()->head_block_num()));
       ilog("Chain ID is ${id}", ("id", node->chain_database()->get_chain_id()) );
 
       auto caught_signal = exit_promise->wait();

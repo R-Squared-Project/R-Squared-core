@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -24,8 +25,8 @@
  */
 #pragma once
 
-#define GRAPHENE_SYMBOL "RVP"
-#define GRAPHENE_ADDRESS_PREFIX "RVP"
+#define GRAPHENE_SYMBOL "RQRX"
+#define GRAPHENE_ADDRESS_PREFIX "RQRX"
 
 #define GRAPHENE_BLOCKCHAIN_PRECISION        uint64_t( 100000 )
 #define GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS 5
@@ -151,6 +152,6 @@ constexpr size_t MAX_FEE_STABILIZATION_ITERATION  = 4;
 #define GRAPHENE_DEFAULT_MAX_CUSTOM_AUTHORITY_RESTRICTIONS 10
 
 /// Maximum number of witnesses in a top list to max 63 (consensus algorithm)
-#define REVPOP_WITNESSES_TOP_MAX 63
+#define RSQUARED_WITNESSES_TOP_MAX 63
 // Randomly choose max 21 active witnesses (consensus algorithm)
-#define REVPOP_WITNESSES_ACTIVE_MAX 21
+#define RSQUARED_WITNESSES_ACTIVE_MAX 21

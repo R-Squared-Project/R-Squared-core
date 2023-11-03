@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -865,9 +866,9 @@ class database_api
                                                                                 withdraw_permission_id_type start,
                                                                                 uint32_t limit )const;
 
-      ////////////
-      // RevPop //
-      ////////////
+      ///////////////
+      // R-Squared //
+      ///////////////
 
       /**
        * @brief Get personal data

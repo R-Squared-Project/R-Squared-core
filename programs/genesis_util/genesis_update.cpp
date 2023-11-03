@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -58,7 +59,7 @@ int main( int argc, char** argv )
 {
    try
    {
-      bpo::options_description cli_options("RevPop empty blocks");
+      bpo::options_description cli_options("R-Squared empty blocks");
       cli_options.add_options()
             ("help,h", "Print this help message and exit.")
             ("genesis-json,g", bpo::value<boost::filesystem::path>(), "File to read genesis state from")

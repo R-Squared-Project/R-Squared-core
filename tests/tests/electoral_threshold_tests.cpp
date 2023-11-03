@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -84,7 +85,7 @@ BOOST_AUTO_TEST_CASE( hardfork_time_test )
    trx.operations.push_back(cop);
 
    // Check the fee
-   vector< fc::variant > fees = db_api.get_required_fees(trx.operations, "RVP");
+   vector< fc::variant > fees = db_api.get_required_fees(trx.operations, "RQRX");
    BOOST_CHECK_EQUAL( fees.size(), 1 );
    std::pair< asset, fc::variants > result;
    from_variant( fees[0], result, GRAPHENE_NET_MAX_NESTED_OBJECTS );

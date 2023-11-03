@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -2219,11 +2220,11 @@ BOOST_AUTO_TEST_CASE( irrelevant_signatures )
    ACTORS( (alice)(bob) );
    fund( alice );
 
-   // PK: RVP4vsFgTXJcGQMKCFayF2hrNRfYcKjNZ6Mzk8aw9M4zuWfscPhzE, A: RVPGfxPKKLj6tdTUB7i3mHsd2m7QvPLPy2YA
+   // PK: RQRX4vsFgTXJcGQMKCFayF2hrNRfYcKjNZ6Mzk8aw9M4zuWfscPhzE, A: RQRXGfxPKKLj6tdTUB7i3mHsd2m7QvPLPy2YA
    const fc::ecc::private_key test2 = fc::ecc::private_key::regenerate( fc::sha256::hash( std::string( "test-2" ) ) );
    const public_key_type test2_pub( test2.get_public_key() );
 
-   // PK: RVP7FXC7S9UH7HEH8QiuJ8Xv1NRJJZd1GomALLm9ffjtH95Tb2ZQB, A: RVPBajRqmdrXqmDpZhJ8sgkGagdeXneHFVeM
+   // PK: RQRX7FXC7S9UH7HEH8QiuJ8Xv1NRJJZd1GomALLm9ffjtH95Tb2ZQB, A: RQRXBajRqmdrXqmDpZhJ8sgkGagdeXneHFVeM
    const fc::ecc::private_key test3 = fc::ecc::private_key::regenerate( fc::sha256::hash( std::string( "test-3" ) ) );
    const public_key_type test3_pub( test3.get_public_key() );
 

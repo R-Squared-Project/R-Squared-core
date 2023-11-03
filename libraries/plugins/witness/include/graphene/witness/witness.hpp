@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -111,7 +112,7 @@ private:
    /// For tracking signing keys of specified witnesses, only update when applied a block
    fc::flat_map< chain::witness_id_type, fc::optional<chain::public_key_type> > _witness_key_cache;
 
-   /// RevPop
+   /// R-Squared
    std::mt19937 gen;
    void check_resources();
    void commit_reveal_operations();

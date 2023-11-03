@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  * 
  * The MIT License
  *
@@ -2518,7 +2519,7 @@ vector<htlc_object> database_api_impl::list_htlcs(const htlc_id_type start, uint
 
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
-//  RevPop                                                          //
+//  R-Squared                                                       //
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 

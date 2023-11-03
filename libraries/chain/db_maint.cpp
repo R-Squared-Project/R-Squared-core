@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -185,7 +186,7 @@ void database::pay_workers( share_type& budget )
 
       // Note: if there is a good chance that passed_time_count == day_count,
       //       for better performance, can avoid the 128 bit calculation by adding a check.
-      //       Since it's not the case on RevPop mainnet, we're not using a check here.
+      //       Since it's not the case on R-Squared mainnet, we're not using a check here.
       fc::uint128_t pay = requested_pay.value;
       pay *= passed_time_count;
       pay /= day_count;
@@ -249,11 +250,11 @@ void database::update_active_witnesses()
    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
 
    witness_count = std::max( witness_count*2+1, (size_t)cpo.immutable_parameters.min_witness_count );
-   // RevPop: limit witnesses top list to max 63
-   witness_count = std::min( witness_count, static_cast<size_t>(gpo.parameters.revpop_witnesses_top_max));
+   // R-Squared: limit witnesses top list to max 63
+   witness_count = std::min( witness_count, static_cast<size_t>(gpo.parameters.rsquared_witnesses_top_max));
    auto wits = sort_votable_objects<witness_index>( witness_count );
 
-   // RevPop: Get accounts of top witnesses
+   // R-Squared: Get accounts of top witnesses
    vector<account_id_type> wits_acc;
    wits_acc.reserve( wits.size() );
    for( const witness_object& wit : wits )
@@ -261,7 +262,7 @@ void database::update_active_witnesses()
       wits_acc.push_back( wit.witness_account );
    }
 
-   // RevPop: seed maintenance PRNG from commit-reveal scheme or chain_id + head block number
+   // R-Squared: seed maintenance PRNG from commit-reveal scheme or chain_id + head block number
    uint64_t prng_seed = get_commit_reveal_seed(wits_acc);
    if (prng_seed == 0)
    {
@@ -270,7 +271,7 @@ void database::update_active_witnesses()
    }
    _maintenance_prng.seed(prng_seed);
 
-   // RevPop: remove from top list witnesses without reveals
+   // R-Squared: remove from top list witnesses without reveals
    {
       auto wits_acc_w_reveals = filter_commit_reveal_participant(wits_acc);
       decltype(wits) enabled_wits;
@@ -295,7 +296,7 @@ void database::update_active_witnesses()
    const uint16_t electoral_threshold = gpo.parameters.get_electoral_threshold();
    uint32_t wits_size = std::min(                                   //21 or less
                         // as much as we want
-                        (uint32_t)gpo.parameters.revpop_witnesses_active_max,
+                        (uint32_t)gpo.parameters.rsquared_witnesses_active_max,
                         // as much as we can
                         (uint32_t)wits.size());
 
@@ -317,7 +318,7 @@ void database::update_active_witnesses()
    }
    uint32_t from_r1 = std::min(
                         // as much as we want
-                        (uint32_t)gpo.parameters.revpop_witnesses_active_max - electoral_threshold,
+                        (uint32_t)gpo.parameters.rsquared_witnesses_active_max - electoral_threshold,
                         // as much as we can
                         wits_size);
    std::copy(wits.begin(), wits.begin() + from_r1, back_inserter(enabled_wits));
