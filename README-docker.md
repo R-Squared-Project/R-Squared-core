@@ -30,19 +30,19 @@ $ docker build $RSQUARED_CORE_DIR -t local/rsquared-core:latest
 
 ### Supported Environmental Variables
 
-* `$RSQUAREDD_SEED_NODES`
-* `$RSQUAREDD_RPC_ENDPOINT`
-* `$RSQUAREDD_PLUGINS`
-* `$RSQUAREDD_REPLAY`
-* `$RSQUAREDD_RESYNC`
-* `$RSQUAREDD_P2P_ENDPOINT`
-* `$RSQUAREDD_WITNESS_ID`
-* `$RSQUAREDD_PRIVATE_KEY`
-* `$RSQUAREDD_TRACK_ACCOUNTS`
-* `$RSQUAREDD_PARTIAL_OPERATIONS`
-* `$RSQUAREDD_MAX_OPS_PER_ACCOUNT`
-* `$RSQUAREDD_ES_NODE_URL`
-* `$RSQUAREDD_TRUSTED_NODE`
+* `$RSQUARED_SEED_NODES`
+* `$RSQUARED_RPC_ENDPOINT`
+* `$RSQUARED_PLUGINS`
+* `$RSQUARED_REPLAY`
+* `$RSQUARED_RESYNC`
+* `$RSQUARED_P2P_ENDPOINT`
+* `$RSQUARED_WITNESS_ID`
+* `$RSQUARED_PRIVATE_KEY`
+* `$RSQUARED_TRACK_ACCOUNTS`
+* `$RSQUARED_PARTIAL_OPERATIONS`
+* `$RSQUARED_MAX_OPS_PER_ACCOUNT`
+* `$RSQUARED_ES_NODE_URL`
+* `$RSQUARED_TRUSTED_NODE`
 
 ### Default config
 
@@ -69,7 +69,7 @@ With docker compose, multiple nodes can be managed with a single
        - ./docker/conf/:/etc/rsquared/
       # Optional parameters
       environment:
-       - RSQUAREDD_ARGS=--help
+       - RSQUARED_ARGS=--help
 
 or
 
@@ -80,7 +80,7 @@ or
       image: local/rsquared-core:latest
       environment:
       # Optional parameters
-       - RSQUAREDD_ARGS=--help
+       - RSQUARED_ARGS=--help
       ports:
        - "0.0.0.0:8090:8090"
       volumes:
@@ -114,8 +114,8 @@ services:
  delayed_node:
   image: public.ecr.aws/rsquared/rsquared-core:latest
   environment:
-   - 'RSQUAREDD_PLUGINS=delayed_node witness'
-   - 'RSQUAREDD_TRUSTED_NODE=ws://fullnode:8090'
+   - 'RSQUARED_PLUGINS=delayed_node witness'
+   - 'RSQUARED_TRUSTED_NODE=ws://fullnode:8090'
   ports:
    - "0.0.0.0:8091:8090"
   volumes:
