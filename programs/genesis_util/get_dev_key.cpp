@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -26,6 +27,7 @@
 #include <string>
 
 #include <fc/crypto/elliptic.hpp>
+#include <fc/crypto/base58.hpp>
 #include <fc/io/json.hpp>
 
 #include <graphene/protocol/address.hpp>
@@ -42,6 +44,17 @@ int main( int argc, char** argv )
 {
    try
    {
+      if( argc == 2 ) {
+         fc::limited_mutable_variant_object mvo(5);
+         graphene::protocol::public_key_type pub_key(argv[1]);
+         mvo( "public_key", std::string( pub_key ) )
+            ( "address", graphene::protocol::address( pub_key ) )
+            ;
+         std::cout << fc::json::to_string( fc::mutable_variant_object(mvo) );
+
+         return 0;
+      }
+
       std::string dev_key_prefix;
       bool need_help = false;
       if( argc < 3 ) // requires at least a prefix and a suffix

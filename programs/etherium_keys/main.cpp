@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -47,7 +48,7 @@ int main(int argc, char **argv)
    try
    {
       std::string sig = "0b149134fcb989ae11ceb2dabe86f2cdd16e04088c72bebe378f78011296b2876304d468b200b9d7925823607934cb5a6d99660f1870f802e1d4c97b25b22c7e1c";
-      int result = verifyMessage(pubKey, sig);
+      int result = verifyMessage(pubKey, "init0", sig);
       assert(result != 1);
    }
    catch (const fc::exception &e)

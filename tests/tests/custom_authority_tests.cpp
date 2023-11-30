@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE(container_in_not_in_checks) { try {
 
    /**
     * Test predicates containing logical ORs
-    * Test of authorization and revocation of one account (Nathan) authorizing multiple other accounts (Bob and Charlie)
+    * Test of authorization and revocation of one account (RSquaredCHP1) authorizing multiple other accounts (Bob and Charlie)
     * to transfer out of her account by using a single custom active authority with two logical OR branches.
     *
     * This can alternatively be achieved by using two custom active authority authorizations
@@ -615,17 +615,17 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
       gpo.parameters.extensions.value.custom_authority_options = custom_authority_options_type();
    });
    set_expiration(db, trx);
-   ACTORS((nathan)(bob))
-   fund(nathan, asset(1000*GRAPHENE_BLOCKCHAIN_PRECISION));
+   ACTORS((rsquaredchp1)(bob))
+   fund(rsquaredchp1, asset(1000*GRAPHENE_BLOCKCHAIN_PRECISION));
    fund(bob, asset(1000*GRAPHENE_BLOCKCHAIN_PRECISION));
 
    //////
-   // Create a custom authority where Bob is authorized to transfer from Nathan's account
+   // Create a custom authority where Bob is authorized to transfer from RSquaredCHP1's account
    // if and only if the transfer amount is less than 100 of Asset ID 0.
    // This custom authority is NOT YET published.
    //////
    custom_authority_create_operation op;
-   op.account = nathan.get_id();
+   op.account = rsquaredchp1.get_id();
    op.auth.add_authority(bob.get_id(), 1);
    op.auth.weight_threshold = 1;
    op.enabled = true;
@@ -672,12 +672,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
    //////
-   // Bob attempts to transfer 99 CORE from Nathan's account
+   // Bob attempts to transfer 99 CORE from RSquaredCHP1's account
    // This attempt should fail because it is attempted before the custom authority is published
    //////
    transfer_operation top;
    top.to = bob.get_id();
-   top.from = nathan.get_id();
+   top.from = rsquaredchp1.get_id();
    top.amount.amount = 99 * GRAPHENE_BLOCKCHAIN_PRECISION;
    trx.operations = {top};
    sign(trx, bob_private_key);
@@ -685,18 +685,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
 
    //////
-   // Nathan publishes the custom authority
+   // RSquaredCHP1 publishes the custom authority
    //////
    trx.clear();
    trx.operations = {op};
-   sign(trx, nathan_private_key);
+   sign(trx, rsquaredchp1_private_key);
    PUSH_TX(db, trx);
 
    custom_authority_id_type auth_id =
-           db.get_index_type<custom_authority_index>().indices().get<by_account_custom>().find(nathan_id)->id;
+           db.get_index_type<custom_authority_index>().indices().get<by_account_custom>().find(rsquaredchp1_id)->id;
 
    //////
-   // Bob attempts to transfer 99 CORE from Nathan's account
+   // Bob attempts to transfer 99 CORE from RSquaredCHP1's account
    // This attempt should succeed because it is attempted after the custom authority is published
    //////
    trx.clear();
@@ -705,7 +705,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    PUSH_TX(db, trx);
 
    //////
-   // Bob attempts to transfer 100 CORE from Nathan's account
+   // Bob attempts to transfer 100 CORE from RSquaredCHP1's account
    // This attempt should fail because it exceeds the authorized amount
    //////
    trx.operations.front().get<transfer_operation>().amount.amount = 100*GRAPHENE_BLOCKCHAIN_PRECISION;
@@ -715,25 +715,25 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    EXPECT_EXCEPTION_STRING("\"rejection_path\":[[0,0],[0,0],[2,\"predicate_was_false\"]]", [&] {PUSH_TX(db, trx);});
 
    //////
-   // Update the custom authority so that Bob is authorized to transfer from Nathan's account
+   // Update the custom authority so that Bob is authorized to transfer from RSquaredCHP1's account
    // if and only if the transfer amount EXACTLY EQUALS 100 of Asset ID 0.
    // This custom authority is NOT YET published.
    //////
    op.restrictions.front().argument.get<vector<restriction>>().front().restriction_type = restriction::func_eq;
    custom_authority_update_operation uop;
-   uop.account = nathan.get_id();
+   uop.account = rsquaredchp1.get_id();
    uop.authority_to_update = auth_id;
    uop.restrictions_to_remove = {0};
    uop.restrictions_to_add = {op.restrictions.front()};
    trx.clear();
    trx.operations = {uop};
-   sign(trx, nathan_private_key);
+   sign(trx, rsquaredchp1_private_key);
    PUSH_TX(db, trx);
 
    BOOST_CHECK(auth_id(db).get_restrictions() == uop.restrictions_to_add);
 
    //////
-   // Bob attempts to transfer 99 CORE from Nathan's account
+   // Bob attempts to transfer 99 CORE from RSquaredCHP1's account
    // This attempt should fail because only transfers of 100 CORE are authorized
    //////
    trx.clear();
@@ -744,8 +744,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    EXPECT_EXCEPTION_STRING("\"rejection_path\":[[0,0],[0,0],[2,\"predicate_was_false\"]]", [&] {PUSH_TX(db, trx);});
 
    //////
-   // Bob attempts to transfer 100 CORE from Nathan's account
-   // This attempt should succeed because transfers of exactly 100 CORE are authorized by Nathan
+   // Bob attempts to transfer 100 CORE from RSquaredCHP1's account
+   // This attempt should succeed because transfers of exactly 100 CORE are authorized by RSquaredCHP1
    //////
    trx.operations.front().get<transfer_operation>().amount.amount = 100*GRAPHENE_BLOCKCHAIN_PRECISION;
    trx.clear_signatures();
@@ -756,9 +756,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    generate_block();
 
    //////
-   // Bob attempts to transfer 100 CORE from Nathan's account AGAIN
+   // Bob attempts to transfer 100 CORE from RSquaredCHP1's account AGAIN
    // This attempt should succeed because there are no limits to the quantity of transfers
-   // besides potentially depleting the CORE in Nathan's account
+   // besides potentially depleting the CORE in RSquaredCHP1's account
    //////
    trx.expiration += 5;
    trx.clear_signatures();
@@ -766,18 +766,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    PUSH_TX(db, trx);
 
    //////
-   // Nathan revokes the custom authority for Bob
+   // RSquaredCHP1 revokes the custom authority for Bob
    //////
    custom_authority_delete_operation dop;
-   dop.account = nathan.get_id();
+   dop.account = rsquaredchp1.get_id();
    dop.authority_to_delete = auth_id;
    trx.clear();
    trx.operations = {dop};
-   sign(trx, nathan_private_key);
+   sign(trx, rsquaredchp1_private_key);
    PUSH_TX(db, trx);
 
    //////
-   // Bob attempts to transfer 100 CORE from Nathan's account
+   // Bob attempts to transfer 100 CORE from RSquaredCHP1's account
    // This attempt should fail because it is attempted after the custom authority has been revoked
    //////
    transfer.expiration += 10;
@@ -788,7 +788,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
    /**
-    * Test of authorization and revocation of one account (Nathan) authorizing multiple other accounts (Bob and Charlie)
+    * Test of authorization and revocation of one account (RSquaredCHP1) authorizing multiple other accounts (Bob and Charlie)
     * to transfer out of her account by using two distinct custom active authorities.
     *
     * This can alternatively be achieved by using a single custom active authority with two logical OR branches
@@ -805,52 +805,52 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             gpo.parameters.extensions.value.custom_authority_options = custom_authority_options_type();
          });
          set_expiration(db, trx);
-         ACTORS((nathan)(bob)(charlie)(diana))
-         fund(nathan, asset(1000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         ACTORS((rsquaredchp1)(bob)(charlie)(diana))
+         fund(rsquaredchp1, asset(1000 * GRAPHENE_BLOCKCHAIN_PRECISION));
          fund(bob, asset(1000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Charlie
-         // This attempt should fail because Nathan has not authorized anyone to transfer from her account
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Charlie
+         // This attempt should fail because RSquaredCHP1 has not authorized anyone to transfer from her account
          //////
-         transfer_operation bob_transfers_from_nathan_to_charlie;
-         bob_transfers_from_nathan_to_charlie.to = charlie.get_id();
-         bob_transfers_from_nathan_to_charlie.from = nathan.get_id();
-         bob_transfers_from_nathan_to_charlie.amount.amount = 100 * GRAPHENE_BLOCKCHAIN_PRECISION;
-         trx.operations = {bob_transfers_from_nathan_to_charlie};
+         transfer_operation bob_transfers_from_rsquaredchp1_to_charlie;
+         bob_transfers_from_rsquaredchp1_to_charlie.to = charlie.get_id();
+         bob_transfers_from_rsquaredchp1_to_charlie.from = rsquaredchp1.get_id();
+         bob_transfers_from_rsquaredchp1_to_charlie.amount.amount = 100 * GRAPHENE_BLOCKCHAIN_PRECISION;
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_charlie};
          sign(trx, bob_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized anyone to transfer from her account
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized anyone to transfer from her account
          //////
-         transfer_operation bob_transfers_from_nathan_to_diana;
-         bob_transfers_from_nathan_to_diana.to = diana.get_id();
-         bob_transfers_from_nathan_to_diana.from = nathan.get_id();
-         bob_transfers_from_nathan_to_diana.amount.amount = 60 * GRAPHENE_BLOCKCHAIN_PRECISION;
-         trx.operations = {bob_transfers_from_nathan_to_diana};
+         transfer_operation bob_transfers_from_rsquaredchp1_to_diana;
+         bob_transfers_from_rsquaredchp1_to_diana.to = diana.get_id();
+         bob_transfers_from_rsquaredchp1_to_diana.from = rsquaredchp1.get_id();
+         bob_transfers_from_rsquaredchp1_to_diana.amount.amount = 60 * GRAPHENE_BLOCKCHAIN_PRECISION;
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_diana};
          sign(trx, bob_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
 
          //////
-         // Charlie attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized anyone to transfer from her account
+         // Charlie attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized anyone to transfer from her account
          //////
-         transfer_operation charlie_transfers_from_nathan_to_diana;
-         charlie_transfers_from_nathan_to_diana.to = diana.get_id();
-         charlie_transfers_from_nathan_to_diana.from = nathan.get_id();
-         charlie_transfers_from_nathan_to_diana.amount.amount = 25 * GRAPHENE_BLOCKCHAIN_PRECISION;
-         trx.operations = {charlie_transfers_from_nathan_to_diana};
+         transfer_operation charlie_transfers_from_rsquaredchp1_to_diana;
+         charlie_transfers_from_rsquaredchp1_to_diana.to = diana.get_id();
+         charlie_transfers_from_rsquaredchp1_to_diana.from = rsquaredchp1.get_id();
+         charlie_transfers_from_rsquaredchp1_to_diana.amount.amount = 25 * GRAPHENE_BLOCKCHAIN_PRECISION;
+         trx.operations = {charlie_transfers_from_rsquaredchp1_to_diana};
          sign(trx, charlie_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
 
          //////
-         // Create a custom authority where Bob is authorized to transfer from Nathan's account to Charlie
+         // Create a custom authority where Bob is authorized to transfer from RSquaredCHP1's account to Charlie
          //////
          custom_authority_create_operation op;
-         op.account = nathan.get_id();
+         op.account = rsquaredchp1.get_id();
          op.auth.add_authority(bob.get_id(), 1);
          op.auth.weight_threshold = 1;
          op.enabled = true;
@@ -872,30 +872,30 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //  }
          //]
 
-         // Nathan publishes the custom authority
+         // RSquaredCHP1 publishes the custom authority
          trx.clear();
          trx.operations = {op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
-         custom_authority_id_type ca_bob_transfers_from_nathan_to_charlie =
-                 db.get_index_type<custom_authority_index>().indices().get<by_account_custom>().find(nathan_id)->id;
+         custom_authority_id_type ca_bob_transfers_from_rsquaredchp1_to_charlie =
+                 db.get_index_type<custom_authority_index>().indices().get<by_account_custom>().find(rsquaredchp1_id)->id;
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Charlie
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Charlie
          // This attempt should succeed because it is attempted after the custom authority is published
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_charlie};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_charlie};
          sign(trx, bob_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized Bob to transfer to Diana
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized Bob to transfer to Diana
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_diana};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_diana};
          sign(trx, charlie_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
          // The failure should indicate the rejection path
@@ -903,11 +903,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          EXPECT_EXCEPTION_STRING("\"rejection_path\":[[0,0],[2,\"predicate_was_false\"]]", [&] {PUSH_TX(db, trx);});
 
          //////
-         // Charlie attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized Charlie to transfer to Diana
+         // Charlie attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized Charlie to transfer to Diana
          //////
          trx.clear();
-         trx.operations = {charlie_transfers_from_nathan_to_diana};
+         trx.operations = {charlie_transfers_from_rsquaredchp1_to_diana};
          sign(trx, charlie_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
          // The failure should indicate the rejection path
@@ -921,10 +921,10 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          generate_blocks(1);
 
          //////
-         // Create a custom authority where Charlie is authorized to transfer from Nathan's account to Diana
+         // Create a custom authority where Charlie is authorized to transfer from RSquaredCHP1's account to Diana
          //////
          op = custom_authority_create_operation();
-         op.account = nathan.get_id();
+         op.account = rsquaredchp1.get_id();
          op.auth.add_authority(charlie.get_id(), 1);
          op.auth.weight_threshold = 1;
          op.enabled = true;
@@ -945,59 +945,59 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //  }
          //]
 
-         // Nathan publishes the additional custom authority
+         // RSquaredCHP1 publishes the additional custom authority
          trx.clear();
          trx.operations = {op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
          // Note the additional custom authority
          const auto &ca_index = db.get_index_type<custom_authority_index>().indices().get<by_account_custom>();
 
-         auto ca_nathan_range = ca_index.equal_range(nathan_id);
-         long nbr_nathan_auths = std::distance(ca_nathan_range.first, ca_nathan_range.second);
-         BOOST_CHECK_EQUAL(2, nbr_nathan_auths);
-         auto iter = ca_nathan_range.first;
-         custom_authority_id_type *ca_charlie_transfers_from_nathan_to_diana = nullptr;
+         auto ca_rsquaredchp1_range = ca_index.equal_range(rsquaredchp1_id);
+         long nbr_rsquaredchp1_auths = std::distance(ca_rsquaredchp1_range.first, ca_rsquaredchp1_range.second);
+         BOOST_CHECK_EQUAL(2, nbr_rsquaredchp1_auths);
+         auto iter = ca_rsquaredchp1_range.first;
+         custom_authority_id_type *ca_charlie_transfers_from_rsquaredchp1_to_diana = nullptr;
          while (iter != ca_index.end()) {
             custom_authority_id_type ca_id = iter->id;
             const custom_authority_object *ca = db.find<custom_authority_object>(ca_id);
             flat_map<account_id_type, weight_type> ca_authorities = ca->auth.account_auths;
             BOOST_CHECK_EQUAL(1, ca_authorities.size());
             if (ca_authorities.find(charlie.get_id()) != ca_authorities.end()) {
-               ca_charlie_transfers_from_nathan_to_diana = &ca_id;
+               ca_charlie_transfers_from_rsquaredchp1_to_diana = &ca_id;
                break;
             }
 
             iter++;
          }
-         BOOST_CHECK(ca_charlie_transfers_from_nathan_to_diana != nullptr);
+         BOOST_CHECK(ca_charlie_transfers_from_rsquaredchp1_to_diana != nullptr);
 
          //////
-         // Charlie attempts to transfer 100 CORE from Nathan's account to Diana
+         // Charlie attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
          // This attempt should succeed because it is attempted after the custom authority is published
          //////
          trx.clear();
-         trx.operations = {charlie_transfers_from_nathan_to_diana};
+         trx.operations = {charlie_transfers_from_rsquaredchp1_to_diana};
          sign(trx, charlie_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob should still be able to transfer from Nathan to Charlie
-         // Bob attempts to transfer 100 CORE from Nathan's account to Charlie
-         // This attempt should succeed because it was previously authorized by Nathan
+         // Bob should still be able to transfer from RSquaredCHP1 to Charlie
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Charlie
+         // This attempt should succeed because it was previously authorized by RSquaredCHP1
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_charlie};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_charlie};
          sign(trx, bob_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized Bob to transfer to Diana
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized Bob to transfer to Diana
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_diana};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_diana};
          sign(trx, bob_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
          // The failure should indicate the rejection path for the first custom authority
@@ -1014,22 +1014,22 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          generate_blocks(1);
 
          //////
-         // Nathan revokes the custom authority for Bob
+         // RSquaredCHP1 revokes the custom authority for Bob
          //////
          custom_authority_delete_operation revoke_bob_authorization;
-         revoke_bob_authorization.account = nathan.get_id();
-         revoke_bob_authorization.authority_to_delete = ca_bob_transfers_from_nathan_to_charlie;
+         revoke_bob_authorization.account = rsquaredchp1.get_id();
+         revoke_bob_authorization.authority_to_delete = ca_bob_transfers_from_rsquaredchp1_to_charlie;
          trx.clear();
          trx.operations = {revoke_bob_authorization};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Charlie
-         // This attempt should fail because Nathan has revoked authorization for Bob to transfer from her account
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Charlie
+         // This attempt should fail because RSquaredCHP1 has revoked authorization for Bob to transfer from her account
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_charlie};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_charlie};
          sign(trx, bob_private_key);
          // General check of the exception
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
@@ -1040,20 +1040,20 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          EXPECT_EXCEPTION_STRING("1.17.1", [&] {PUSH_TX(db, trx);});
 
          //////
-         // Charlie attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should succeed because Nathan should still be authorized to transfer from Nathan account
+         // Charlie attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should succeed because RSquaredCHP1 should still be authorized to transfer from RSquaredCHP1 account
          //////
          trx.clear();
-         trx.operations = {charlie_transfers_from_nathan_to_diana};
+         trx.operations = {charlie_transfers_from_rsquaredchp1_to_diana};
          sign(trx, charlie_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob attempts to transfer 100 CORE from Nathan's account to Diana
-         // This attempt should fail because Nathan has not authorized Bob to transfer to Diana
+         // Bob attempts to transfer 100 CORE from RSquaredCHP1's account to Diana
+         // This attempt should fail because RSquaredCHP1 has not authorized Bob to transfer to Diana
          //////
          trx.clear();
-         trx.operations = {bob_transfers_from_nathan_to_diana};
+         trx.operations = {bob_transfers_from_rsquaredchp1_to_diana};
          sign(trx, bob_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
          // The failure should not indicate any rejected custom auths because no CAA applies for Bob's attempt
@@ -1220,8 +1220,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of not equal (ne) restriction on an operation field
     * Test of CAA for asset_issue_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
-    * to issue an asset (NATHANCOIN) to any account except a banned account (banned1)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
+    * to issue an asset (RSQRCHP1COIN) to any account except a banned account (banned1)
     */
    BOOST_AUTO_TEST_CASE(authorized_asset_issue_exceptions_1) {
       try {
@@ -1239,8 +1239,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(allowed1)(allowed2)(banned1)(allowed3));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         ACTORS((rsquaredchp1)(bob)(allowed1)(allowed2)(banned1)(allowed3));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          // Lambda for issuing an asset to an account
@@ -1256,31 +1256,31 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Create a UIA
          //////
-         upgrade_to_lifetime_member(nathan);
-         create_user_issued_asset("NATHANCOIN", nathan, white_list);
-         create_user_issued_asset("SPECIALCOIN", nathan,  white_list);
+         upgrade_to_lifetime_member(rsquaredchp1);
+         create_user_issued_asset("RSQRCHP1COIN", rsquaredchp1, white_list);
+         create_user_issued_asset("SPECIALCOIN", rsquaredchp1,  white_list);
          generate_blocks(1);
-         const asset_object &nathancoin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("NATHANCOIN");
+         const asset_object &rsquaredchp1coin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("RSQRCHP1COIN");
          const asset_object &specialcoin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("SPECIALCOIN");
-         const asset_id_type nathancoin_id = nathancoin.id;
+         const asset_id_type rsquaredchp1coin_id = rsquaredchp1coin.id;
 
 
          //////
-         // Attempt to issue the UIA to an account with the Nathan key
-         // This should succeed because Nathan is the issuer
+         // Attempt to issue the UIA to an account with the RSquaredCHP1 key
+         // This should succeed because RSquaredCHP1 is the issuer
          //////
-         asset_issue_operation issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin_id), allowed1.get_id());
+         asset_issue_operation issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin_id), allowed1.get_id());
          trx.clear();
          trx.operations = {issue_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
          //////
          // Bob attempts to issue the UIA to an allowed account
-         // This should fail because Bob is not authorized to issue any NATHANCOIN
+         // This should fail because Bob is not authorized to issue any RSQRCHP1COIN
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin_id), allowed2.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin_id), allowed2.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1291,11 +1291,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to issue assets on its behalf
+         // RSquaredCHP1 authorizes Bob to issue assets on its behalf
          // except for account banned1
          //////
          custom_authority_create_operation authorize_to_issue;
-         authorize_to_issue.account = nathan.get_id();
+         authorize_to_issue.account = rsquaredchp1.get_id();
          authorize_to_issue.auth.add_authority(bob.get_id(), 1);
          authorize_to_issue.auth.weight_threshold = 1;
          authorize_to_issue.enabled = true;
@@ -1305,7 +1305,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          auto asset_index = member_index<asset_issue_operation>("asset_to_issue");
          auto asset_id_index = member_index<asset>("asset_id");
          authorize_to_issue.restrictions.emplace_back(restriction(asset_index, restriction::func_attr, vector<restriction>{
-                 restriction(asset_id_index, restriction::func_eq, nathancoin_id)}));
+                 restriction(asset_id_index, restriction::func_eq, rsquaredchp1coin_id)}));
          auto issue_to_index = member_index<asset_issue_operation>("issue_to_account");
          authorize_to_issue.restrictions.emplace_back(issue_to_index, FUNC(ne), banned1.get_id());
          //[
@@ -1341,7 +1341,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          trx.clear();
          trx.operations = {authorize_to_issue};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -1353,7 +1353,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to an allowed account
-         // This should succeed because Bob is now authorized to issue NATHANCOIN
+         // This should succeed because Bob is now authorized to issue RSQRCHP1COIN
          //////
          trx.clear();
          trx.operations.emplace_back(std::move(issue_op));
@@ -1365,7 +1365,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Bob attempts to issue the special coin to an allowed account
          // This should fail because Bob is not authorized to issue SPECIALCOIN to any account
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, specialcoin.id), allowed3.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, specialcoin.id), allowed3.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1380,9 +1380,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to a banned account with the Bob's key
-         // This should fail because Bob is not authorized to issue NATHANCOIN to the banned account
+         // This should fail because Bob is not authorized to issue RSQRCHP1COIN to the banned account
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin_id), banned1.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin_id), banned1.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1404,8 +1404,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of not in (not_in) restriction on an operation field
     * Test of CAA for asset_issue_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
-    * to issue an asset (NATHANCOIN) except to 3 banned accounts (banned1, banned2, banned3)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
+    * to issue an asset (RSQRCHP1COIN) except to 3 banned accounts (banned1, banned2, banned3)
     */
    BOOST_AUTO_TEST_CASE(authorized_asset_issue_exceptions_2) {
       try {
@@ -1423,8 +1423,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(allowed1)(allowed2)(banned1)(banned2)(banned3)(allowed3));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         ACTORS((rsquaredchp1)(bob)(allowed1)(allowed2)(banned1)(banned2)(banned3)(allowed3));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          // Lambda for issuing an asset to an account
@@ -1440,31 +1440,31 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Create user-issued assets
          //////
-         upgrade_to_lifetime_member(nathan);
-         create_user_issued_asset("NATHANCOIN", nathan, white_list);
-         create_user_issued_asset("SPECIALCOIN", nathan,  white_list);
+         upgrade_to_lifetime_member(rsquaredchp1);
+         create_user_issued_asset("RSQRCHP1COIN", rsquaredchp1, white_list);
+         create_user_issued_asset("SPECIALCOIN", rsquaredchp1,  white_list);
          generate_blocks(1);
-         const asset_object &nathancoin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("NATHANCOIN");
+         const asset_object &rsquaredchp1coin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("RSQRCHP1COIN");
          const asset_object &specialcoin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("SPECIALCOIN");
-         const asset_id_type nathancoin_id = nathancoin.id;
+         const asset_id_type rsquaredchp1coin_id = rsquaredchp1coin.id;
 
 
          //////
-         // Attempt to issue the UIA to an account with the Nathan key
-         // This should succeed because Nathan is the issuer
+         // Attempt to issue the UIA to an account with the RSquaredCHP1 key
+         // This should succeed because RSquaredCHP1 is the issuer
          //////
-         asset_issue_operation issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin_id), allowed1.get_id());
+         asset_issue_operation issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin_id), allowed1.get_id());
          trx.clear();
          trx.operations = {issue_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
          //////
          // Bob attempts to issue the UIA to an allowed account
-         // This should fail because Bob is not authorized to issue any NATHANCOIN
+         // This should fail because Bob is not authorized to issue any RSQRCHP1COIN
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin_id), allowed2.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin_id), allowed2.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1475,11 +1475,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to issue assets on its behalf
+         // RSquaredCHP1 authorizes Bob to issue assets on its behalf
          // except for accounts banned1, banned2, and banned3
          //////
          custom_authority_create_operation authorize_to_issue;
-         authorize_to_issue.account = nathan.get_id();
+         authorize_to_issue.account = rsquaredchp1.get_id();
          authorize_to_issue.auth.add_authority(bob.get_id(), 1);
          authorize_to_issue.auth.weight_threshold = 1;
          authorize_to_issue.enabled = true;
@@ -1489,7 +1489,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          auto asset_index = member_index<asset_issue_operation>("asset_to_issue");
          auto asset_id_index = member_index<asset>("asset_id");
          authorize_to_issue.restrictions.emplace_back(restriction(asset_index, restriction::func_attr, vector<restriction>{
-                 restriction(asset_id_index, restriction::func_eq, nathancoin_id)}));
+                 restriction(asset_id_index, restriction::func_eq, rsquaredchp1coin_id)}));
          auto issue_to_index = member_index<asset_issue_operation>("issue_to_account");
          authorize_to_issue.restrictions
                  .emplace_back(issue_to_index, FUNC(not_in),
@@ -1531,7 +1531,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          trx.clear();
          trx.operations = {authorize_to_issue};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -1543,7 +1543,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to an allowed account
-         // This should succeed because Bob is now authorized to issue NATHANCOIN
+         // This should succeed because Bob is now authorized to issue RSQRCHP1COIN
          //////
          trx.clear();
          trx.operations.emplace_back(std::move(issue_op));
@@ -1555,7 +1555,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Bob attempts to issue the special coin to an allowed account
          // This should fail because Bob is not authorized to issue SPECIALCOIN to any account
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, specialcoin.id), allowed3.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, specialcoin.id), allowed3.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1570,9 +1570,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to a banned account with the Bob's key
-         // This should fail because Bob is not authorized to issue NATHANCOIN to banned account (banned1)
+         // This should fail because Bob is not authorized to issue RSQRCHP1COIN to banned account (banned1)
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), banned1.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), banned1.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1586,9 +1586,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to a banned account with the Bob's key
-         // This should fail because Bob is not authorized to issue NATHANCOIN to banned account (banned2)
+         // This should fail because Bob is not authorized to issue RSQRCHP1COIN to banned account (banned2)
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), banned2.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), banned2.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1602,9 +1602,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to a banned account with the Bob's key
-         // This should fail because Bob is not authorized to issue NATHANCOIN to banned account (banned3)
+         // This should fail because Bob is not authorized to issue RSQRCHP1COIN to banned account (banned3)
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), banned3.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), banned3.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1618,9 +1618,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to issue the UIA to an allowed account
-         // This should succeed because Bob is authorized to issue NATHANCOIN to any account
+         // This should succeed because Bob is authorized to issue RSQRCHP1COIN to any account
          //////
-         issue_op = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), allowed3.get_id());
+         issue_op = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), allowed3.get_id());
          trx.clear();
          trx.operations = {issue_op};
          sign(trx, bob_private_key);
@@ -1634,8 +1634,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of in (in) restriction on an operation field
     * Test of CAA for override_transfer_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
-    * to override transfer an asset (NATHANCOIN) from only 2 accounts (suspicious1, suspicious2)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
+    * to override transfer an asset (RSQRCHP1COIN) from only 2 accounts (suspicious1, suspicious2)
     */
    BOOST_AUTO_TEST_CASE(authorized_override_transfer) {
       try {
@@ -1653,8 +1653,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(allowed1)(allowed2)(suspicious1)(suspicious2)(allowed3)(arbitrator));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         ACTORS((rsquaredchp1)(bob)(allowed1)(allowed2)(suspicious1)(suspicious2)(allowed3)(arbitrator));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          // Lambda for issuing an asset to an account
@@ -1682,94 +1682,94 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Create user-issued assets
          //////
-         upgrade_to_lifetime_member(nathan);
-         create_user_issued_asset("NATHANCOIN", nathan, DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
-         create_user_issued_asset( "SPECIALCOIN", nathan,  DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
+         upgrade_to_lifetime_member(rsquaredchp1);
+         create_user_issued_asset("RSQRCHP1COIN", rsquaredchp1, DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
+         create_user_issued_asset( "SPECIALCOIN", rsquaredchp1,  DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
          generate_blocks(1);
-         const asset_object &nathancoin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("NATHANCOIN");
+         const asset_object &rsquaredchp1coin = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("RSQRCHP1COIN");
          const asset_object &specialcoin
                  = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("SPECIALCOIN");
 
          //////
-         // Initialize: Nathan issues her two coins to different accounts
+         // Initialize: RSquaredCHP1 issues her two coins to different accounts
          //////
-         asset_issue_operation issue_nathan_to_allowed1_op
-                 = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), allowed1.get_id());
-         asset_issue_operation issue_nathan_to_allowed2_op
-                 = issue_amount_to(nathan.get_id(), asset(200, nathancoin.id), allowed2.get_id());
-         asset_issue_operation issue_nathan_to_allowed3_op
-                 = issue_amount_to(nathan.get_id(), asset(300, nathancoin.id), allowed3.get_id());
-         asset_issue_operation issue_nathan_to_suspicious1_op
-                 = issue_amount_to(nathan.get_id(), asset(100, nathancoin.id), suspicious1.get_id());
-         asset_issue_operation issue_nathan_to_suspicious2_op
-                 = issue_amount_to(nathan.get_id(), asset(200, nathancoin.id), suspicious2.get_id());
+         asset_issue_operation issue_rsquaredchp1_to_allowed1_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), allowed1.get_id());
+         asset_issue_operation issue_rsquaredchp1_to_allowed2_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(200, rsquaredchp1coin.id), allowed2.get_id());
+         asset_issue_operation issue_rsquaredchp1_to_allowed3_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(300, rsquaredchp1coin.id), allowed3.get_id());
+         asset_issue_operation issue_rsquaredchp1_to_suspicious1_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(100, rsquaredchp1coin.id), suspicious1.get_id());
+         asset_issue_operation issue_rsquaredchp1_to_suspicious2_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(200, rsquaredchp1coin.id), suspicious2.get_id());
 
          asset_issue_operation issue_special_to_allowed1_op
-                 = issue_amount_to(nathan.get_id(), asset(1000, specialcoin.id), allowed1.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(1000, specialcoin.id), allowed1.get_id());
          asset_issue_operation issue_special_to_allowed2_op
-                 = issue_amount_to(nathan.get_id(), asset(2000, specialcoin.id), allowed2.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(2000, specialcoin.id), allowed2.get_id());
          asset_issue_operation issue_special_to_allowed3_op
-                 = issue_amount_to(nathan.get_id(), asset(3000, specialcoin.id), allowed3.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(3000, specialcoin.id), allowed3.get_id());
          asset_issue_operation issue_special_to_suspicious1_op
-                 = issue_amount_to(nathan.get_id(), asset(1000, specialcoin.id), suspicious1.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(1000, specialcoin.id), suspicious1.get_id());
          asset_issue_operation issue_special_to_suspicious2_op
-                 = issue_amount_to(nathan.get_id(), asset(2000, specialcoin.id), suspicious2.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(2000, specialcoin.id), suspicious2.get_id());
          trx.clear();
-         trx.operations = {issue_nathan_to_allowed1_op, issue_nathan_to_allowed2_op, issue_nathan_to_allowed3_op,
-                 issue_nathan_to_suspicious1_op, issue_nathan_to_suspicious2_op,
+         trx.operations = {issue_rsquaredchp1_to_allowed1_op, issue_rsquaredchp1_to_allowed2_op, issue_rsquaredchp1_to_allowed3_op,
+                 issue_rsquaredchp1_to_suspicious1_op, issue_rsquaredchp1_to_suspicious2_op,
                  issue_special_to_allowed1_op, issue_special_to_allowed2_op, issue_special_to_allowed3_op,
                  issue_special_to_suspicious1_op, issue_special_to_suspicious2_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
          //////
-         // Nathan attempts to override some NATHANCOIN from some account
-         // This should succeed because Nathan is the issuer
+         // RSquaredCHP1 attempts to override some RSQRCHP1COIN from some account
+         // This should succeed because RSquaredCHP1 is the issuer
          //////
          override_transfer_operation override_op
-                 = create_override(nathan.get_id(), allowed1.get_id(), asset(20, nathancoin.id), arbitrator.get_id());
+                 = create_override(rsquaredchp1.get_id(), allowed1.get_id(), asset(20, rsquaredchp1coin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
-         int64_t allowed1_balance_nathancoin_after_override1 = get_balance(allowed1.get_id(), nathancoin.get_id());
-         BOOST_CHECK_EQUAL(allowed1_balance_nathancoin_after_override1, 80);
+         int64_t allowed1_balance_rsquaredchp1coin_after_override1 = get_balance(allowed1.get_id(), rsquaredchp1coin.get_id());
+         BOOST_CHECK_EQUAL(allowed1_balance_rsquaredchp1coin_after_override1, 80);
 
          override_op
-                 = create_override(nathan.get_id(), suspicious1.get_id(), asset(20, nathancoin.id), arbitrator.get_id());
+                 = create_override(rsquaredchp1.get_id(), suspicious1.get_id(), asset(20, rsquaredchp1coin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
-         int64_t suspicious1_balance_nathancoin_after_override1
-                 = get_balance(suspicious1.get_id(), nathancoin.get_id());
-         BOOST_CHECK_EQUAL(suspicious1_balance_nathancoin_after_override1, 80);
+         int64_t suspicious1_balance_rsquaredchp1coin_after_override1
+                 = get_balance(suspicious1.get_id(), rsquaredchp1coin.get_id());
+         BOOST_CHECK_EQUAL(suspicious1_balance_rsquaredchp1coin_after_override1, 80);
 
          override_op
-                 = create_override(nathan.get_id(), allowed1.get_id(), asset(200, specialcoin.id), arbitrator.get_id());
+                 = create_override(rsquaredchp1.get_id(), allowed1.get_id(), asset(200, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
          int64_t allowed1_balance_specialcoin_after_override1 = get_balance(allowed1.get_id(), specialcoin.id);
          BOOST_CHECK_EQUAL(allowed1_balance_specialcoin_after_override1, 800);
 
          override_op
-                 = create_override(nathan.get_id(), suspicious1.get_id(), asset(200, specialcoin.id), arbitrator.get_id());
+                 = create_override(rsquaredchp1.get_id(), suspicious1.get_id(), asset(200, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
          int64_t suspicious1_balance_specialcoin_after_override1 = get_balance(suspicious1.get_id(), specialcoin.id);
          BOOST_CHECK_EQUAL(suspicious1_balance_specialcoin_after_override1, 800);
 
 
          //////
-         // Bob attempts to override some NATHANCOIN and SPECIAL from some accounts
-         // This should fail because Bob is not authorized to override any NATHANCOIN nor SPECIALCOIN
+         // Bob attempts to override some RSQRCHP1COIN and SPECIAL from some accounts
+         // This should fail because Bob is not authorized to override any RSQRCHP1COIN nor SPECIALCOIN
          //////
-         override_op = create_override(nathan.get_id(), allowed1.get_id(), asset(25, nathancoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), allowed1.get_id(), asset(25, rsquaredchp1coin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
@@ -1778,7 +1778,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // "rejected_custom_auths":[]
          EXPECT_EXCEPTION_STRING("\"rejected_custom_auths\":[]", [&] {PUSH_TX(db, trx);});
 
-         override_op = create_override(nathan.get_id(), allowed1.get_id(), asset(25, specialcoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), allowed1.get_id(), asset(25, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
@@ -1789,11 +1789,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to override transfer NATHANCOIN on its behalf
+         // RSquaredCHP1 authorizes Bob to override transfer RSQRCHP1COIN on its behalf
          // only for accounts suspicious1, and suspicious2
          //////
          custom_authority_create_operation authorize_to_override;
-         authorize_to_override.account = nathan.get_id();
+         authorize_to_override.account = rsquaredchp1.get_id();
          authorize_to_override.auth.add_authority(bob.get_id(), 1);
          authorize_to_override.auth.weight_threshold = 1;
          authorize_to_override.enabled = true;
@@ -1804,7 +1804,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          auto asset_id_index = member_index<asset>("asset_id");
          authorize_to_override.restrictions
                  .emplace_back(restriction(amount_index, restriction::func_attr, vector<restriction>{
-                 restriction(asset_id_index, restriction::func_eq, nathancoin.get_id())}));
+                 restriction(asset_id_index, restriction::func_eq, rsquaredchp1coin.get_id())}));
          auto from_index = member_index<override_transfer_operation>("from");
          authorize_to_override.restrictions
                  .emplace_back(from_index, FUNC(in),
@@ -1845,7 +1845,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          trx.clear();
          trx.operations = {authorize_to_override};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -1856,24 +1856,24 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to override transfer some NATHANCOIN from a suspicious account
-         // This should succeed because Bob is now authorized to override NATHANCOIN from some accounts
+         // Bob attempts to override transfer some RSQRCHP1COIN from a suspicious account
+         // This should succeed because Bob is now authorized to override RSQRCHP1COIN from some accounts
          //////
-         override_op = create_override(nathan.get_id(), suspicious1.get_id(), asset(25, nathancoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), suspicious1.get_id(), asset(25, rsquaredchp1coin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
          PUSH_TX(db, trx);
-         int64_t suspicious1_balance_nathancoin_after_override2
-                 = get_balance(suspicious1.get_id(), nathancoin.get_id());
-         BOOST_CHECK_EQUAL(suspicious1_balance_nathancoin_after_override2, suspicious1_balance_nathancoin_after_override1 - 25);
+         int64_t suspicious1_balance_rsquaredchp1coin_after_override2
+                 = get_balance(suspicious1.get_id(), rsquaredchp1coin.get_id());
+         BOOST_CHECK_EQUAL(suspicious1_balance_rsquaredchp1coin_after_override2, suspicious1_balance_rsquaredchp1coin_after_override1 - 25);
 
 
          //////
          // Bob attempts to override transfer some SPECIALCOIN from a suspicious account
          // This should fail because Bob is not authorized to override SPECIALCOIN from any accounts
          //////
-         override_op = create_override(nathan.get_id(), suspicious1.get_id(), asset(250, specialcoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), suspicious1.get_id(), asset(250, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
@@ -1890,7 +1890,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Bob attempts to override transfer some SPECIALCOIN from an allowed account
          // This should fail because Bob is not authorized to override SPECIALCOIN from any accounts
          //////
-         override_op = create_override(nathan.get_id(), allowed3.get_id(), asset(250, specialcoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), allowed3.get_id(), asset(250, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
@@ -1904,10 +1904,10 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to override transfer some NATHANCOIN from an allowed account
-         // This should fail because Bob is only authorized to override NATHANCOIN from suspicious accounts
+         // Bob attempts to override transfer some RSQRCHP1COIN from an allowed account
+         // This should fail because Bob is only authorized to override RSQRCHP1COIN from suspicious accounts
          //////
-         override_op = create_override(nathan.get_id(), allowed2.get_id(), asset(20, nathancoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), allowed2.get_id(), asset(20, rsquaredchp1coin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
          sign(trx, bob_private_key);
@@ -1917,26 +1917,26 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // [0,1]: 0 is the rejection_indicator for an index to a sub-restriction; 1 is the index value for Restriction 2
          // [2,"predicate_was_false"]: 0 is the rejection_indicator for rejection_reason; "predicate_was_false" is the reason
          EXPECT_EXCEPTION_STRING("\"rejection_path\":[[0,1],[2,\"predicate_was_false\"]]", [&] {PUSH_TX(db, trx);});
-         int64_t allowed2_balance_nathancoin_after_no_override
-                 = get_balance(allowed2.get_id(), nathancoin.get_id());
-         BOOST_CHECK_EQUAL(allowed2_balance_nathancoin_after_no_override, 200);
+         int64_t allowed2_balance_rsquaredchp1coin_after_no_override
+                 = get_balance(allowed2.get_id(), rsquaredchp1coin.get_id());
+         BOOST_CHECK_EQUAL(allowed2_balance_rsquaredchp1coin_after_no_override, 200);
          int64_t allowed2_balance_specialcoin_no_override
                  = get_balance(allowed2.get_id(), specialcoin.get_id());
          BOOST_CHECK_EQUAL(allowed2_balance_specialcoin_no_override, 2000);
 
 
          //////
-         // Nathan attempts to override transfer of SPECIAL COIN from an allowed account
-         // This should succeed because Nathan has not revoked her own authorities as issuer
+         // RSquaredCHP1 attempts to override transfer of SPECIAL COIN from an allowed account
+         // This should succeed because RSquaredCHP1 has not revoked her own authorities as issuer
          //////
-         override_op = create_override(nathan.get_id(), allowed3.get_id(), asset(500, specialcoin.id), arbitrator.get_id());
+         override_op = create_override(rsquaredchp1.get_id(), allowed3.get_id(), asset(500, specialcoin.id), arbitrator.get_id());
          trx.clear();
          trx.operations = {override_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
-         int64_t allowed3_balance_nathancoin_after_no_override
-                 = get_balance(allowed3.get_id(), nathancoin.get_id());
-         BOOST_CHECK_EQUAL(allowed3_balance_nathancoin_after_no_override, 300);
+         int64_t allowed3_balance_rsquaredchp1coin_after_no_override
+                 = get_balance(allowed3.get_id(), rsquaredchp1coin.get_id());
+         BOOST_CHECK_EQUAL(allowed3_balance_rsquaredchp1coin_after_no_override, 300);
          int64_t allowed3_balance_specialcoin_after_override1
                  = get_balance(allowed3.get_id(), specialcoin.get_id());
          BOOST_CHECK_EQUAL(allowed3_balance_specialcoin_after_override1, 3000 - 500);
@@ -1948,7 +1948,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    /**
     * Test of a restriction on an optional operation field
     * Variation of the the original transfer_with_memo test for CAA
-    * Bob is authorized to transfer Nathan's account to Charlies's account if
+    * Bob is authorized to transfer RSquaredCHP1's account to Charlies's account if
     * - the memo is not set OR
     * - the memo is set where the "from" equal's Bob's public key and "to" equals Diana's public *active* key
     * (The active key is chosen for simplicity. Other keys such as the memo key or an alternate key could also be used.)
@@ -1958,7 +1958,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize the test
          //////
-         ACTORS((nathan)(bob)(charlie)(diana))
+         ACTORS((rsquaredchp1)(bob)(charlie)(diana))
          generate_blocks(HARDFORK_BSIP_40_TIME);
          generate_blocks(5);
          db.modify(global_property_id_type()(db), [](global_property_object& gpo) {
@@ -1966,43 +1966,43 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          });
          set_expiration(db, trx);
 
-         transfer(account_id_type(), nathan_id, asset(1000));
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 1000);
+         transfer(account_id_type(), rsquaredchp1_id, asset(1000));
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 1000);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 00);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
 
 
          //////
-         // Nathan transfers to Charlie with her own authorization
+         // RSquaredCHP1 transfers to Charlie with her own authorization
          //////
          transfer_operation top;
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
-         top.memo->set_message(nathan_private_key, bob_public_key, "Dear Bob,\n\nMoney!\n\nPeace, Nathan");
+         top.memo->set_message(rsquaredchp1_private_key, bob_public_key, "Dear Bob,\n\nMoney!\n\nPeace, RSquaredCHP1");
          trx.operations = {top};
-         trx.sign(nathan_private_key, db.get_chain_id());
+         trx.sign(rsquaredchp1_private_key, db.get_chain_id());
          auto processed = PUSH_TX(db, trx);
 
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 950);
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 950);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 50);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
 
          auto memo = db.get_recent_transaction(processed.id()).operations.front().get<transfer_operation>().memo;
          BOOST_CHECK(memo);
-         BOOST_CHECK_EQUAL(memo->get_message(bob_private_key, nathan_public_key), "Dear Bob,\n\nMoney!\n\nPeace, Nathan");
+         BOOST_CHECK_EQUAL(memo->get_message(bob_private_key, rsquaredchp1_public_key), "Dear Bob,\n\nMoney!\n\nPeace, RSquaredCHP1");
 
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie
          // This should fail because Bob is not authorized
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the re-used transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          trx.clear();
@@ -2015,12 +2015,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to transfer to Charlie if
+         // RSquaredCHP1 authorizes Bob to transfer to Charlie if
          // - the memo is not set OR
          // - the memo is set where the "from" equal's Bob's public key and "to" equals Diana's public key
          //////
          custom_authority_create_operation caop;
-         caop.account = nathan.get_id();
+         caop.account = rsquaredchp1.get_id();
          caop.auth.add_authority(bob.get_id(), 1);
          caop.auth.weight_threshold = 1;
          caop.enabled = true;
@@ -2114,11 +2114,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          trx.clear();
          trx.operations = {caop};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie WITHOUT a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie WITHOUT a memo
          // This should succeed
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the re-used transfer op
@@ -2127,19 +2127,19 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          sign(trx, bob_private_key);
          PUSH_TX(db, trx);
 
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 900);
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 900);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 100);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie with a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie with a memo
          // where "from" equals Bob's public key and "to" equals Diana's public key
          // This should succeed
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
@@ -2150,7 +2150,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          sign(trx, bob_private_key);
          processed = PUSH_TX(db, trx);
 
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 850);
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 850);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 150);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
@@ -2161,13 +2161,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
                            "Dear Diana,\n\nOnly you should be able to read this\n\nLove, Bob");
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie with a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie with a memo
          // where "from" equals Bob's public key and "to" equals Charlie's public key
          // This should fail because it violates the memo restriction
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
@@ -2225,12 +2225,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          EXPECT_EXCEPTION_STRING("[[0,1],[1,[{\"success\":false,\"rejection_path\":[[0,0],[2,\"predicate_was_false\"]]},{\"success\":false,\"rejection_path\":[[0,0],[0,0],[2,\"predicate_was_false\"]]}]]]", [&] {PUSH_TX(db, trx);});
 
          //////
-         // Bob attempts to transfer from Nathan to Diana
+         // Bob attempts to transfer from RSquaredCHP1 to Diana
          // This should fail because the transfer must be to Charlie
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = diana.get_id();
          top.amount = asset(50);
          trx.clear();
@@ -2248,7 +2248,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    /**
     * Test of a restriction on an optional operation field
     * Variation of the the original transfer_with_memo test for CAA
-    * Bob is authorized to transfer from Nathan's account to Charlies's account only if
+    * Bob is authorized to transfer from RSquaredCHP1's account to Charlies's account only if
     * - the memo is set where the "from" equal's Bob's public key and "to" equals Diana's public *active* key
     * (The active key is chosen for simplicity. Other keys such as the memo key or an alternate key could also be used.)
     *
@@ -2259,7 +2259,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize the test
          //////
-         ACTORS((nathan)(bob)(charlie)(diana))
+         ACTORS((rsquaredchp1)(bob)(charlie)(diana))
          generate_blocks(HARDFORK_BSIP_40_TIME);
          generate_blocks(5);
          db.modify(global_property_id_type()(db), [](global_property_object& gpo) {
@@ -2267,43 +2267,43 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          });
          set_expiration(db, trx);
 
-         transfer(account_id_type(), nathan_id, asset(1000));
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 1000);
+         transfer(account_id_type(), rsquaredchp1_id, asset(1000));
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 1000);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 00);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
 
 
          //////
-         // Nathan transfers to Charlie with her own authorization
+         // RSquaredCHP1 transfers to Charlie with her own authorization
          //////
          transfer_operation top;
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
-         top.memo->set_message(nathan_private_key, bob_public_key, "Dear Bob,\n\nMoney!\n\nPeace, Nathan");
+         top.memo->set_message(rsquaredchp1_private_key, bob_public_key, "Dear Bob,\n\nMoney!\n\nPeace, RSquaredCHP1");
          trx.operations = {top};
-         trx.sign(nathan_private_key, db.get_chain_id());
+         trx.sign(rsquaredchp1_private_key, db.get_chain_id());
          auto processed = PUSH_TX(db, trx);
 
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 950);
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 950);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 50);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
 
          auto memo = db.get_recent_transaction(processed.id()).operations.front().get<transfer_operation>().memo;
          BOOST_CHECK(memo);
-         BOOST_CHECK_EQUAL(memo->get_message(bob_private_key, nathan_public_key), "Dear Bob,\n\nMoney!\n\nPeace, Nathan");
+         BOOST_CHECK_EQUAL(memo->get_message(bob_private_key, rsquaredchp1_public_key), "Dear Bob,\n\nMoney!\n\nPeace, RSquaredCHP1");
 
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie
          // This should fail because Bob is not authorized
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the re-used transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          trx.clear();
@@ -2316,11 +2316,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to transfer to Charlie if
+         // RSquaredCHP1 authorizes Bob to transfer to Charlie if
          // - the memo is set where the "from" equal's Bob's public key and "to" equals Diana's public key
          //////
          custom_authority_create_operation caop;
-         caop.account = nathan.get_id();
+         caop.account = rsquaredchp1.get_id();
          caop.auth.add_authority(bob.get_id(), 1);
          caop.auth.weight_threshold = 1;
          caop.enabled = true;
@@ -2385,12 +2385,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          trx.clear();
          trx.operations = {caop};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie WITHOUT a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie WITHOUT a memo
          // This should fail because Restriction 2 expects a memo
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the re-used transfer op
@@ -2404,13 +2404,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie with a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie with a memo
          // where "from" equals Bob's public key and "to" equals Diana's public key
          // This should succeed
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
@@ -2421,7 +2421,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          sign(trx, bob_private_key);
          processed = PUSH_TX(db, trx);
 
-         BOOST_CHECK_EQUAL(get_balance(nathan_id, asset_id_type()), 900);
+         BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_id, asset_id_type()), 900);
          BOOST_CHECK_EQUAL(get_balance(bob_id, asset_id_type()), 0);
          BOOST_CHECK_EQUAL(get_balance(charlie_id, asset_id_type()), 100);
          BOOST_CHECK_EQUAL(get_balance(diana_id, asset_id_type()), 0);
@@ -2432,13 +2432,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
                            "Dear Diana,\n\nOnly you should be able to read this\n\nLove, Bob");
 
          //////
-         // Bob attempts to transfer from Nathan to Charlie with a memo
+         // Bob attempts to transfer from RSquaredCHP1 to Charlie with a memo
          // where "from" equals Bob's public key and "to" equals Charlie's public key
          // This should fail because it violates the memo restriction
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = charlie.get_id();
          top.amount = asset(50);
          top.memo = memo_data();
@@ -2454,12 +2454,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          EXPECT_EXCEPTION_STRING("\"rejection_path\":[[0,1],[0,0],[2,\"predicate_was_false\"]]", [&] {PUSH_TX(db, trx);});
 
          //////
-         // Bob attempts to transfer from Nathan to Diana
+         // Bob attempts to transfer from RSquaredCHP1 to Diana
          // This should fail because transfer must be to Charlie
          //////
          generate_blocks(1); // Advance the blockchain to generate a distinctive hash ID for the similar transfer op
          top = transfer_operation();
-         top.from = nathan.get_id();
+         top.from = rsquaredchp1.get_id();
          top.to = diana.get_id();
          top.amount = asset(50);
          trx.clear();
@@ -2489,7 +2489,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of greater than or equal to (ge) restriction on a field
     * Test of CAA for htlc_create_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to create an HTLC operation as long as the pre-image size is greater than or equal to a specified size
     *
     * This test is similar to the HTLC test called "other_peoples_money"
@@ -2519,9 +2519,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(gateway));
+         ACTORS((rsquaredchp1)(bob)(gateway));
          int64_t init_balance(100 * GRAPHENE_BLOCKCHAIN_PRECISION );
-         transfer( committee_account, nathan_id, graphene::chain::asset(init_balance) );
+         transfer( committee_account, rsquaredchp1_id, graphene::chain::asset(init_balance) );
 
 
          //////
@@ -2531,7 +2531,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          std::vector<char> pre_image_256(pre_image_size_256);
          generate_random_preimage(pre_image_size_256, pre_image_256);
 
-         // The minimum pre-image size that will be authorized by Nathan
+         // The minimum pre-image size that will be authorized by RSquaredCHP1
          uint16_t authorized_minimum_pre_image_size_512 = 512;
 
          int64_t pre_image_size_512 = int64_t(authorized_minimum_pre_image_size_512 + 0);
@@ -2544,13 +2544,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan attempts to put a contract on the blockchain using Nathan's funds
-         // This should succeed because Nathan is authorized to create HTLC for her own account
+         // RSquaredCHP1 attempts to put a contract on the blockchain using RSquaredCHP1's funds
+         // This should succeed because RSquaredCHP1 is authorized to create HTLC for her own account
          //////
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 3;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_256 );
@@ -2558,7 +2558,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             create_operation.fee = db.current_fee_schedule().calculate_fee( create_operation );
             trx.clear();
             trx.operations.push_back(create_operation);
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX( db, trx );
          }
 
@@ -2570,13 +2570,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to put a contract on the blockchain using Nathan's funds
-         // This should fail because Bob is not authorized to create HTLC on behalf of Nathan
+         // Bob attempts to put a contract on the blockchain using RSquaredCHP1's funds
+         // This should fail because Bob is not authorized to create HTLC on behalf of RSquaredCHP1
          //////
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 3;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_256 );
@@ -2594,11 +2594,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to create HTLC only to an account (gateway)
+         // RSquaredCHP1 authorizes Bob to create HTLC only to an account (gateway)
          // and if the pre-image size is greater than or equal to 512 bytes
          //////
          custom_authority_create_operation authorize_htlc_create;
-         authorize_htlc_create.account = nathan.get_id();
+         authorize_htlc_create.account = rsquaredchp1.get_id();
          authorize_htlc_create.auth.add_authority(bob.get_id(), 1);
          authorize_htlc_create.auth.weight_threshold = 1;
          authorize_htlc_create.enabled = true;
@@ -2632,7 +2632,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //]
          trx.clear();
          trx.operations = {authorize_htlc_create};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -2643,15 +2643,15 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to put a contract on the blockchain using Nathan's funds
+         // Bob attempts to put a contract on the blockchain using RSquaredCHP1's funds
          // with a preimage size of 256.
-         // This should fail because Bob is not authorized to create HTLC on behalf of Nathan
+         // This should fail because Bob is not authorized to create HTLC on behalf of RSquaredCHP1
          // if the preimage size is below the minimum value restriction.
          //////
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 3;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_256 );
@@ -2670,15 +2670,15 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          }
 
          //////
-         // Bob attempts to put a contract on the blockchain using Nathan's funds
+         // Bob attempts to put a contract on the blockchain using RSquaredCHP1's funds
          // with a preimage size of 512.
-         // This should succeed because Bob is authorized to create HTLC on behalf of Nathan
+         // This should succeed because Bob is authorized to create HTLC on behalf of RSquaredCHP1
          // and the preimage size equals the minimum value restriction.
          //////
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 3;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_512 );
@@ -2693,15 +2693,15 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to put a contract on the blockchain using Nathan's funds
+         // Bob attempts to put a contract on the blockchain using RSquaredCHP1's funds
          // with a preimage size of 600.
-         // This should succeed because Bob is authorized to create HTLC on behalf of Nathan
+         // This should succeed because Bob is authorized to create HTLC on behalf of RSquaredCHP1
          // and the preimage size is greater than the minimum value restriction.
          //////
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( 1 * GRAPHENE_BLOCKCHAIN_PRECISION );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 3;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_600 );
@@ -2752,9 +2752,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(gateway));
+         ACTORS((rsquaredchp1)(bob)(gateway));
          int64_t init_balance(1000 * GRAPHENE_BLOCKCHAIN_PRECISION );
-         transfer( committee_account, nathan_id, graphene::chain::asset(init_balance) );
+         transfer( committee_account, rsquaredchp1_id, graphene::chain::asset(init_balance) );
          int64_t init_gateway_balance(50 * GRAPHENE_BLOCKCHAIN_PRECISION);
          transfer( committee_account, gateway_id, graphene::chain::asset(init_gateway_balance) );
 
@@ -2775,7 +2775,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( htlc_amount );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 86400;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_256 );
@@ -2783,7 +2783,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             create_operation.fee = db.current_fee_schedule().calculate_fee( create_operation );
             trx.clear();
             trx.operations.push_back(create_operation);
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX( db, trx );
          }
 
@@ -2792,8 +2792,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Advance the blockchain to get the finalized HTLC ID
          //////
          generate_blocks(1);
-         graphene::chain::htlc_id_type nathan_htlc_id =
-                 db.get_index_type<htlc_index>().indices().get<by_from_id>().find(nathan.get_id())->id;
+         graphene::chain::htlc_id_type rsquaredchp1_htlc_id =
+                 db.get_index_type<htlc_index>().indices().get<by_from_id>().find(rsquaredchp1.get_id())->id;
 
 
          //////
@@ -2803,7 +2803,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          graphene::chain::htlc_redeem_operation redeem_operation;
          {
             redeem_operation.redeemer = gateway_id;
-            redeem_operation.htlc_id = nathan_htlc_id;
+            redeem_operation.htlc_id = rsquaredchp1_htlc_id;
             redeem_operation.preimage = pre_image_256;
             redeem_operation.fee = db.current_fee_schedule().calculate_fee( redeem_operation );
             trx.clear();
@@ -2920,7 +2920,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of greater than (gt) and less than or equal to (le) restriction on a field
     * Test of CAA for htlc_extend_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to extend an HTLC operation as long as the extension is within a specified duration
     */
    BOOST_AUTO_TEST_CASE(authorized_htlc_extension) {
@@ -2948,9 +2948,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(gateway));
+         ACTORS((rsquaredchp1)(bob)(gateway));
          int64_t init_balance(1000 * GRAPHENE_BLOCKCHAIN_PRECISION );
-         transfer( committee_account, nathan_id, graphene::chain::asset(init_balance) );
+         transfer( committee_account, rsquaredchp1_id, graphene::chain::asset(init_balance) );
          int64_t init_gateway_balance(50 * GRAPHENE_BLOCKCHAIN_PRECISION);
          transfer( committee_account, gateway_id, graphene::chain::asset(init_gateway_balance) );
 
@@ -2971,7 +2971,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          {
             graphene::chain::htlc_create_operation create_operation;
             create_operation.amount = graphene::chain::asset( htlc_amount );
-            create_operation.from = nathan_id;
+            create_operation.from = rsquaredchp1_id;
             create_operation.to = gateway_id;
             create_operation.claim_period_seconds = 86400;
             create_operation.preimage_hash = hash_it<fc::ripemd160>( pre_image_256 );
@@ -2979,7 +2979,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             create_operation.fee = db.current_fee_schedule().calculate_fee( create_operation );
             trx.clear();
             trx.operations.push_back(create_operation);
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX( db, trx );
          }
 
@@ -2988,18 +2988,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Advance the blockchain to get the finalized HTLC ID
          //////
          generate_blocks(1);
-         graphene::chain::htlc_id_type nathan_htlc_id =
-                 db.get_index_type<htlc_index>().indices().get<by_from_id>().find(nathan.get_id())->id;
+         graphene::chain::htlc_id_type rsquaredchp1_htlc_id =
+                 db.get_index_type<htlc_index>().indices().get<by_from_id>().find(rsquaredchp1.get_id())->id;
 
 
          //////
          // Bob attempts to extend the HTLC
-         // This should fail because Bob is not authorized to extend an HTLC on behalf of Nathan
+         // This should fail because Bob is not authorized to extend an HTLC on behalf of RSquaredCHP1
          //////
          graphene::chain::htlc_extend_operation extend_operation;
          {
-            extend_operation.update_issuer = nathan_id;
-            extend_operation.htlc_id = nathan_htlc_id;
+            extend_operation.update_issuer = rsquaredchp1_id;
+            extend_operation.htlc_id = rsquaredchp1_htlc_id;
             extend_operation.seconds_to_add = int64_t(24 * 3600);
             extend_operation.fee = db.current_fee_schedule().calculate_fee( extend_operation );
             trx.clear();
@@ -3014,11 +3014,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to extend an HTLC
+         // RSquaredCHP1 authorizes Bob to extend an HTLC
          // by greater than 1 hour and less than or equal to 24 hours
          //////
          custom_authority_create_operation authorize_htlc_extension;
-         authorize_htlc_extension.account = nathan.get_id();
+         authorize_htlc_extension.account = rsquaredchp1.get_id();
          authorize_htlc_extension.auth.add_authority(bob.get_id(), 1);
          authorize_htlc_extension.auth.weight_threshold = 1;
          authorize_htlc_extension.enabled = true;
@@ -3057,7 +3057,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //]
          trx.clear();
          trx.operations = {authorize_htlc_extension};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -3087,8 +3087,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          {
             extend_operation = htlc_extend_operation();
-            extend_operation.update_issuer = nathan_id;
-            extend_operation.htlc_id = nathan_htlc_id;
+            extend_operation.update_issuer = rsquaredchp1_id;
+            extend_operation.htlc_id = rsquaredchp1_htlc_id;
             extend_operation.seconds_to_add = int64_t(10 * 3600);
             extend_operation.fee = db.current_fee_schedule().calculate_fee( extend_operation );
             trx.clear();
@@ -3106,8 +3106,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          {
             extend_operation = htlc_extend_operation();
-            extend_operation.update_issuer = nathan_id;
-            extend_operation.htlc_id = nathan_htlc_id;
+            extend_operation.update_issuer = rsquaredchp1_id;
+            extend_operation.htlc_id = rsquaredchp1_htlc_id;
             extend_operation.seconds_to_add = int64_t(1 * 3600);
             extend_operation.fee = db.current_fee_schedule().calculate_fee( extend_operation );
             trx.clear();
@@ -3130,8 +3130,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          {
             extend_operation = htlc_extend_operation();
-            extend_operation.update_issuer = nathan_id;
-            extend_operation.htlc_id = nathan_htlc_id;
+            extend_operation.update_issuer = rsquaredchp1_id;
+            extend_operation.htlc_id = rsquaredchp1_htlc_id;
             extend_operation.seconds_to_add = int64_t( (24 * 3600) + 1);
             extend_operation.fee = db.current_fee_schedule().calculate_fee( extend_operation );
             trx.clear();
@@ -3154,7 +3154,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of variant assert (variant_assert) restriction on a field
     * Test of CAA for vesting_balance_create_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to create a coins-day vesting balance with a vesting duration of 800,000 seconds
     */
    BOOST_AUTO_TEST_CASE(authorized_vesting_balance_create) {
@@ -3173,19 +3173,19 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(charlie));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         ACTORS((rsquaredchp1)(bob)(charlie));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          //////
-         // Bob attempts to create a coins-day vesting balance for Nathan
-         // This attempt should fail because Nathan has not authorized Bob to create a vesting balance
+         // Bob attempts to create a coins-day vesting balance for RSquaredCHP1
+         // This attempt should fail because RSquaredCHP1 has not authorized Bob to create a vesting balance
          //////
          vesting_balance_create_operation original_vb_op;
          time_point_sec policy_start_time = db.head_block_time() + 86400;
          {
             vesting_balance_create_operation vb_op;
-            vb_op.creator = nathan_id;
+            vb_op.creator = rsquaredchp1_id;
             vb_op.owner = charlie_id;
             vb_op.amount = graphene::chain::asset(60000);
             vb_op.policy = cdd_vesting_policy_initializer(800000, policy_start_time);
@@ -3203,11 +3203,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to create a coins-day vesting balance from her funds
+         // RSquaredCHP1 authorizes Bob to create a coins-day vesting balance from her funds
          // only if the vesting duration equals 800,000 seconds
          //////
          custom_authority_create_operation authorize_create_vesting;
-         authorize_create_vesting.account = nathan.get_id();
+         authorize_create_vesting.account = rsquaredchp1.get_id();
          authorize_create_vesting.auth.add_authority(bob.get_id(), 1);
          authorize_create_vesting.auth.weight_threshold = 1;
          authorize_create_vesting.enabled = true;
@@ -3247,7 +3247,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //]
          trx.clear();
          trx.operations = {authorize_create_vesting};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -3258,12 +3258,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to create a coins-day vesting balance for Nathan with a vesting duration of 86400 seconds
-         // This attempt should fail because Nathan has not authorized this duration
+         // Bob attempts to create a coins-day vesting balance for RSquaredCHP1 with a vesting duration of 86400 seconds
+         // This attempt should fail because RSquaredCHP1 has not authorized this duration
          //////
          {
             vesting_balance_create_operation vb_op;
-            vb_op.creator = nathan_id;
+            vb_op.creator = rsquaredchp1_id;
             vb_op.owner = charlie_id;
             vb_op.amount = graphene::chain::asset(60000);
             vb_op.policy = cdd_vesting_policy_initializer(86400, policy_start_time);
@@ -3283,12 +3283,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to create a linear vesting balance for Nathan
-         // This attempt should fail because Nathan has not authorized this type of vesting balance creation
+         // Bob attempts to create a linear vesting balance for RSquaredCHP1
+         // This attempt should fail because RSquaredCHP1 has not authorized this type of vesting balance creation
          //////
          {
             vesting_balance_create_operation vb_op;
-            vb_op.creator = nathan_id;
+            vb_op.creator = rsquaredchp1_id;
             vb_op.owner = charlie_id;
             vb_op.amount = graphene::chain::asset(60000);
             linear_vesting_policy_initializer policy;
@@ -3311,8 +3311,8 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to create a coins-day vesting balance for Nathan with a vesting duration of 800000 seconds
-         // This attempt should succeed because Nathan has authorized authorized this type of vesting balance creation
+         // Bob attempts to create a coins-day vesting balance for RSquaredCHP1 with a vesting duration of 800000 seconds
+         // This attempt should succeed because RSquaredCHP1 has authorized authorized this type of vesting balance creation
          // with this duration
          //////
          {
@@ -3331,7 +3331,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of time restrictions on CAA
     * Test of CAA for vesting_balance_withdraw_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to withdraw vesting for a limited duration
     */
    BOOST_AUTO_TEST_CASE(authorized_time_restrictions_1) {
@@ -3350,18 +3350,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob)(charlie));
+         ACTORS((rsquaredchp1)(bob)(charlie));
          fund(charlie, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
          //////
-         // Charlie creates an instant vesting balance for Nathan
+         // Charlie creates an instant vesting balance for RSquaredCHP1
          //////
          vesting_balance_create_operation original_vb_op;
          time_point_sec policy_start_time = db.head_block_time() + 86400;
          vesting_balance_create_operation vb_op;
          vb_op.creator = charlie_id;
-         vb_op.owner = nathan_id;
+         vb_op.owner = rsquaredchp1_id;
          vb_op.amount = graphene::chain::asset(60000);
          vb_op.policy = instant_vesting_policy_initializer();
          vb_op.fee = db.current_fee_schedule().calculate_fee(vb_op);
@@ -3377,19 +3377,19 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          generate_blocks(1);
          set_expiration(db, trx);
          vesting_balance_id_type vesting_balance_id =
-                 db.get_index_type<vesting_balance_index>().indices().get<by_account>().find(nathan.get_id())->id;
+                 db.get_index_type<vesting_balance_index>().indices().get<by_account>().find(rsquaredchp1.get_id())->id;
 
 
          //////
-         // Bob attempts to withdraw some of the vesting balance on behalf of Nathan
-         // This attempt should fail because Nathan has not authorized Bob
+         // Bob attempts to withdraw some of the vesting balance on behalf of RSquaredCHP1
+         // This attempt should fail because RSquaredCHP1 has not authorized Bob
          //////
          {
             asset partial_amount = asset(10000);
 
             vesting_balance_withdraw_operation vb_op;
             vb_op.vesting_balance = vesting_balance_id;
-            vb_op.owner = nathan_id;
+            vb_op.owner = rsquaredchp1_id;
             vb_op.amount = partial_amount;
             vb_op.fee = db.current_fee_schedule().calculate_fee(vb_op);
             trx.clear();
@@ -3404,10 +3404,10 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to withdraw her vesting balance
+         // RSquaredCHP1 authorizes Bob to withdraw her vesting balance
          //////
          custom_authority_create_operation authorize_create_vesting;
-         authorize_create_vesting.account = nathan.get_id();
+         authorize_create_vesting.account = rsquaredchp1.get_id();
          authorize_create_vesting.auth.add_authority(bob.get_id(), 1);
          authorize_create_vesting.auth.weight_threshold = 1;
          authorize_create_vesting.enabled = true;
@@ -3418,7 +3418,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          authorize_create_vesting.operation_type = operation::tag<vesting_balance_withdraw_operation>::value;
          trx.clear();
          trx.operations = {authorize_create_vesting};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -3430,7 +3430,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to withdraw the available vesting balance for Nathan
+         // Bob attempts to withdraw the available vesting balance for RSquaredCHP1
          // This attempt should succeed because the authorization is active
          //////
          {
@@ -3438,7 +3438,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
             vesting_balance_withdraw_operation vb_op;
             vb_op.vesting_balance = vesting_balance_id;
-            vb_op.owner = nathan_id;
+            vb_op.owner = rsquaredchp1_id;
             vb_op.amount = partial_amount;
             vb_op.fee = db.current_fee_schedule().calculate_fee(vb_op);
             trx.clear();
@@ -3458,7 +3458,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to withdraw the available vesting balance for Nathan
+         // Bob attempts to withdraw the available vesting balance for RSquaredCHP1
          // This attempt should fail because the authorization has expired
          //////
          {
@@ -3466,7 +3466,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
             vesting_balance_withdraw_operation vb_op;
             vb_op.vesting_balance = vesting_balance_id;
-            vb_op.owner = nathan_id;
+            vb_op.owner = rsquaredchp1_id;
             vb_op.amount = partial_amount;
             vb_op.fee = db.current_fee_schedule().calculate_fee(vb_op);
             trx.clear();
@@ -3489,7 +3489,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of CAA for asset_reserve_operation
     * Test of CAA in a proposed operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to reserve (burn) an asset only during a specfied timespan
     */
    BOOST_AUTO_TEST_CASE(authorized_time_restrictions_3) {
@@ -3497,9 +3497,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((assetissuer)(feedproducer)(nathan)(bob)(charlie));
+         ACTORS((assetissuer)(feedproducer)(rsquaredchp1)(bob)(charlie));
          int64_t init_balance(100 * GRAPHENE_BLOCKCHAIN_PRECISION);
-         fund(nathan, asset(init_balance));
+         fund(rsquaredchp1, asset(init_balance));
 
 
          // Lambda for issuing an asset to an account
@@ -3526,34 +3526,34 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // Initialize: Create user-issued assets
          //////
          upgrade_to_lifetime_member(assetissuer);
-         create_user_issued_asset("SPECIALCOIN", nathan,  DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
+         create_user_issued_asset("SPECIALCOIN", rsquaredchp1,  DEFAULT_UIA_ASSET_ISSUER_PERMISSION);
          generate_blocks(1);
          const asset_object &specialcoin
                  = *db.get_index_type<asset_index>().indices().get<by_symbol>().find("SPECIALCOIN");
 
 
          //////
-         // Initialize: nathan issues SPECIALCOIN to different accounts
+         // Initialize: rsquaredchp1 issues SPECIALCOIN to different accounts
          //////
-         asset_issue_operation issue_special_to_nathan_op
-                 = issue_amount_to(nathan.get_id(), asset(1000, specialcoin.id), nathan.get_id());
+         asset_issue_operation issue_special_to_rsquaredchp1_op
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(1000, specialcoin.id), rsquaredchp1.get_id());
          asset_issue_operation issue_special_to_charlie_op
-                 = issue_amount_to(nathan.get_id(), asset(2000, specialcoin.id), charlie.get_id());
+                 = issue_amount_to(rsquaredchp1.get_id(), asset(2000, specialcoin.id), charlie.get_id());
          trx.clear();
-         trx.operations = {issue_special_to_nathan_op, issue_special_to_charlie_op};
-         sign(trx, nathan_private_key);
+         trx.operations = {issue_special_to_rsquaredchp1_op, issue_special_to_charlie_op};
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
          //////
-         // Nathan reserves some SPECIALCOIN from hes account
+         // RSquaredCHP1 reserves some SPECIALCOIN from hes account
          //////
-         asset_reserve_operation reserve_op = reserve_asset(nathan.get_id(), asset(200, specialcoin.id));
+         asset_reserve_operation reserve_op = reserve_asset(rsquaredchp1.get_id(), asset(200, specialcoin.id));
          trx.clear();
          trx.operations = {reserve_op};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
-         int64_t allowed1_balance_specialcoin_after_override1 = get_balance(nathan.get_id(), specialcoin.id);
+         int64_t allowed1_balance_specialcoin_after_override1 = get_balance(rsquaredchp1.get_id(), specialcoin.id);
          BOOST_CHECK_EQUAL(allowed1_balance_specialcoin_after_override1, 800);
 
 
@@ -3570,11 +3570,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to reserve her SPECIALCOIN
+         // RSquaredCHP1 authorizes Bob to reserve her SPECIALCOIN
          // This attempt should fail because the blockchain has not yet been initialized for CAA
          //////
          custom_authority_create_operation authorize_reserve;
-         authorize_reserve.account = nathan.get_id();
+         authorize_reserve.account = rsquaredchp1.get_id();
          authorize_reserve.auth.add_authority(bob.get_id(), 1);
          authorize_reserve.auth.weight_threshold = 1;
          authorize_reserve.enabled = true;
@@ -3593,21 +3593,21 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          authorize_reserve.operation_type = operation::tag<asset_reserve_operation>::value;
          trx.clear();
          trx.operations = {authorize_reserve};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), fc::assert_exception);
 
 
          //////
-         // Nathan creates a PROPOSAL to authorize Bob to reserve her SPECIALCOIN
+         // RSquaredCHP1 creates a PROPOSAL to authorize Bob to reserve her SPECIALCOIN
          // This attempt should fail because the blockchain has not yet been initialized for CAA
          //////
          proposal_create_operation proposal;
-         proposal.fee_paying_account = nathan.get_id();
+         proposal.fee_paying_account = rsquaredchp1.get_id();
          proposal.proposed_ops = {op_wrapper(authorize_reserve)};
          proposal.expiration_time = db.head_block_time() + 86400;
          trx.clear();
          trx.operations = {authorize_reserve};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          BOOST_CHECK_THROW(PUSH_TX(db, trx), fc::assert_exception);
 
 
@@ -3623,7 +3623,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan creates a PROPOSAL to authorize Bob to reserve her SPECIALCOIN
+         // RSquaredCHP1 creates a PROPOSAL to authorize Bob to reserve her SPECIALCOIN
          // Authorization is valid only for 2/5 of the maximum duration of a custom authority
          // This attempt should succeed because the blockchain is initialized for CAA
          //////
@@ -3639,12 +3639,12 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          authorize_reserve.valid_from = authorization_start_time;
          authorize_reserve.valid_to = authorization_end_time;
 
-         proposal.fee_paying_account = nathan.get_id();
+         proposal.fee_paying_account = rsquaredchp1.get_id();
          proposal.proposed_ops = {op_wrapper(authorize_reserve)};
          proposal.expiration_time = db.head_block_time() + 86400;
          trx.clear();
          trx.operations = {proposal};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -3655,14 +3655,14 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          const proposal_object& prop = *db.get_index_type<proposal_index>().indices().begin();
          proposal_id_type proposal_id = prop.id;
 
-         // Nathan approves the proposal
+         // RSquaredCHP1 approves the proposal
          proposal_update_operation approve_proposal;
          approve_proposal.proposal = proposal_id;
-         approve_proposal.fee_paying_account = nathan.get_id();
-         approve_proposal.active_approvals_to_add = {nathan.get_id()};
+         approve_proposal.fee_paying_account = rsquaredchp1.get_id();
+         approve_proposal.active_approvals_to_add = {rsquaredchp1.get_id()};
          trx.clear();
          trx.operations = {approve_proposal};
-         sign(trx, nathan_private_key);
+         sign(trx, rsquaredchp1_private_key);
          PUSH_TX(db, trx);
 
 
@@ -3674,11 +3674,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to reserve some of Nathan's SPECIALCOIN
-         // This attempt should fail because Bob the Nathan authorization is not yet active
+         // Bob attempts to reserve some of RSquaredCHP1's SPECIALCOIN
+         // This attempt should fail because Bob the RSquaredCHP1 authorization is not yet active
          //////
          {
-            asset_reserve_operation reserve_op = reserve_asset(nathan.get_id(), asset(200, specialcoin.id));
+            asset_reserve_operation reserve_op = reserve_asset(rsquaredchp1.get_id(), asset(200, specialcoin.id));
             trx.clear();
             trx.operations = {reserve_op};
             sign(trx, bob_private_key);
@@ -3697,11 +3697,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to update the collateral for Nathan's debt position
+         // Bob attempts to update the collateral for RSquaredCHP1's debt position
          // This should succeed because the authorization is active
          //////
          {
-            asset_reserve_operation reserve_op = reserve_asset(nathan.get_id(), asset(200, specialcoin.id));
+            asset_reserve_operation reserve_op = reserve_asset(rsquaredchp1.get_id(), asset(200, specialcoin.id));
             trx.clear();
             trx.operations = {reserve_op};
             sign(trx, bob_private_key);
@@ -3717,11 +3717,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to update the collateral for Nathan's debt position
+         // Bob attempts to update the collateral for RSquaredCHP1's debt position
          // This should succeed because the authorization is active
          //////
          {
-            asset_reserve_operation reserve_op = reserve_asset(nathan.get_id(), asset(200, specialcoin.id));
+            asset_reserve_operation reserve_op = reserve_asset(rsquaredchp1.get_id(), asset(200, specialcoin.id));
             trx.clear();
             trx.operations = {reserve_op};
             sign(trx, bob_private_key);
@@ -3737,11 +3737,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Bob attempts to update the collateral for Nathan's debt position
+         // Bob attempts to update the collateral for RSquaredCHP1's debt position
          // This should fail because Bob the authorization has expired
          //////
          {
-            asset_reserve_operation reserve_op = reserve_asset(nathan.get_id(), asset(200, specialcoin.id));
+            asset_reserve_operation reserve_op = reserve_asset(rsquaredchp1.get_id(), asset(200, specialcoin.id));
             trx.clear();
             trx.operations = {reserve_op};
             sign(trx, bob_private_key);
@@ -3759,7 +3759,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
     * Test of string field restriction
     * Test of CAA for asset_create_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing another account (bob)
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing another account (bob)
     * to create an asset with a description that starts with the literal string "ACOIN."
     */
    BOOST_AUTO_TEST_CASE(authorized_asset_creation) {
@@ -3778,9 +3778,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan)(bob));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
-         upgrade_to_lifetime_member(nathan);
+         ACTORS((rsquaredchp1)(bob));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         upgrade_to_lifetime_member(rsquaredchp1);
          fund(bob, asset(200000 * GRAPHENE_BLOCKCHAIN_PRECISION));
 
 
@@ -3812,26 +3812,26 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan creates a UIA
+         // RSquaredCHP1 creates a UIA
          //////
          {
-            asset_create_operation create_uia_op = create_uia("ACOIN", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("ACOIN", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
          }
 
 
          //////
          // Bob attempts to create a UIA
-         // This should fail because Bob is not authorized by Nathan to create any coin with Nathan as the issuer
+         // This should fail because Bob is not authorized by RSquaredCHP1 to create any coin with RSquaredCHP1 as the issuer
          //////
          {
-            asset_create_operation create_uia_op = create_uia("ACOIN.BOB", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("ACOIN.BOB", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
             //BOOST_CHECK_THROW(PUSH_TX(db, trx), tx_missing_active_auth);
             // The failure should not indicate any rejected custom auths because no CAA applies for Bob's attempt
@@ -3841,11 +3841,11 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes Bob to create sub-token UIAs below ACOIN
+         // RSquaredCHP1 authorizes Bob to create sub-token UIAs below ACOIN
          //////
          {
             custom_authority_create_operation authorize_uia_creation;
-            authorize_uia_creation.account = nathan.get_id();
+            authorize_uia_creation.account = rsquaredchp1.get_id();
             authorize_uia_creation.auth.add_authority(bob.get_id(), 1);
             authorize_uia_creation.auth.weight_threshold = 1;
             authorize_uia_creation.enabled = true;
@@ -3878,7 +3878,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
             trx.clear();
             trx.operations = {authorize_uia_creation};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
          }
 
@@ -3888,7 +3888,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // This should fail because it violates Restriction 1
          //////
          {
-            asset_create_operation create_uia_op = create_uia("ABCOIN", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("ABCOIN", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
             sign(trx, bob_private_key);
@@ -3906,7 +3906,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          // This should fail because it violates Restriction 2
          //////
          {
-            asset_create_operation create_uia_op = create_uia("BOB", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("BOB", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
             sign(trx, bob_private_key);
@@ -3921,26 +3921,26 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
          //////
          // Bob attempts to create a sub-token of ACOIN
-         // This should succeed because this satisfies the sub-token restriction by Nathan
+         // This should succeed because this satisfies the sub-token restriction by RSquaredCHP1
          //////
          {
-            asset_create_operation create_uia_op = create_uia("ACOIN.BOB", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("ACOIN.BOB", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             //PUSH_TX(db, trx);
             BOOST_CHECK_THROW( PUSH_TX(db, trx), fc::exception );
 
-            create_uia_op = create_uia("ACOIN.CHARLIE", nathan, white_list);
+            create_uia_op = create_uia("ACOIN.CHARLIE", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
 
-            create_uia_op = create_uia("ACOIN.DIANA", nathan, white_list);
+            create_uia_op = create_uia("ACOIN.DIANA", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
          }
 
@@ -3951,29 +3951,29 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          {
             upgrade_to_lifetime_member(bob);
 
-            asset_create_operation create_uia_op = create_uia("AACOIN", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("AACOIN", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
 
             PUSH_TX(db, trx);
 
 
-            create_uia_op = create_uia("AACOIN.TEST", nathan, white_list);
+            create_uia_op = create_uia("AACOIN.TEST", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
 
             PUSH_TX(db, trx);
          }
 
 
          //////
-         // Bob attempts to create a sub-token of AACOIN but with Nathan as the issuer
+         // Bob attempts to create a sub-token of AACOIN but with RSquaredCHP1 as the issuer
          // This should fail because it violates Restriction 1
          //////
          {
-            asset_create_operation create_uia_op = create_uia("AACOIN.BOB", nathan, white_list);
+            asset_create_operation create_uia_op = create_uia("AACOIN.BOB", rsquaredchp1, white_list);
             trx.clear();
             trx.operations = {create_uia_op};
             sign(trx, bob_private_key);
@@ -3991,7 +3991,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    /**
     * Test of CAA for account_update_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing a key
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing a key
     * to ONLY update the voting slate of an account
     */
    BOOST_AUTO_TEST_CASE(authorized_voting_key) {
@@ -4010,9 +4010,9 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          // Initialize: Accounts
          //////
-         ACTORS((nathan));
-         fund(nathan, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
-         upgrade_to_lifetime_member(nathan);
+         ACTORS((rsquaredchp1));
+         fund(rsquaredchp1, asset(500000 * GRAPHENE_BLOCKCHAIN_PRECISION));
+         upgrade_to_lifetime_member(rsquaredchp1);
 
          // Arbitrarily identify one of the active witnesses
          flat_set<witness_id_type> witnesses = db.get_global_properties().active_witnesses;
@@ -4031,18 +4031,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the voting slate of Nathan
-         // This should fail because the key is not authorized by Nathan to update any part of her account
+         // The key attempts to update the voting slate of RSquaredCHP1
+         // This should fail because the key is not authorized by RSquaredCHP1 to update any part of her account
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
-            account_options nathan_options = nathan.options;
-            auto insert_result = nathan_options.votes.insert(witness0_obj.vote_id);
+            uop.account = rsquaredchp1.get_id();
+            account_options rsquaredchp1_options = rsquaredchp1.options;
+            auto insert_result = rsquaredchp1_options.votes.insert(witness0_obj.vote_id);
             if (!insert_result.second)
                FC_THROW("Account ${account} was already voting for witness ${witness}",
-                        ("account", nathan)("witness", "init0"));
-            uop.new_options = nathan_options;
+                        ("account", rsquaredchp1)("witness", "init0"));
+            uop.new_options = rsquaredchp1_options;
 
             trx.clear();
             trx.operations.emplace_back(std::move(uop));
@@ -4055,7 +4055,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes the key to update her voting slate
+         // RSquaredCHP1 authorizes the key to update her voting slate
          // by authorizing account updates EXCEPT for
          // updating the owner key
          // updating the active key
@@ -4065,7 +4065,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
          //////
          {
             custom_authority_create_operation authorize_account_update;
-            authorize_account_update.account = nathan.get_id();
+            authorize_account_update.account = rsquaredchp1.get_id();
             authorize_account_update.auth.add_authority(some_public_key, 1);
             authorize_account_update.auth.weight_threshold = 1;
             authorize_account_update.enabled = true;
@@ -4085,7 +4085,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             auto memo_index = member_index<account_options>("memo_key");
             restriction same_memo = restriction(new_options_index, FUNC(attr),
                                                 vector<restriction>{
-                                                        restriction(memo_index, FUNC(eq), nathan.options.memo_key)});
+                                                        restriction(memo_index, FUNC(eq), rsquaredchp1.options.memo_key)});
 
             // Shall not update the extensions member
             auto ext_index = member_index<account_update_operation>("extensions");
@@ -4191,19 +4191,19 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
             // Broadcast the transaction
             trx.clear();
             trx.operations = {authorize_account_update};
-            sign(trx, nathan_private_key);
+            sign(trx, rsquaredchp1_private_key);
             PUSH_TX(db, trx);
          }
 
 
          //////
-         // The key attempts to update the owner key for nathan
-         // This should fail because it is NOT authorized by nathan
+         // The key attempts to update the owner key for rsquaredchp1
+         // This should fail because it is NOT authorized by rsquaredchp1
          // It violates Restriction 1 (index-0)
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
+            uop.account = rsquaredchp1.get_id();
 
             uop.owner = authority(1, some_public_key, 1);
 
@@ -4218,13 +4218,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the active key for nathan
-         // This should fail because it is NOT authorized by nathan
+         // The key attempts to update the active key for rsquaredchp1
+         // This should fail because it is NOT authorized by rsquaredchp1
          // It violates Restriction 2 (index-1)
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
+            uop.account = rsquaredchp1.get_id();
 
             uop.active = authority(1, some_public_key, 1);
 
@@ -4239,13 +4239,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the special owner key for nathan
-         // This should fail because it is NOT authorized by nathan
+         // The key attempts to update the special owner key for rsquaredchp1
+         // This should fail because it is NOT authorized by rsquaredchp1
          // It violates Restriction 3 (index-2)
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
+            uop.account = rsquaredchp1.get_id();
 
             uop.extensions.value.owner_special_authority = no_special_authority();
 
@@ -4263,13 +4263,13 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the special active key for nathan
-         // This should fail because it is NOT authorized by nathan
+         // The key attempts to update the special active key for rsquaredchp1
+         // This should fail because it is NOT authorized by rsquaredchp1
          // It violates Restriction 4 (index-3)
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
+            uop.account = rsquaredchp1.get_id();
 
             uop.extensions.value.active_special_authority = no_special_authority();
 
@@ -4287,17 +4287,17 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the memo key for nathan
-         // This should fail because it is NOT authorized by nathan
+         // The key attempts to update the memo key for rsquaredchp1
+         // This should fail because it is NOT authorized by rsquaredchp1
          // It violates Restriction 5 (index-4)
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
+            uop.account = rsquaredchp1.get_id();
 
-            account_options nathan_options = nathan.options;
-            nathan_options.memo_key = some_public_key;
-            uop.new_options = nathan_options;
+            account_options rsquaredchp1_options = rsquaredchp1.options;
+            rsquaredchp1_options.memo_key = some_public_key;
+            uop.new_options = rsquaredchp1_options;
 
             trx.clear();
             trx.operations.emplace_back(std::move(uop));
@@ -4313,18 +4313,18 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // The key attempts to update the voting slate for nathan
-         // This should succeed because the key is authorized by nathan
+         // The key attempts to update the voting slate for rsquaredchp1
+         // This should succeed because the key is authorized by rsquaredchp1
          //////
          {
             account_update_operation uop;
-            uop.account = nathan.get_id();
-            account_options nathan_options = nathan.options;
-            auto insert_result = nathan_options.votes.insert(witness0_obj.vote_id);
+            uop.account = rsquaredchp1.get_id();
+            account_options rsquaredchp1_options = rsquaredchp1.options;
+            auto insert_result = rsquaredchp1_options.votes.insert(witness0_obj.vote_id);
             if (!insert_result.second)
                FC_THROW("Account ${account} was already voting for witness ${witness}",
-                        ("account", nathan)("witness", "init0"));
-            uop.new_options = nathan_options;
+                        ("account", rsquaredchp1)("witness", "init0"));
+            uop.new_options = rsquaredchp1_options;
 
             trx.clear();
             trx.operations.emplace_back(std::move(uop));
@@ -4339,7 +4339,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
    /**
     * Test of CAA for witness_update_operation
     *
-    * Scenario: Test of authorization of one account (nathan) authorizing a key
+    * Scenario: Test of authorization of one account (rsquaredchp1) authorizing a key
     * to ONLY change the signing key of a witness account
     */
    BOOST_AUTO_TEST_CASE(authorized_change_witness_signing_key) {
@@ -4418,7 +4418,7 @@ BOOST_AUTO_TEST_CASE(custom_auths) { try {
 
 
          //////
-         // Nathan authorizes the key to only update the witness signing key
+         // RSquaredCHP1 authorizes the key to only update the witness signing key
          //////
          {
             custom_authority_create_operation authorize_update_signing_key;

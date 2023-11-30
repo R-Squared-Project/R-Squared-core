@@ -1,6 +1,7 @@
 /*
  * Copyright (c) Project Nayuki
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -33,6 +34,6 @@ void preparePubKey(std::string* pubKey);
 
 std::string getAddress(std::string pubKey);
 
-int verifyMessage (std::string pubKey, std::string sig);
+int verifyMessage (std::string pubKey, std::string acc, std::string sig);
 
 } }

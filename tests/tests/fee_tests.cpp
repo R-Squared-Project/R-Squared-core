@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
 {
     try
     {
-        ACTORS((nathan)(bob));
-        // Nathan and Bob create some user issued assets
-        // Nathan deposits RQRX to the fee pool
-        // Nathan claimes fee pool of her asset and can't claim pool of Bob's asset
+        ACTORS((rsquaredchp1)(bob));
+        // RSquaredCHP1 and Bob create some user issued assets
+        // RSquaredCHP1 deposits RQRX to the fee pool
+        // RSquaredCHP1 claimes fee pool of her asset and can't claim pool of Bob's asset
 
         const share_type core_prec = asset::scaled_precision( asset_id_type()(db).precision );
 
@@ -95,18 +95,18 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
         auto _core = [&core_prec]( int64_t x ) -> asset
         {  return asset( x*core_prec );    };
 
-        const asset_object& nathancoin = create_user_issued_asset( "NATHANCOIN", nathan,  0 );
-        const asset_object& nathanusd = create_user_issued_asset( "NATHNAUSD", nathan, 0 );
+        const asset_object& rsquaredchp1coin = create_user_issued_asset( "RSQRCHP1COIN", rsquaredchp1,  0 );
+        const asset_object& rsquaredchp1usd = create_user_issued_asset( "NATHNAUSD", rsquaredchp1, 0 );
 
-        asset_id_type nathancoin_id = nathancoin.id;
-        asset_id_type nathanusd_id = nathanusd.id;
-        asset_id_type bobcoin_id = create_user_issued_asset( "BOBCOIN", nathan, 0).id;
+        asset_id_type rsquaredchp1coin_id = rsquaredchp1coin.id;
+        asset_id_type rsquaredchp1usd_id = rsquaredchp1usd.id;
+        asset_id_type bobcoin_id = create_user_issued_asset( "BOBCOIN", rsquaredchp1, 0).id;
 
         // prepare users' balance
-        issue_uia( nathan, nathanusd.amount( 20000000 ) );
-        issue_uia( nathan, nathancoin.amount( 10000000 ) );
+        issue_uia( rsquaredchp1, rsquaredchp1usd.amount( 20000000 ) );
+        issue_uia( rsquaredchp1, rsquaredchp1coin.amount( 10000000 ) );
 
-        transfer( committee_account, nathan_id, _core(1000) );
+        transfer( committee_account, rsquaredchp1_id, _core(1000) );
         transfer( committee_account, bob_id, _core(1000) );
 
         enable_fees();
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
             tx.operations.push_back( claim_op );
             db.current_fee_schedule().set_fee( tx.operations.back(), fee_asset.options.core_exchange_rate );
             set_expiration( db, tx );
-            sign( tx, nathan_private_key );
+            sign( tx, rsquaredchp1_private_key );
             PUSH_TX( db, tx );
 
         };
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
             const auto& curfees = db.get_global_properties().parameters.get_current_fees();
             const auto& proposal_create_fees = curfees.get<proposal_create_operation>();
             proposal_create_operation prop;
-            prop.fee_paying_account = nathan_id;
+            prop.fee_paying_account = rsquaredchp1_id;
             prop.proposed_ops.emplace_back( claim_op );
             prop.expiration_time =  db.head_block_time() + fc::days(1);
             prop.fee = asset( proposal_create_fees.fee + proposal_create_fees.price_per_kbyte );
@@ -148,51 +148,51 @@ BOOST_AUTO_TEST_CASE(asset_claim_pool_test)
             tx.operations.push_back( prop );
             db.current_fee_schedule().set_fee( tx.operations.back(), fee_asset.options.core_exchange_rate );
             set_expiration( db, tx );
-            sign( tx, nathan_private_key );
+            sign( tx, rsquaredchp1_private_key );
             PUSH_TX( db, tx );
 
         };
 
-        // deposit 100 RQRX to the fee pool of NATHANUSD asset
-        fund_fee_pool( nathan_id(db), nathanusd_id(db), _core(100).amount );
+        // deposit 100 RQRX to the fee pool of RSQRCHP1USD asset
+        fund_fee_pool( rsquaredchp1_id(db), rsquaredchp1usd_id(db), _core(100).amount );
 
         // New reference for core_asset after having produced blocks
         const asset_object& core_asset_hf = asset_id_type()(db);
 
         // can't claim pool because it is empty
-        GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, nathancoin_id, _core(1), core_asset_hf), fc::exception );
+        GRAPHENE_REQUIRE_THROW( claim_pool( rsquaredchp1_id, rsquaredchp1coin_id, _core(1), core_asset_hf), fc::exception );
 
-        // deposit 300 RQRX to the fee pool of NATHANCOIN asset
-        fund_fee_pool( nathan_id(db), nathancoin_id(db), _core(300).amount );
+        // deposit 300 RQRX to the fee pool of RSQRCHP1COIN asset
+        fund_fee_pool( rsquaredchp1_id(db), rsquaredchp1coin_id(db), _core(300).amount );
 
         // Test amount of CORE in fee pools
-        BOOST_CHECK( nathancoin_id(db).dynamic_asset_data_id(db).fee_pool == _core(300).amount );
-        BOOST_CHECK( nathanusd_id(db).dynamic_asset_data_id(db).fee_pool == _core(100).amount );
+        BOOST_CHECK( rsquaredchp1coin_id(db).dynamic_asset_data_id(db).fee_pool == _core(300).amount );
+        BOOST_CHECK( rsquaredchp1usd_id(db).dynamic_asset_data_id(db).fee_pool == _core(100).amount );
 
         // can't claim pool of an asset that doesn't belong to you
-        GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, bobcoin_id, _core(200), core_asset_hf), fc::exception );
+        GRAPHENE_REQUIRE_THROW( claim_pool( rsquaredchp1_id, bobcoin_id, _core(200), core_asset_hf), fc::exception );
 
         // can't claim more than is available in the fee pool
-        GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, nathancoin_id, _core(400), core_asset_hf ), fc::exception );
+        GRAPHENE_REQUIRE_THROW( claim_pool( rsquaredchp1_id, rsquaredchp1coin_id, _core(400), core_asset_hf ), fc::exception );
 
         // can't pay fee in the same asset whose pool is being drained
-        GRAPHENE_REQUIRE_THROW( claim_pool( nathan_id, nathancoin_id, _core(200), nathancoin_id(db) ), fc::exception );
+        GRAPHENE_REQUIRE_THROW( claim_pool( rsquaredchp1_id, rsquaredchp1coin_id, _core(200), rsquaredchp1coin_id(db) ), fc::exception );
 
         // can claim RQRX back from the fee pool
-        claim_pool( nathan_id, nathancoin_id, _core(200), core_asset_hf );
-        BOOST_CHECK( nathancoin_id(db).dynamic_asset_data_id(db).fee_pool == _core(100).amount );
+        claim_pool( rsquaredchp1_id, rsquaredchp1coin_id, _core(200), core_asset_hf );
+        BOOST_CHECK( rsquaredchp1coin_id(db).dynamic_asset_data_id(db).fee_pool == _core(100).amount );
 
         // can pay fee in the asset other than the one whose pool is being drained
-        share_type balance_before_claim = get_balance( nathan_id, asset_id_type() );
-        claim_pool( nathan_id, nathancoin_id, _core(100), nathanusd_id(db) );
-        BOOST_CHECK( nathancoin_id(db).dynamic_asset_data_id(db).fee_pool == _core(0).amount );
+        share_type balance_before_claim = get_balance( rsquaredchp1_id, asset_id_type() );
+        claim_pool( rsquaredchp1_id, rsquaredchp1coin_id, _core(100), rsquaredchp1usd_id(db) );
+        BOOST_CHECK( rsquaredchp1coin_id(db).dynamic_asset_data_id(db).fee_pool == _core(0).amount );
 
         //check balance after claiming pool
-        share_type current_balance = get_balance( nathan_id, asset_id_type() );
+        share_type current_balance = get_balance( rsquaredchp1_id, asset_id_type() );
         BOOST_CHECK( balance_before_claim + _core(100).amount == current_balance );
 
         // can create a proposal to claim claim pool after hard fork
-        claim_pool_proposal( nathan_id, nathanusd_id, _core(1), core_asset_hf);
+        claim_pool_proposal( rsquaredchp1_id, rsquaredchp1usd_id, _core(1), core_asset_hf);
     }
     FC_LOG_AND_RETHROW()
 }
@@ -598,18 +598,18 @@ BOOST_AUTO_TEST_CASE( stealth_fba_test )
 {
    try
    {
-      ACTORS( (alice)(bob)(chloe)(dan)(nathan)(philbin)(tom) );
+      ACTORS( (alice)(bob)(chloe)(dan)(rsquaredchp1)(philbin)(tom) );
       upgrade_to_lifetime_member(philbin_id);
 
       // Philbin (registrar who registers Rex)
 
-      // Nathan (initial issuer of stealth asset, will later transfer to Tom)
+      // RSquaredCHP1 (initial issuer of stealth asset, will later transfer to Tom)
       // Alice, Bob, Chloe, Dan (ABCD)
       // Rex (recycler -- buyback account for stealth asset)
       // Tom (owner of stealth asset who will be set as top_n authority)
 
-      // Nathan creates STEALTH
-      asset_id_type stealth_id = create_user_issued_asset( "STEALTH", nathan_id(db),
+      // RSquaredCHP1 creates STEALTH
+      asset_id_type stealth_id = create_user_issued_asset( "STEALTH", rsquaredchp1_id(db),
          disable_confidential | transfer_restricted | override_authority | white_list | charge_market_fee ).id;
 
       /*
@@ -630,10 +630,10 @@ BOOST_AUTO_TEST_CASE( stealth_fba_test )
       };
       */
 
-      // Nathan kills some permission bits (this somehow happened to the real STEALTH in production)
+      // RSquaredCHP1 kills some permission bits (this somehow happened to the real STEALTH in production)
       {
          asset_update_operation update_op;
-         update_op.issuer = nathan_id;
+         update_op.issuer = rsquaredchp1_id;
          update_op.asset_to_update = stealth_id;
          asset_options new_options;
          new_options = stealth_id(db).options;
@@ -645,14 +645,14 @@ BOOST_AUTO_TEST_CASE( stealth_fba_test )
          signed_transaction tx;
          tx.operations.push_back( update_op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 
-      // Nathan transfers issuer duty to Tom
+      // RSquaredCHP1 transfers issuer duty to Tom
 /*      {
          asset_update_operation update_op;
-         update_op.issuer = nathan_id;
+         update_op.issuer = rsquaredchp1_id;
          update_op.asset_to_update = stealth_id;
          //update_op.new_issuer = tom_id;
          // new_options should be optional, but isn't...the following line should be unnecessary #580
@@ -660,19 +660,19 @@ BOOST_AUTO_TEST_CASE( stealth_fba_test )
          signed_transaction tx;
          tx.operations.push_back( update_op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 */
       {
          asset_update_issuer_operation upd_op;
          upd_op.asset_to_update = stealth_id;
-         upd_op.issuer = nathan_id;
+         upd_op.issuer = rsquaredchp1_id;
          upd_op.new_issuer = tom_id;
          signed_transaction tx;
          tx.operations.push_back( upd_op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 
@@ -822,9 +822,9 @@ BOOST_AUTO_TEST_CASE( issue_429_test )
 {
    try
    {
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
-      transfer( committee_account, nathan_id, asset( 1000000 * asset::scaled_precision( asset_id_type()(db).precision ) ) );
+      transfer( committee_account, rsquaredchp1_id, asset( 1000000 * asset::scaled_precision( asset_id_type()(db).precision ) ) );
 
       // make sure the database requires our fee to be nonzero
       enable_fees();
@@ -835,13 +835,13 @@ BOOST_AUTO_TEST_CASE( issue_429_test )
       {
          signed_transaction tx;
          asset_create_operation op;
-         op.issuer = nathan_id;
-         op.symbol = "NATHAN";
+         op.issuer = rsquaredchp1_id;
+         op.symbol = "RSQRCHP1";
          op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
          op.fee = asset( (fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) & (~1) );
          tx.operations.push_back( op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 
@@ -850,13 +850,13 @@ BOOST_AUTO_TEST_CASE( issue_429_test )
       {
          signed_transaction tx;
          asset_create_operation op;
-         op.issuer = nathan_id;
-         op.symbol = "NATHAN.ODD";
+         op.issuer = rsquaredchp1_id;
+         op.symbol = "RSQRCHP1.ODD";
          op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
          op.fee = asset((fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) | 1);
          tx.operations.push_back( op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 
@@ -865,13 +865,13 @@ BOOST_AUTO_TEST_CASE( issue_429_test )
       {
          signed_transaction tx;
          asset_create_operation op;
-         op.issuer = nathan_id;
-         op.symbol = "NATHAN.ODDER";
+         op.issuer = rsquaredchp1_id;
+         op.symbol = "RSQRCHP1.ODDER";
          op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
          op.fee = asset((fees_to_pay.long_symbol + fees_to_pay.price_per_kbyte) | 1);
          tx.operations.push_back( op );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 
@@ -888,14 +888,14 @@ BOOST_AUTO_TEST_CASE( issue_433_test )
 {
    try
    {
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
       auto& core = asset_id_type()(db);
 
-      transfer( committee_account, nathan_id, asset( 1000000 * asset::scaled_precision( core.precision ) ) );
+      transfer( committee_account, rsquaredchp1_id, asset( 1000000 * asset::scaled_precision( core.precision ) ) );
 
-      const auto& myusd = create_user_issued_asset( "MYUSD", nathan, 0 );
-      issue_uia( nathan, myusd.amount( 2000000000 ) );
+      const auto& myusd = create_user_issued_asset( "MYUSD", rsquaredchp1, 0 );
+      issue_uia( rsquaredchp1, myusd.amount( 2000000000 ) );
 
       // make sure the database requires our fee to be nonzero
       enable_fees();
@@ -903,17 +903,17 @@ BOOST_AUTO_TEST_CASE( issue_433_test )
       const auto& fees = db.get_global_properties().parameters.get_current_fees();
       const auto asset_create_fees = fees.get<asset_create_operation>();
 
-      fund_fee_pool( nathan, myusd, 5*asset_create_fees.long_symbol );
+      fund_fee_pool( rsquaredchp1, myusd, 5*asset_create_fees.long_symbol );
 
       asset_create_operation op;
-      op.issuer = nathan_id;
-      op.symbol = "NATHAN";
+      op.issuer = rsquaredchp1_id;
+      op.symbol = "RSQRCHP1";
       op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
       op.fee = myusd.amount( ((asset_create_fees.long_symbol + asset_create_fees.price_per_kbyte) & (~1)) );
       signed_transaction tx;
       tx.operations.push_back( op );
       set_expiration( db, tx );
-      sign( tx, nathan_private_key );
+      sign( tx, rsquaredchp1_private_key );
       PUSH_TX( db, tx );
 
       verify_asset_supplies( db );
@@ -929,14 +929,14 @@ BOOST_AUTO_TEST_CASE( issue_433_indirect_test )
 {
    try
    {
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
       auto& core = asset_id_type()(db);
 
-      transfer( committee_account, nathan_id, asset( 1000000 * asset::scaled_precision( core.precision ) ) );
+      transfer( committee_account, rsquaredchp1_id, asset( 1000000 * asset::scaled_precision( core.precision ) ) );
 
-      const auto& myusd = create_user_issued_asset( "MYUSD", nathan, 0 );
-      issue_uia( nathan, myusd.amount( 2000000000 ) );
+      const auto& myusd = create_user_issued_asset( "MYUSD", rsquaredchp1, 0 );
+      issue_uia( rsquaredchp1, myusd.amount( 2000000000 ) );
 
       // make sure the database requires our fee to be nonzero
       enable_fees();
@@ -944,17 +944,17 @@ BOOST_AUTO_TEST_CASE( issue_433_indirect_test )
       const auto& fees = db.get_global_properties().parameters.get_current_fees();
       const auto asset_create_fees = fees.get<asset_create_operation>();
 
-      fund_fee_pool( nathan, myusd, 5*asset_create_fees.long_symbol );
+      fund_fee_pool( rsquaredchp1, myusd, 5*asset_create_fees.long_symbol );
 
       asset_create_operation op;
-      op.issuer = nathan_id;
-      op.symbol = "NATHAN";
+      op.issuer = rsquaredchp1_id;
+      op.symbol = "RSQRCHP1";
       op.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
       op.fee = myusd.amount( ((asset_create_fees.long_symbol + asset_create_fees.price_per_kbyte) & (~1)) );
 
       const auto proposal_create_fees = fees.get<proposal_create_operation>();
       proposal_create_operation prop;
-      prop.fee_paying_account = nathan_id;
+      prop.fee_paying_account = rsquaredchp1_id;
       prop.proposed_ops.emplace_back( op );
       prop.expiration_time =  db.head_block_time() + fc::days(1);
       prop.fee = asset( proposal_create_fees.fee + proposal_create_fees.price_per_kbyte );
@@ -963,7 +963,7 @@ BOOST_AUTO_TEST_CASE( issue_433_indirect_test )
          signed_transaction tx;
          tx.operations.push_back( prop );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          proposal_id = PUSH_TX( db, tx ).operation_results.front().get<object_id_type>();
       }
       const proposal_object& proposal = db.get<proposal_object>( proposal_id );
@@ -971,14 +971,14 @@ BOOST_AUTO_TEST_CASE( issue_433_indirect_test )
       const auto proposal_update_fees = fees.get<proposal_update_operation>();
       proposal_update_operation pup;
       pup.proposal = proposal.id;
-      pup.fee_paying_account = nathan_id;
-      pup.active_approvals_to_add.insert(nathan_id);
+      pup.fee_paying_account = rsquaredchp1_id;
+      pup.active_approvals_to_add.insert(rsquaredchp1_id);
       pup.fee = asset( proposal_update_fees.fee + proposal_update_fees.price_per_kbyte );
       {
          signed_transaction tx;
          tx.operations.push_back( pup );
          set_expiration( db, tx );
-         sign( tx, nathan_private_key );
+         sign( tx, rsquaredchp1_private_key );
          PUSH_TX( db, tx );
       }
 

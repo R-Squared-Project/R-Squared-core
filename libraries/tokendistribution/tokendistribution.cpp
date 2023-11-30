@@ -1,6 +1,7 @@
 /*
  * Copyright (c) Project Nayuki
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -25,6 +26,9 @@
 
 #include "secp256k1.h"
 #include <fc/exception/exception.hpp>
+
+#include <ctime>
+#include <iomanip>
 
 #include <graphene/tokendistribution/Keccak256.hpp>
 
@@ -52,8 +56,16 @@ std::string getAddress(std::string pubKey)
    return address;
 }
 
-int verifyMessage (std::string pubKey, std::string sig) {
-   std::string hello = "Hello world!";
+int verifyMessage (std::string pubKey, std::string acc, std::string sig) {
+   std::time_t tm = std::time(nullptr);
+   std::string datetime(11,0);
+   datetime.resize(std::strftime(&datetime[0], datetime.size(), "%Y-%m-%d", std::localtime(&tm)));
+
+   const std::string asset = "RQRX";
+
+   using namespace std::string_literals;
+   std::string hello = "I "s + acc + " want to claim "s + asset + " tokens. "s + datetime + "."s;
+
    Bytes message = asciiBytes(hello.c_str());
    std::uint8_t actualHashBuff[Keccak256::HASH_LEN];
    Keccak256::getHash(message.data(), message.size(), actualHashBuff);

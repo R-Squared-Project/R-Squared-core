@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015-2018 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -46,9 +47,9 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
 {
    try {
       asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
-      auto nathan = create_account("nathan");
+      auto rsquaredchp1 = create_account("rsquaredchp1");
       asset_create_operation creator;
-      creator.issuer = nathan.get_id();
+      creator.issuer = rsquaredchp1.get_id();
       creator.fee = asset();
       creator.symbol = "ADVANCED";
       creator.common_options.max_supply = 100000000;
@@ -83,8 +84,8 @@ BOOST_AUTO_TEST_CASE( create_advanced_uia )
 
 BOOST_AUTO_TEST_CASE( override_transfer_test )
 { try {
-   ACTORS( (dan)(eric)(nathan) );
-   const asset_object& advanced = create_user_issued_asset( "ADVANCED", nathan, override_authority );
+   ACTORS( (dan)(eric)(rsquaredchp1) );
+   const asset_object& advanced = create_user_issued_asset( "ADVANCED", rsquaredchp1, override_authority );
    BOOST_TEST_MESSAGE( "Issuing 1000 ADVANCED to dan" );
    issue_uia( dan, advanced.amount( 1000 ) );
    BOOST_TEST_MESSAGE( "Checking dan's balance" );
@@ -105,7 +106,7 @@ BOOST_AUTO_TEST_CASE( override_transfer_test )
    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), tx_missing_active_auth );
    BOOST_TEST_MESSAGE( "Pass with issuer's signature" );
    trx.clear_signatures();
-   sign( trx,  nathan_private_key  );
+   sign( trx,  rsquaredchp1_private_key  );
    PUSH_TX( db, trx, 0 );
 
    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 900 );
@@ -114,8 +115,8 @@ BOOST_AUTO_TEST_CASE( override_transfer_test )
 
 BOOST_AUTO_TEST_CASE( override_transfer_test2 )
 { try {
-   ACTORS( (dan)(eric)(nathan) );
-   const asset_object& advanced = create_user_issued_asset( "ADVANCED", nathan, 0 );
+   ACTORS( (dan)(eric)(rsquaredchp1) );
+   const asset_object& advanced = create_user_issued_asset( "ADVANCED", rsquaredchp1, 0 );
    issue_uia( dan, advanced.amount( 1000 ) );
    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
 
@@ -134,7 +135,7 @@ BOOST_AUTO_TEST_CASE( override_transfer_test2 )
    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception);
    BOOST_TEST_MESSAGE( "Fail because overide_authority flag is not set" );
    trx.clear_signatures();
-   sign( trx,  nathan_private_key  );
+   sign( trx,  rsquaredchp1_private_key  );
    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, 0 ), fc::exception );
 
    BOOST_REQUIRE_EQUAL( get_balance( dan, advanced ), 1000 );
@@ -143,8 +144,8 @@ BOOST_AUTO_TEST_CASE( override_transfer_test2 )
 
 BOOST_AUTO_TEST_CASE( override_transfer_whitelist_test )
 { try {
-   ACTORS( (dan)(eric)(nathan) );
-   const asset_object& advanced = create_user_issued_asset( "ADVANCED", nathan, white_list | override_authority );
+   ACTORS( (dan)(eric)(rsquaredchp1) );
+   const asset_object& advanced = create_user_issued_asset( "ADVANCED", rsquaredchp1, white_list | override_authority );
    asset_id_type advanced_id = advanced.id;
    BOOST_TEST_MESSAGE( "Issuing 1000 ADVANCED to dan" );
    issue_uia( dan, advanced.amount( 1000 ) );
@@ -202,8 +203,8 @@ BOOST_AUTO_TEST_CASE( override_transfer_whitelist_test )
    BOOST_REQUIRE_EQUAL( get_balance( dan_id, advanced_id ), 800 );
    BOOST_REQUIRE_EQUAL( get_balance( eric_id, advanced_id ), 200 );
 
-   // Still can not override-transfer to nathan because he is not whitelisted
-   otrans.to = nathan_id;
+   // Still can not override-transfer to rsquaredchp1 because he is not whitelisted
+   otrans.to = rsquaredchp1_id;
    trx.operations.clear();
    trx.operations.push_back(otrans);
    GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, ~0 ), fc::exception );
@@ -215,9 +216,9 @@ BOOST_AUTO_TEST_CASE( override_transfer_whitelist_test )
 BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
 {
    try {
-      account_id_type nathan_id = create_account("nathan").id;
+      account_id_type rsquaredchp1_id = create_account("rsquaredchp1").id;
       const asset_id_type uia_id = create_user_issued_asset(
-         "ADVANCED", nathan_id(db), white_list ).id;
+         "ADVANCED", rsquaredchp1_id(db), white_list ).id;
       account_id_type izzy_id = create_account("izzy").id;
       account_id_type vikram_id = create_account("vikram").id;
       trx.clear();
@@ -240,13 +241,13 @@ BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
       {
          BOOST_TEST_MESSAGE( "Changing the whitelist authority" );
          asset_update_operation uop;
-         uop.issuer = nathan_id;
+         uop.issuer = rsquaredchp1_id;
          uop.asset_to_update = uia_id;
          uop.new_options = uia_id(db).options;
-         uop.new_options.whitelist_authorities.insert(nathan_id);
+         uop.new_options.whitelist_authorities.insert(rsquaredchp1_id);
          trx.operations.back() = uop;
          PUSH_TX( db, trx, ~0 );
-         BOOST_CHECK( uia_id(db).options.whitelist_authorities.find(nathan_id) != uia_id(db).options.whitelist_authorities.end() );
+         BOOST_CHECK( uia_id(db).options.whitelist_authorities.find(rsquaredchp1_id) != uia_id(db).options.whitelist_authorities.end() );
       }
 
       // Fail because there is a whitelist authority and I'm not whitelisted
@@ -257,14 +258,14 @@ BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
       BOOST_CHECK( is_authorized_asset( db, account_id_type()(db), uia_id(db) ) );
 
       account_whitelist_operation wop;
-      wop.authorizing_account = nathan_id;
+      wop.authorizing_account = rsquaredchp1_id;
       wop.account_to_list = vikram_id;
       wop.new_listing = account_whitelist_operation::white_listed;
 
       trx.operations.back() = wop;
       // Fail because whitelist function is restricted to members only
       GRAPHENE_REQUIRE_THROW( PUSH_TX( db, trx, ~0 ), fc::exception );
-      upgrade_to_lifetime_member( nathan_id );
+      upgrade_to_lifetime_member( rsquaredchp1_id );
       trx.operations.clear();
       trx.operations.push_back( wop );
       PUSH_TX( db, trx, ~0 );
@@ -284,8 +285,8 @@ BOOST_AUTO_TEST_CASE( issue_whitelist_uia )
 
       // committee-account is still blocked
       BOOST_CHECK( is_authorized_asset( db, account_id_type()(db), uia_id(db) ) );
-      // nathan is still blocked
-      BOOST_CHECK( !is_authorized_asset( db, nathan_id(db), uia_id(db) ) );
+      // rsquaredchp1 is still blocked
+      BOOST_CHECK( !is_authorized_asset( db, rsquaredchp1_id(db), uia_id(db) ) );
 
    } catch(fc::exception& e) {
       edump((e.to_detail_string()));
@@ -301,7 +302,7 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
       const asset_id_type uia_id = advanced.id;
       const account_object& izzy = get_account("izzy");
       const account_object& dan = create_account("dan");
-      account_id_type nathan_id = get_account("nathan").id;
+      account_id_type rsquaredchp1_id = get_account("rsquaredchp1").id;
       upgrade_to_lifetime_member(dan);
       trx.clear();
 
@@ -317,7 +318,7 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
 
       BOOST_TEST_MESSAGE( "Adding dan to whitelist for asset ADVANCED" );
       account_whitelist_operation wop;
-      wop.authorizing_account = nathan_id;
+      wop.authorizing_account = rsquaredchp1_id;
       wop.account_to_list = dan.id;
       wop.new_listing = account_whitelist_operation::white_listed;
       trx.operations.back() = wop;
@@ -333,13 +334,13 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
       {
          BOOST_TEST_MESSAGE( "Changing the blacklist authority" );
          asset_update_operation uop;
-         uop.issuer = nathan_id;
+         uop.issuer = rsquaredchp1_id;
          uop.asset_to_update = advanced.id;
          uop.new_options = advanced.options;
-         uop.new_options.blacklist_authorities.insert(nathan_id);
+         uop.new_options.blacklist_authorities.insert(rsquaredchp1_id);
          trx.operations.back() = uop;
          PUSH_TX( db, trx, ~0 );
-         BOOST_CHECK( advanced.options.blacklist_authorities.find(nathan_id) != advanced.options.blacklist_authorities.end() );
+         BOOST_CHECK( advanced.options.blacklist_authorities.find(rsquaredchp1_id) != advanced.options.blacklist_authorities.end() );
       }
 
       wop.new_listing |= account_whitelist_operation::black_listed;
@@ -370,7 +371,7 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
       {
          BOOST_TEST_MESSAGE( "Changing the blacklist authority to dan" );
          asset_update_operation op;
-         op.issuer = nathan_id;
+         op.issuer = rsquaredchp1_id;
          op.asset_to_update = advanced.id;
          op.new_options = advanced.options;
          op.new_options.blacklist_authorities.clear();
@@ -399,7 +400,7 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
       GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx, ~0 ), fc::exception);
 
       //Remove izzy from committee's whitelist, add him to dan's. This should not authorize him to hold ADVANCED.
-      wop.authorizing_account = nathan_id;
+      wop.authorizing_account = rsquaredchp1_id;
       wop.account_to_list = izzy.id;
       wop.new_listing = account_whitelist_operation::no_listing;
       trx.operations.back() = wop;
@@ -423,14 +424,14 @@ BOOST_AUTO_TEST_CASE( transfer_whitelist_uia )
 
       // committee-account is still blocked
       BOOST_CHECK( is_authorized_asset( db, account_id_type()(db), uia_id(db) ) );
-      // nathan is still blocked
-      BOOST_CHECK( !is_authorized_asset( db, nathan_id(db), uia_id(db) ) );
+      // rsquaredchp1 is still blocked
+      BOOST_CHECK( !is_authorized_asset( db, rsquaredchp1_id(db), uia_id(db) ) );
 
 
       // committee-account is now unblocked
       BOOST_CHECK( is_authorized_asset( db, account_id_type()(db), uia_id(db) ) );
-      // nathan is still blocked
-      BOOST_CHECK( !is_authorized_asset( db, nathan_id(db), uia_id(db) ) );
+      // rsquaredchp1 is still blocked
+      BOOST_CHECK( !is_authorized_asset( db, rsquaredchp1_id(db), uia_id(db) ) );
 
    } catch(fc::exception& e) {
       edump((e.to_detail_string()));
@@ -445,7 +446,7 @@ BOOST_AUTO_TEST_CASE( transfer_restricted_test )
 {
    try
    {
-      ACTORS( (nathan)(alice)(bob) );
+      ACTORS( (rsquaredchp1)(alice)(bob) );
 
       BOOST_TEST_MESSAGE( "Issuing 1000 UIA to Alice" );
 
@@ -461,13 +462,13 @@ BOOST_AUTO_TEST_CASE( transfer_restricted_test )
          PUSH_TX( db, tx, database::skip_tapos_check | database::skip_transaction_signatures );
       } ;
 
-      const asset_object& uia = create_user_issued_asset( "TXRX", nathan, transfer_restricted );
+      const asset_object& uia = create_user_issued_asset( "TXRX", rsquaredchp1, transfer_restricted );
       _issue_uia( alice, uia.amount( 1000 ) );
 
       auto _restrict_xfer = [&]( bool xfer_flag )
       {
          asset_update_operation op;
-         op.issuer = nathan_id;
+         op.issuer = rsquaredchp1_id;
          op.asset_to_update = uia.id;
          op.new_options = uia.options;
          if( xfer_flag )
@@ -580,7 +581,7 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
 {
    try
    {
-      ACTORS( (nathan)(bob)(sam) );
+      ACTORS( (rsquaredchp1)(bob)(sam) );
 
       auto has_asset = [&]( std::string symbol ) -> bool
       {
@@ -588,15 +589,15 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
          return assets_by_symbol.find( symbol ) != assets_by_symbol.end();
       };
 
-      // Nathan creates asset "ALPHA"
+      // RSquaredCHP1 creates asset "ALPHA"
       BOOST_CHECK( !has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
-      create_user_issued_asset( "ALPHA", nathan_id(db), 0 );
+      create_user_issued_asset( "ALPHA", rsquaredchp1_id(db), 0 );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
 
       // Nobody can create another asset named ALPHA
       GRAPHENE_REQUIRE_THROW( create_user_issued_asset( "ALPHA",   bob_id(db), 0 ), fc::exception );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
-      GRAPHENE_REQUIRE_THROW( create_user_issued_asset( "ALPHA", nathan_id(db), 0 ), fc::exception );
+      GRAPHENE_REQUIRE_THROW( create_user_issued_asset( "ALPHA", rsquaredchp1_id(db), 0 ), fc::exception );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
 
 
@@ -606,14 +607,14 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       GRAPHENE_REQUIRE_THROW( create_user_issued_asset( "ALPHA.ONE", bob_id(db), 0 ), fc::exception );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( !has_asset("ALPHA.ONE") );
 
-      // Nathan can create ALPHA.ONE
-      create_user_issued_asset( "ALPHA.ONE", nathan_id(db), 0 );
+      // RSquaredCHP1 can create ALPHA.ONE
+      create_user_issued_asset( "ALPHA.ONE", rsquaredchp1_id(db), 0 );
       BOOST_CHECK(  has_asset("ALPHA") );    BOOST_CHECK( has_asset("ALPHA.ONE") );
 
       // create a proposal to create asset ending in a number
       auto& core = asset_id_type()(db);
       asset_create_operation op_p;
-      op_p.issuer = nathan_id;
+      op_p.issuer = rsquaredchp1_id;
       op_p.symbol = "SP500";
       op_p.common_options.core_exchange_rate = asset( 1 ) / asset( 1, asset_id_type( 1 ) );
       op_p.fee = core.amount(0);
@@ -621,7 +622,7 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       const auto& curfees = db.get_global_properties().parameters.get_current_fees();
       const auto& proposal_create_fees = curfees.get<proposal_create_operation>();
       proposal_create_operation prop;
-      prop.fee_paying_account = nathan_id;
+      prop.fee_paying_account = rsquaredchp1_id;
       prop.proposed_ops.emplace_back( op_p );
       prop.expiration_time =  db.head_block_time() + fc::days(1);
       prop.fee = asset( proposal_create_fees.fee + proposal_create_fees.price_per_kbyte );
@@ -630,18 +631,18 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       tx.operations.push_back( prop );
       db.current_fee_schedule().set_fee( tx.operations.back() );
       set_expiration( db, tx );
-      sign( tx, nathan_private_key );
+      sign( tx, rsquaredchp1_private_key );
       PUSH_TX( db, tx );
 
       generate_block();
 
-      // Nathan can create asset ending in number
-      create_user_issued_asset( "NIKKEI225", nathan_id(db), 0 );
+      // RSquaredCHP1 can create asset ending in number
+      create_user_issued_asset( "NIKKEI225", rsquaredchp1_id(db), 0 );
       BOOST_CHECK(  has_asset("NIKKEI225") );
 
       // make sure other assets can still be created
-      create_user_issued_asset( "ALPHA2", nathan_id(db), 0 );
-      create_user_issued_asset( "ALPHA2.ONE", nathan_id(db), 0 );
+      create_user_issued_asset( "ALPHA2", rsquaredchp1_id(db), 0 );
+      create_user_issued_asset( "ALPHA2.ONE", rsquaredchp1_id(db), 0 );
       BOOST_CHECK(  has_asset("ALPHA2") );
       BOOST_CHECK( has_asset("ALPHA2.ONE") );
 
@@ -651,7 +652,7 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       tx_hf620.operations.push_back( prop );
       db.current_fee_schedule().set_fee( tx_hf620.operations.back() );
       set_expiration( db, tx_hf620 );
-      sign( tx_hf620, nathan_private_key );
+      sign( tx_hf620, rsquaredchp1_private_key );
       PUSH_TX( db, tx_hf620 );
 
       // assets with invalid characters should not be allowed
@@ -659,11 +660,11 @@ BOOST_AUTO_TEST_CASE( asset_name_test )
       do
       {
          if ( (c >= 48 && c <= 57) ) // numbers
-            BOOST_CHECK_MESSAGE( test_asset_char(this, nathan_id(db), c, false, true, true), "Failed on good ASCII value " + std::to_string(c) );
+            BOOST_CHECK_MESSAGE( test_asset_char(this, rsquaredchp1_id(db), c, false, true, true), "Failed on good ASCII value " + std::to_string(c) );
          else if ( c >= 65 && c <= 90) // letters
-            BOOST_CHECK_MESSAGE( test_asset_char(this, nathan_id(db), c, true, true, true), "Failed on good ASCII value " + std::to_string(c) );
+            BOOST_CHECK_MESSAGE( test_asset_char(this, rsquaredchp1_id(db), c, true, true, true), "Failed on good ASCII value " + std::to_string(c) );
          else                       // everything else
-            BOOST_CHECK_MESSAGE( test_asset_char(this, nathan_id(db), c, false, false, false), "Failed on bad ASCII value " + std::to_string(c) );
+            BOOST_CHECK_MESSAGE( test_asset_char(this, rsquaredchp1_id(db), c, false, false, false), "Failed on bad ASCII value " + std::to_string(c) );
          c++;
       } while (c != 0);
    }

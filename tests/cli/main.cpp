@@ -133,7 +133,7 @@ std::shared_ptr<graphene::app::application> start_application(fc::temp_directory
 bool generate_block(std::shared_ptr<graphene::app::application> app, graphene::chain::signed_block& returned_block)
 {
    try {
-      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
       auto db = app->chain_database();
       returned_block = db->generate_block( db->get_slot_time(1),
                                          db->get_scheduled_witness(1),
@@ -171,7 +171,7 @@ signed_block generate_block(std::shared_ptr<graphene::app::application> app, uin
 //////
 uint32_t generate_blocks(std::shared_ptr<graphene::app::application> app, fc::time_point_sec timestamp)
 {
-   fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+   fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
    uint32_t skip = ~0;
    auto db = app->chain_database();
 
@@ -192,7 +192,7 @@ uint32_t generate_blocks(std::shared_ptr<graphene::app::application> app, fc::ti
 ///////////
 bool generate_maintenance_block(std::shared_ptr<graphene::app::application> app) {
    try {
-      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
       uint32_t skip = ~0;
       auto db = app->chain_database();
       auto maint_time = db->get_dynamic_global_properties().next_maintenance_time;
@@ -282,14 +282,14 @@ struct cli_fixture
    fc::temp_directory app_dir;
    std::shared_ptr<graphene::app::application> app1;
    client_connection con;
-   std::vector<std::string> nathan_keys;
+   std::vector<std::string> rsquaredchp1_keys;
 
    cli_fixture() :
       server_port_number(0),
       app_dir( graphene::utilities::temp_directory_path() ),
       app1( start_application(app_dir, server_port_number) ),
       con( app1, app_dir, server_port_number ),
-      nathan_keys( {"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"} )
+      rsquaredchp1_keys( {"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"} )
    {
       BOOST_TEST_MESSAGE("Setup cli_wallet::boost_fixture_test_case");
 
@@ -302,10 +302,10 @@ struct cli_fixture
          con.wallet_api_ptr->set_password("supersecret");
          con.wallet_api_ptr->unlock("supersecret");
 
-         // import Nathan account
-         BOOST_TEST_MESSAGE("Importing nathan key");
-         BOOST_CHECK_EQUAL(nathan_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-         BOOST_CHECK(con.wallet_api_ptr->import_key("nathan", nathan_keys[0]));
+         // import RSquaredCHP1 account
+         BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
+         BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+         BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
       } catch( fc::exception& e ) {
          edump((e.to_detail_string()));
          throw;
@@ -364,32 +364,32 @@ BOOST_FIXTURE_TEST_CASE( cli_help_gethelp, cli_fixture )
    }
 }
 
-BOOST_FIXTURE_TEST_CASE( upgrade_nathan_account, cli_fixture )
+BOOST_FIXTURE_TEST_CASE( upgrade_rsquaredchp1_account, cli_fixture )
 {
    try
    {
-      BOOST_TEST_MESSAGE("Upgrade Nathan's account");
+      BOOST_TEST_MESSAGE("Upgrade RSquaredCHP1's account");
 
-      account_object nathan_acct_before_upgrade, nathan_acct_after_upgrade;
+      account_object rsquaredchp1_acct_before_upgrade, rsquaredchp1_acct_after_upgrade;
       std::vector<signed_transaction> import_txs;
       signed_transaction upgrade_tx;
 
-      BOOST_TEST_MESSAGE("Importing nathan's balance");
-      import_txs = con.wallet_api_ptr->import_balance("nathan", nathan_keys, true);
-      nathan_acct_before_upgrade = con.wallet_api_ptr->get_account("nathan");
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
+      import_txs = con.wallet_api_ptr->import_balance("rsquaredchp1", rsquaredchp1_keys, true);
+      rsquaredchp1_acct_before_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
-      // upgrade nathan
-      BOOST_TEST_MESSAGE("Upgrading Nathan to LTM");
-      upgrade_tx = con.wallet_api_ptr->upgrade_account("nathan", true);
-      nathan_acct_after_upgrade = con.wallet_api_ptr->get_account("nathan");
+      // upgrade rsquaredchp1
+      BOOST_TEST_MESSAGE("Upgrading RSquaredCHP1 to LTM");
+      upgrade_tx = con.wallet_api_ptr->upgrade_account("rsquaredchp1", true);
+      rsquaredchp1_acct_after_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
       // verify that the upgrade was successful
       BOOST_CHECK_PREDICATE(
          std::not_equal_to<uint32_t>(),
-         (nathan_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
-         (nathan_acct_after_upgrade.membership_expiration_date.sec_since_epoch())
+         (rsquaredchp1_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
+         (rsquaredchp1_acct_after_upgrade.membership_expiration_date.sec_since_epoch())
       );
-      BOOST_CHECK(nathan_acct_after_upgrade.is_lifetime_member());
+      BOOST_CHECK(rsquaredchp1_acct_after_upgrade.is_lifetime_member());
    } catch( fc::exception& e ) {
       edump((e.to_detail_string()));
       throw;
@@ -400,22 +400,22 @@ BOOST_FIXTURE_TEST_CASE( create_new_account, cli_fixture )
 {
    try
    {
-      INVOKE(upgrade_nathan_account);
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // create a new account
       graphene::wallet::brain_key_info bki = con.wallet_api_ptr->suggest_brain_key();
       BOOST_CHECK(!bki.brain_priv_key.empty());
       signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(
-         bki.brain_priv_key, "jmjatlanta", "nathan", "nathan", true
+         bki.brain_priv_key, "jmjatlanta", "rsquaredchp1", "rsquaredchp1", true
       );
       // save the private key for this new account in the wallet file
       BOOST_CHECK(con.wallet_api_ptr->import_key("jmjatlanta", bki.wif_priv_key));
       con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
 
       // attempt to give jmjatlanta some rsquared
-      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to jmjatlanta");
+      BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to jmjatlanta");
       signed_transaction transfer_tx = con.wallet_api_ptr->transfer(
-         "nathan", "jmjatlanta", "10000", "1.3.0", "Here are some CORE token for your new account", true
+         "rsquaredchp1", "jmjatlanta", "10000", "1.3.0", "Here are some CORE token for your new account", true
       );
    } catch( fc::exception& e ) {
       edump((e.to_detail_string()));
@@ -429,11 +429,11 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
    {
       BOOST_TEST_MESSAGE("Cli UIA Tests");
 
-      INVOKE(upgrade_nathan_account);
+      INVOKE(upgrade_rsquaredchp1_account);
 
       BOOST_CHECK(generate_block(app1));
 
-      account_object nathan_acct = con.wallet_api_ptr->get_account("nathan");
+      account_object rsquaredchp1_acct = con.wallet_api_ptr->get_account("rsquaredchp1");
 
       auto formatters = con.wallet_api_ptr->get_result_formatters();
 
@@ -442,11 +442,11 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
          BOOST_REQUIRE_GT( history.size(), 0 );
          BOOST_CHECK( history[0].description.find( keyword ) != string::npos );
       };
-      auto check_nathan_last_history = [&]( string keyword ) {
-         check_account_last_history( "nathan", keyword );
+      auto check_rsquaredchp1_last_history = [&]( string keyword ) {
+         check_account_last_history( "rsquaredchp1", keyword );
       };
 
-      check_nathan_last_history( "account_upgrade_operation" );
+      check_rsquaredchp1_last_history( "account_upgrade_operation" );
 
       // Create new asset called BOBCOIN
       {
@@ -456,7 +456,7 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
          asset_ops.flags = charge_market_fee | override_authority;
          asset_ops.max_supply = 1000000;
          asset_ops.core_exchange_rate = price(asset(2),asset(1,asset_id_type(1)));
-         auto result = con.wallet_api_ptr->create_asset("nathan", "BOBCOIN", 4, asset_ops, {}, true);
+         auto result = con.wallet_api_ptr->create_asset("rsquaredchp1", "BOBCOIN", 4, asset_ops, {}, true);
          if( formatters.find("create_asset") != formatters.end() )
          {
             BOOST_TEST_MESSAGE("Testing formatter of create_asset");
@@ -470,13 +470,13 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
          BOOST_CHECK_EQUAL( con.wallet_api_ptr->get_asset_symbol("BOBCOIN"), "BOBCOIN" );
 
          BOOST_CHECK_THROW( con.wallet_api_ptr->get_account_name("nath"), fc::exception );
-         BOOST_CHECK_EQUAL( con.wallet_api_ptr->get_account_name("nathan"), "nathan" );
-         BOOST_CHECK( con.wallet_api_ptr->get_account_id("nathan") == con.wallet_api_ptr->get_account("nathan").id );
+         BOOST_CHECK_EQUAL( con.wallet_api_ptr->get_account_name("rsquaredchp1"), "rsquaredchp1" );
+         BOOST_CHECK( con.wallet_api_ptr->get_account_id("rsquaredchp1") == con.wallet_api_ptr->get_account("rsquaredchp1").id );
       }
       BOOST_CHECK(generate_block(app1));
 
-      check_nathan_last_history( "Create User-Issue Asset" );
-      check_nathan_last_history( "BOBCOIN" );
+      check_rsquaredchp1_last_history( "Create User-Issue Asset" );
+      check_rsquaredchp1_last_history( "BOBCOIN" );
 
       auto bobcoin = con.wallet_api_ptr->get_asset("BOBCOIN");
 
@@ -506,8 +506,8 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
             balance_formatter_tested = true;
          }
       };
-      auto check_nathan_bobcoin_balance = [&](int64_t amount) {
-         check_bobcoin_balance( "nathan", amount );
+      auto check_rsquaredchp1_bobcoin_balance = [&](int64_t amount) {
+         check_bobcoin_balance( "rsquaredchp1", amount );
       };
 
       {
@@ -517,9 +517,9 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
       }
       BOOST_CHECK(generate_block(app1));
 
-      check_nathan_last_history( "nathan issue 3 BOBCOIN to init0" );
-      check_nathan_last_history( "new coin for you" );
-      check_account_last_history( "init0", "nathan issue 3 BOBCOIN to init0" );
+      check_rsquaredchp1_last_history( "rsquaredchp1 issue 3 BOBCOIN to init0" );
+      check_rsquaredchp1_last_history( "new coin for you" );
+      check_account_last_history( "init0", "rsquaredchp1 issue 3 BOBCOIN to init0" );
       check_account_last_history( "init0", "new coin for you" );
 
       check_bobcoin_balance( "init0", 30000 );
@@ -529,16 +529,16 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
          BOOST_TEST_MESSAGE("Override-transfer BOBCOIN from init0");
          auto handle = con.wallet_api_ptr->begin_builder_transaction();
          override_transfer_operation op;
-         op.issuer = con.wallet_api_ptr->get_account( "nathan" ).id;
+         op.issuer = con.wallet_api_ptr->get_account( "rsquaredchp1" ).id;
          op.from = con.wallet_api_ptr->get_account( "init0" ).id;
-         op.to = con.wallet_api_ptr->get_account( "nathan" ).id;
+         op.to = con.wallet_api_ptr->get_account( "rsquaredchp1" ).id;
          op.amount = bobcoin.amount(10000);
 
          const auto test_bki = con.wallet_api_ptr->suggest_brain_key();
          auto test_pubkey = fc::json::to_string( test_bki.pub_key );
          test_pubkey = test_pubkey.substr( 1, test_pubkey.size() - 2 );
          idump( (test_pubkey) );
-         op.memo = con.wallet_api_ptr->sign_memo( "nathan", test_pubkey, "get back some coin" );
+         op.memo = con.wallet_api_ptr->sign_memo( "rsquaredchp1", test_pubkey, "get back some coin" );
          idump( (op.memo) );
          con.wallet_api_ptr->add_operation_to_builder_transaction( handle, op );
          con.wallet_api_ptr->set_fees_on_builder_transaction( handle, "1.3.0" );
@@ -547,36 +547,36 @@ BOOST_FIXTURE_TEST_CASE( uia_tests, cli_fixture )
          auto memo = con.wallet_api_ptr->read_memo( *op.memo );
          BOOST_CHECK_EQUAL( memo, "get back some coin" );
 
-         op.memo = con.wallet_api_ptr->sign_memo( test_pubkey, "nathan", "another test" );
+         op.memo = con.wallet_api_ptr->sign_memo( test_pubkey, "rsquaredchp1", "another test" );
          idump( (op.memo) );
          memo = con.wallet_api_ptr->read_memo( *op.memo );
          BOOST_CHECK_EQUAL( memo, "another test" );
 
-         BOOST_CHECK_THROW( con.wallet_api_ptr->sign_memo( "non-exist-account-or-label", "nathan", "some text" ),
+         BOOST_CHECK_THROW( con.wallet_api_ptr->sign_memo( "non-exist-account-or-label", "rsquaredchp1", "some text" ),
                             fc::exception );
-         BOOST_CHECK_THROW( con.wallet_api_ptr->sign_memo( "nathan", "non-exist-account-or-label", "some text" ),
+         BOOST_CHECK_THROW( con.wallet_api_ptr->sign_memo( "rsquaredchp1", "non-exist-account-or-label", "some text" ),
                             fc::exception );
       }
       BOOST_CHECK(generate_block(app1));
 
-      check_nathan_last_history( "nathan force-transfer 1 BOBCOIN from init0 to nathan" );
-      check_nathan_last_history( "get back some coin" );
-      check_account_last_history( "init0", "nathan force-transfer 1 BOBCOIN from init0 to nathan" );
+      check_rsquaredchp1_last_history( "rsquaredchp1 force-transfer 1 BOBCOIN from init0 to rsquaredchp1" );
+      check_rsquaredchp1_last_history( "get back some coin" );
+      check_account_last_history( "init0", "rsquaredchp1 force-transfer 1 BOBCOIN from init0 to rsquaredchp1" );
       check_account_last_history( "init0", "get back some coin" );
 
       check_bobcoin_balance( "init0", 20000 );
-      check_bobcoin_balance( "nathan", 10000 );
+      check_bobcoin_balance( "rsquaredchp1", 10000 );
 
       {
          // Reserve / burn asset
          BOOST_TEST_MESSAGE("Reserve/burn asset");
-         con.wallet_api_ptr->reserve_asset("nathan", "1", "BOBCOIN", true);
+         con.wallet_api_ptr->reserve_asset("rsquaredchp1", "1", "BOBCOIN", true);
       }
       BOOST_CHECK(generate_block(app1));
 
-      check_nathan_last_history( "Reserve (burn) 1 BOBCOIN" );
+      check_rsquaredchp1_last_history( "Reserve (burn) 1 BOBCOIN" );
 
-      check_nathan_bobcoin_balance( 0 );
+      check_rsquaredchp1_bobcoin_balance( 0 );
 
    } catch( fc::exception& e ) {
       edump((e.to_detail_string()));
@@ -657,21 +657,21 @@ BOOST_FIXTURE_TEST_CASE( cli_get_signed_transaction_signers, cli_fixture )
 {
    try
    {
-      INVOKE(upgrade_nathan_account);
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // register account and transfer funds
       const auto test_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-         "test", test_bki.pub_key, test_bki.pub_key, "nathan", "nathan", 0, true
+         "test", test_bki.pub_key, test_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
-      con.wallet_api_ptr->transfer("nathan", "test", "1000", "1.3.0", "", true);
+      con.wallet_api_ptr->transfer("rsquaredchp1", "test", "1000", "1.3.0", "", true);
 
       // import key and save wallet
       BOOST_CHECK(con.wallet_api_ptr->import_key("test", test_bki.wif_priv_key));
       con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
 
       // create transaction and check expected result
-      auto signed_trx = con.wallet_api_ptr->transfer("test", "nathan", "10", "1.3.0", "", true);
+      auto signed_trx = con.wallet_api_ptr->transfer("test", "rsquaredchp1", "10", "1.3.0", "", true);
 
       const auto &test_acc = con.wallet_api_ptr->get_account("test");
       flat_set<public_key_type> expected_signers = {test_bki.pub_key};
@@ -698,28 +698,28 @@ BOOST_FIXTURE_TEST_CASE(cli_sign_tx_with_unnecessary_signature, cli_fixture) {
    try {
       auto db = app1->chain_database();
 
-      account_object nathan_acct = con.wallet_api_ptr->get_account("nathan");
-      INVOKE(upgrade_nathan_account);
+      account_object rsquaredchp1_acct = con.wallet_api_ptr->get_account("rsquaredchp1");
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // Register Bob account
       const auto bob_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "bob", bob_bki.pub_key, bob_bki.pub_key, "nathan", "nathan", 0, true
+              "bob", bob_bki.pub_key, bob_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
 
       // Register Charlie account
       const graphene::wallet::brain_key_info charlie_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "nathan", "nathan", 0, true
+              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const account_object &charlie_acc = con.wallet_api_ptr->get_account("charlie");
 
       // Import Bob's key
       BOOST_CHECK(con.wallet_api_ptr->import_key("bob", bob_bki.wif_priv_key));
 
-      // Create transaction with a transfer operation from Nathan to Charlie
+      // Create transaction with a transfer operation from RSquaredCHP1 to Charlie
       transfer_operation top;
-      top.from = nathan_acct.id;
+      top.from = rsquaredchp1_acct.id;
       top.to = charlie_acc.id;
       top.amount = asset(5000);
       top.fee = db->current_fee_schedule().calculate_fee(top);
@@ -727,16 +727,16 @@ BOOST_FIXTURE_TEST_CASE(cli_sign_tx_with_unnecessary_signature, cli_fixture) {
       signed_transaction test_tx;
       test_tx.operations.push_back(top);
 
-      // Sign the transaction with the implied nathan's key and the explicitly yet unnecessary Bob's key
+      // Sign the transaction with the implied rsquaredchp1's key and the explicitly yet unnecessary Bob's key
       auto signed_trx = con.wallet_api_ptr->sign_transaction2(test_tx, {bob_bki.pub_key}, false);
 
       // Check for two signatures on the transaction
       BOOST_CHECK_EQUAL(signed_trx.signatures.size(), 2);
       flat_set<public_key_type> signers = con.wallet_api_ptr->get_transaction_signers(signed_trx);
 
-      // Check that the signed transaction contains both Nathan's required signature and Bob's unnecessary signature
-      BOOST_CHECK_EQUAL(nathan_acct.active.get_keys().size(), 1);
-      flat_set<public_key_type> expected_signers = {bob_bki.pub_key, nathan_acct.active.get_keys().front()};
+      // Check that the signed transaction contains both RSquaredCHP1's required signature and Bob's unnecessary signature
+      BOOST_CHECK_EQUAL(rsquaredchp1_acct.active.get_keys().size(), 1);
+      flat_set<public_key_type> expected_signers = {bob_bki.pub_key, rsquaredchp1_acct.active.get_keys().front()};
       flat_set<public_key_type> actual_signers = con.wallet_api_ptr->get_transaction_signers(signed_trx);
       BOOST_CHECK(signers == expected_signers);
 
@@ -755,46 +755,46 @@ BOOST_FIXTURE_TEST_CASE(cli_sign_tx_builder_with_unnecessary_signature, cli_fixt
    try {
       auto db = app1->chain_database();
 
-      account_object nathan_acct = con.wallet_api_ptr->get_account("nathan");
-      INVOKE(upgrade_nathan_account);
+      account_object rsquaredchp1_acct = con.wallet_api_ptr->get_account("rsquaredchp1");
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // Register Bob account
       const auto bob_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "bob", bob_bki.pub_key, bob_bki.pub_key, "nathan", "nathan", 0, true
+              "bob", bob_bki.pub_key, bob_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
 
       // Register Charlie account
       const graphene::wallet::brain_key_info charlie_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "nathan", "nathan", 0, true
+              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const account_object &charlie_acc = con.wallet_api_ptr->get_account("charlie");
 
       // Import Bob's key
       BOOST_CHECK(con.wallet_api_ptr->import_key("bob", bob_bki.wif_priv_key));
 
-      // Use transaction builder to build a transaction with a transfer operation from Nathan to Charlie
+      // Use transaction builder to build a transaction with a transfer operation from RSquaredCHP1 to Charlie
       graphene::wallet::transaction_handle_type tx_handle = con.wallet_api_ptr->begin_builder_transaction();
 
       transfer_operation top;
-      top.from = nathan_acct.id;
+      top.from = rsquaredchp1_acct.id;
       top.to = charlie_acc.id;
       top.amount = asset(5000);
 
       con.wallet_api_ptr->add_operation_to_builder_transaction(tx_handle, top);
       con.wallet_api_ptr->set_fees_on_builder_transaction(tx_handle, GRAPHENE_SYMBOL);
 
-      // Sign the transaction with the implied nathan's key and the explicitly yet unnecessary Bob's key
+      // Sign the transaction with the implied rsquaredchp1's key and the explicitly yet unnecessary Bob's key
       auto signed_trx = con.wallet_api_ptr->sign_builder_transaction(tx_handle, {bob_bki.pub_key}, false);
 
       // Check for two signatures on the transaction
       BOOST_CHECK_EQUAL(signed_trx.signatures.size(), 2);
       flat_set<public_key_type> signers = con.wallet_api_ptr->get_transaction_signers(signed_trx);
 
-      // Check that the signed transaction contains both Nathan's required signature and Bob's unnecessary signature
-      BOOST_CHECK_EQUAL(nathan_acct.active.get_keys().size(), 1);
-      flat_set<public_key_type> expected_signers = {bob_bki.pub_key, nathan_acct.active.get_keys().front()};
+      // Check that the signed transaction contains both RSquaredCHP1's required signature and Bob's unnecessary signature
+      BOOST_CHECK_EQUAL(rsquaredchp1_acct.active.get_keys().size(), 1);
+      flat_set<public_key_type> expected_signers = {bob_bki.pub_key, rsquaredchp1_acct.active.get_keys().front()};
       flat_set<public_key_type> actual_signers = con.wallet_api_ptr->get_transaction_signers(signed_trx);
       BOOST_CHECK(signers == expected_signers);
 
@@ -809,12 +809,12 @@ BOOST_FIXTURE_TEST_CASE( cli_get_available_transaction_signers, cli_fixture )
 {
    try
    {
-      INVOKE(upgrade_nathan_account);
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // register account
       const auto test_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-         "test", test_bki.pub_key, test_bki.pub_key, "nathan", "nathan", 0, true
+         "test", test_bki.pub_key, test_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const auto &test_acc = con.wallet_api_ptr->get_account("test");
 
@@ -864,12 +864,12 @@ BOOST_FIXTURE_TEST_CASE( cli_cant_get_signers_from_modified_transaction, cli_fix
 {
    try
    {
-      INVOKE(upgrade_nathan_account);
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // register account
       const auto test_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-         "test", test_bki.pub_key, test_bki.pub_key, "nathan", "nathan", 0, true
+         "test", test_bki.pub_key, test_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
 
       // create and sign transaction
@@ -906,9 +906,9 @@ BOOST_FIXTURE_TEST_CASE( cli_set_voting_proxy, cli_fixture )
 
       // grab account for comparison
       account_object prior_voting_account = con.wallet_api_ptr->get_account("jmjatlanta");
-      // set the voting proxy to nathan
+      // set the voting proxy to rsquaredchp1
       BOOST_TEST_MESSAGE("About to set voting proxy.");
-      signed_transaction voting_tx = con.wallet_api_ptr->set_voting_proxy("jmjatlanta", "nathan", true);
+      signed_transaction voting_tx = con.wallet_api_ptr->set_voting_proxy("jmjatlanta", "rsquaredchp1", true);
       account_object after_voting_account = con.wallet_api_ptr->get_account("jmjatlanta");
       // see if it changed
       BOOST_CHECK(prior_voting_account.options.voting_account != after_voting_account.options.voting_account);
@@ -928,10 +928,10 @@ BOOST_FIXTURE_TEST_CASE( account_history_pagination, cli_fixture )
       INVOKE(create_new_account);
 
       // attempt to give jmjatlanta some rsquared
-      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to jmjatlanta");
+      BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to jmjatlanta");
       for(int i = 1; i <= 199; i++)
       {
-         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "jmjatlanta", std::to_string(i),
+         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("rsquaredchp1", "jmjatlanta", std::to_string(i),
                                                 "1.3.0", "Here are some CORE token for your new account", true);
       }
 
@@ -990,24 +990,24 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
       con.wallet_api_ptr->set_password("supersecret");
       con.wallet_api_ptr->unlock("supersecret");
 
-      // import Nathan account
-      BOOST_TEST_MESSAGE("Importing nathan key");
-      std::vector<std::string> nathan_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(nathan_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-      BOOST_CHECK(con.wallet_api_ptr->import_key("nathan", nathan_keys[0]));
+      // import RSquaredCHP1 account
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
+      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
-      BOOST_TEST_MESSAGE("Importing nathan's balance");
-      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("nathan", nathan_keys, true);
-      account_object nathan_acct_before_upgrade = con.wallet_api_ptr->get_account("nathan");
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
+      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("rsquaredchp1", rsquaredchp1_keys, true);
+      account_object rsquaredchp1_acct_before_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
-      // upgrade nathan
-      BOOST_TEST_MESSAGE("Upgrading Nathan to LTM");
-      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("nathan", true);
-      account_object nathan_acct_after_upgrade = con.wallet_api_ptr->get_account("nathan");
+      // upgrade rsquaredchp1
+      BOOST_TEST_MESSAGE("Upgrading RSquaredCHP1 to LTM");
+      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("rsquaredchp1", true);
+      account_object rsquaredchp1_acct_after_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
       // verify that the upgrade was successful
-      BOOST_CHECK_PREDICATE( std::not_equal_to<uint32_t>(), (nathan_acct_before_upgrade.membership_expiration_date.sec_since_epoch())(nathan_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
-      BOOST_CHECK(nathan_acct_after_upgrade.is_lifetime_member());
+      BOOST_CHECK_PREDICATE( std::not_equal_to<uint32_t>(), (rsquaredchp1_acct_before_upgrade.membership_expiration_date.sec_since_epoch())(rsquaredchp1_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
+      BOOST_CHECK(rsquaredchp1_acct_after_upgrade.is_lifetime_member());
 
       // create a new multisig account
       graphene::wallet::brain_key_info bki1 = con.wallet_api_ptr->suggest_brain_key();
@@ -1022,9 +1022,9 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
       signed_transaction create_multisig_acct_tx;
       account_create_operation account_create_op;
 
-      account_create_op.referrer = nathan_acct_after_upgrade.id;
-      account_create_op.referrer_percent = nathan_acct_after_upgrade.referrer_rewards_percentage;
-      account_create_op.registrar = nathan_acct_after_upgrade.id;
+      account_create_op.referrer = rsquaredchp1_acct_after_upgrade.id;
+      account_create_op.referrer_percent = rsquaredchp1_acct_after_upgrade.referrer_rewards_percentage;
+      account_create_op.registrar = rsquaredchp1_acct_after_upgrade.id;
       account_create_op.name = "cifer.test";
       account_create_op.owner = authority(1, bki1.pub_key, 1);
       account_create_op.active = authority(2, bki2.pub_key, 1, bki3.pub_key, 1);
@@ -1035,11 +1035,11 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
       con.wallet_api_ptr->sign_transaction(create_multisig_acct_tx, true);
 
       // attempt to give cifer.test some rsquared
-      BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to cifer.test");
-      signed_transaction transfer_tx1 = con.wallet_api_ptr->transfer("nathan", "cifer.test", "10000", "1.3.0", "Here are some RQRX for your new account", true);
+      BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to cifer.test");
+      signed_transaction transfer_tx1 = con.wallet_api_ptr->transfer("rsquaredchp1", "cifer.test", "10000", "1.3.0", "Here are some RQRX for your new account", true);
 
-      // transfer bts from cifer.test to nathan
-      BOOST_TEST_MESSAGE("Transferring rsquared from cifer.test to nathan");
+      // transfer bts from cifer.test to rsquaredchp1
+      BOOST_TEST_MESSAGE("Transferring rsquared from cifer.test to rsquaredchp1");
       auto dyn_props = app1->chain_database()->get_dynamic_global_properties();
       account_object cifer_test = con.wallet_api_ptr->get_account("cifer.test");
 
@@ -1047,7 +1047,7 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
       signed_transaction transfer_tx2;
       transfer_operation xfer_op;
       xfer_op.from = cifer_test.id;
-      xfer_op.to = nathan_acct_after_upgrade.id;
+      xfer_op.to = rsquaredchp1_acct_after_upgrade.id;
       xfer_op.amount = asset(100000000);
       xfer_op.fee = asset(3000000);  // should be enough for transfer
       transfer_tx2.operations.push_back(xfer_op);
@@ -1106,33 +1106,33 @@ graphene::wallet::plain_keys decrypt_keys( const std::string& password, const ve
 BOOST_AUTO_TEST_CASE( saving_keys_wallet_test ) {
    cli_fixture cli;
 
-   cli.con.wallet_api_ptr->import_balance( "nathan", cli.nathan_keys, true );
-   cli.con.wallet_api_ptr->upgrade_account( "nathan", true );
+   cli.con.wallet_api_ptr->import_balance( "rsquaredchp1", cli.rsquaredchp1_keys, true );
+   cli.con.wallet_api_ptr->upgrade_account( "rsquaredchp1", true );
    std::string brain_key( "FICTIVE WEARY MINIBUS LENS HAWKIE MAIDISH MINTY GLYPH GYTE KNOT COCKSHY LENTIGO PROPS BIFORM KHUTBAH BRAZIL" );
-   cli.con.wallet_api_ptr->create_account_with_brain_key( brain_key, "account1", "nathan", "nathan", true );
+   cli.con.wallet_api_ptr->create_account_with_brain_key( brain_key, "account1", "rsquaredchp1", "rsquaredchp1", true );
 
-   BOOST_CHECK_NO_THROW( cli.con.wallet_api_ptr->transfer( "nathan", "account1", "9000", "1.3.0", "", true ) );
+   BOOST_CHECK_NO_THROW( cli.con.wallet_api_ptr->transfer( "rsquaredchp1", "account1", "9000", "1.3.0", "", true ) );
 
    std::string path( cli.app_dir.path().generic_string() + "/wallet.json" );
    graphene::wallet::wallet_data wallet = fc::json::from_file( path ).as<graphene::wallet::wallet_data>( 2 * GRAPHENE_MAX_NESTED_OBJECTS );
-   BOOST_CHECK( wallet.extra_keys.size() == 1 ); // nathan
+   BOOST_CHECK( wallet.extra_keys.size() == 1 ); // rsquaredchp1
    BOOST_CHECK( wallet.pending_account_registrations.size() == 1 ); // account1
    BOOST_CHECK( wallet.pending_account_registrations["account1"].size() == 2 ); // account1 active key + account1 memo key
 
    graphene::wallet::plain_keys pk = decrypt_keys( "supersecret", wallet.cipher_keys );
-   BOOST_CHECK( pk.keys.size() == 1 ); // nathan key
+   BOOST_CHECK( pk.keys.size() == 1 ); // rsquaredchp1 key
 
    BOOST_CHECK( generate_block( cli.app1 ) );
    // Intentional delay
    fc::usleep( fc::seconds(1) );
 
    wallet = fc::json::from_file( path ).as<graphene::wallet::wallet_data>( 2 * GRAPHENE_MAX_NESTED_OBJECTS );
-   BOOST_CHECK( wallet.extra_keys.size() == 2 ); // nathan + account1
+   BOOST_CHECK( wallet.extra_keys.size() == 2 ); // rsquaredchp1 + account1
    BOOST_CHECK( wallet.pending_account_registrations.empty() );
-   BOOST_CHECK_NO_THROW( cli.con.wallet_api_ptr->transfer( "account1", "nathan", "1000", "1.3.0", "", true ) );
+   BOOST_CHECK_NO_THROW( cli.con.wallet_api_ptr->transfer( "account1", "rsquaredchp1", "1000", "1.3.0", "", true ) );
 
    pk = decrypt_keys( "supersecret", wallet.cipher_keys );
-   BOOST_CHECK( pk.keys.size() == 3 ); // nathan key + account1 active key + account1 memo key
+   BOOST_CHECK( pk.keys.size() == 3 ); // rsquaredchp1 key + account1 active key + account1 memo key
 }
 
 
@@ -1165,25 +1165,25 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
       con.wallet_api_ptr->set_password("supersecret");
       con.wallet_api_ptr->unlock("supersecret");
 
-      // import Nathan account
-      BOOST_TEST_MESSAGE("Importing nathan key");
-      std::vector<std::string> nathan_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(nathan_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-      BOOST_CHECK(con.wallet_api_ptr->import_key("nathan", nathan_keys[0]));
+      // import RSquaredCHP1 account
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
+      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
-      BOOST_TEST_MESSAGE("Importing nathan's balance");
-      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("nathan", nathan_keys, true);
-      account_object nathan_acct_before_upgrade = con.wallet_api_ptr->get_account("nathan");
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
+      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("rsquaredchp1", rsquaredchp1_keys, true);
+      account_object rsquaredchp1_acct_before_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
-      // upgrade nathan
-      BOOST_TEST_MESSAGE("Upgrading Nathan to LTM");
-      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("nathan", true);
-      account_object nathan_acct_after_upgrade = con.wallet_api_ptr->get_account("nathan");
+      // upgrade rsquaredchp1
+      BOOST_TEST_MESSAGE("Upgrading RSquaredCHP1 to LTM");
+      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("rsquaredchp1", true);
+      account_object rsquaredchp1_acct_after_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
       // verify that the upgrade was successful
-      BOOST_CHECK_PREDICATE( std::not_equal_to<uint32_t>(), (nathan_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
-            (nathan_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
-      BOOST_CHECK(nathan_acct_after_upgrade.is_lifetime_member());
+      BOOST_CHECK_PREDICATE( std::not_equal_to<uint32_t>(), (rsquaredchp1_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
+            (rsquaredchp1_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
+      BOOST_CHECK(rsquaredchp1_acct_after_upgrade.is_lifetime_member());
 
       // Create new asset called BOBCOIN
       try
@@ -1192,7 +1192,7 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
          asset_ops.max_supply = 1000000;
          asset_ops.core_exchange_rate = price(asset(2),asset(1,asset_id_type(1)));
          fc::optional<graphene::chain::bitasset_options> bit_opts;
-         con.wallet_api_ptr->create_asset("nathan", "BOBCOIN", 5, asset_ops, bit_opts, true);
+         con.wallet_api_ptr->create_asset("rsquaredchp1", "BOBCOIN", 5, asset_ops, bit_opts, true);
       }
       catch(exception& e)
       {
@@ -1208,11 +1208,11 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
          graphene::wallet::brain_key_info bki = con.wallet_api_ptr->suggest_brain_key();
          BOOST_CHECK(!bki.brain_priv_key.empty());
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
-               "alice", "nathan", "nathan", true);
+               "alice", "rsquaredchp1", "rsquaredchp1", true);
          con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
          // attempt to give alice some rsquared
-         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to alice");
-         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "alice", "10000", "1.3.0",
+         BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to alice");
+         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("rsquaredchp1", "alice", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
       }
 
@@ -1221,12 +1221,12 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
          graphene::wallet::brain_key_info bki = con.wallet_api_ptr->suggest_brain_key();
          BOOST_CHECK(!bki.brain_priv_key.empty());
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
-               "bob", "nathan", "nathan", true);
+               "bob", "rsquaredchp1", "rsquaredchp1", true);
          // this should cause resync which will import the keys of alice and bob
          generate_block(app1);
          // attempt to give bob some rsquared
-         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to Bob");
-         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "bob", "10000", "1.3.0",
+         BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to Bob");
+         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("rsquaredchp1", "bob", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
          con.wallet_api_ptr->issue_asset("bob", "5", "BOBCOIN", "Here are your BOBCOINs", true);
       }
@@ -1351,17 +1351,17 @@ static string encapsulate( const graphene::wallet::signed_message& msg )
  */
 BOOST_FIXTURE_TEST_CASE( cli_sign_message, cli_fixture )
 { try {
-   const auto nathan_priv = *wif_to_key( nathan_keys[0] );
-   const public_key_type nathan_pub( nathan_priv.get_public_key() );
+   const auto rsquaredchp1_priv = *wif_to_key( rsquaredchp1_keys[0] );
+   const public_key_type rsquaredchp1_pub( rsquaredchp1_priv.get_public_key() );
 
    // account does not exist
    BOOST_REQUIRE_THROW( con.wallet_api_ptr->sign_message( "dan", "123" ), fc::assert_exception );
 
    // success
-   graphene::wallet::signed_message msg = con.wallet_api_ptr->sign_message( "nathan", "123" );
+   graphene::wallet::signed_message msg = con.wallet_api_ptr->sign_message( "rsquaredchp1", "123" );
    BOOST_CHECK_EQUAL( "123", msg.message );
-   BOOST_CHECK_EQUAL( "nathan", msg.meta.account );
-   BOOST_CHECK_EQUAL( std::string( nathan_pub ), std::string( msg.meta.memo_key ) );
+   BOOST_CHECK_EQUAL( "rsquaredchp1", msg.meta.account );
+   BOOST_CHECK_EQUAL( std::string( rsquaredchp1_pub ), std::string( msg.meta.memo_key ) );
    BOOST_CHECK( msg.signature.valid() );
 
    // change message, verify failure
@@ -1385,7 +1385,7 @@ BOOST_FIXTURE_TEST_CASE( cli_sign_message, cli_fixture )
                                                      msg.meta.time, *msg.signature ) );
    BOOST_CHECK( !con.wallet_api_ptr->verify_signed_message( msg ) );
    BOOST_CHECK( !con.wallet_api_ptr->verify_encapsulated_message( encapsulate( msg ) ) );
-   msg.meta.account = "nathan";
+   msg.meta.account = "rsquaredchp1";
 
    // change key, verify failure
    ++msg.meta.memo_key.key_data.data()[1];
@@ -1450,24 +1450,24 @@ BOOST_FIXTURE_TEST_CASE( general_storage, cli_fixture )
       pairs["key1"] = fc::json::to_string("value1");
       pairs["key2"] = fc::json::to_string("value2");
 
-      con.wallet_api_ptr->account_store_map("nathan", "any", false, pairs, true);
+      con.wallet_api_ptr->account_store_map("rsquaredchp1", "any", false, pairs, true);
 
       BOOST_TEST_MESSAGE("The system is generating a block.");
       BOOST_CHECK(generate_block(app1));
 
-      BOOST_TEST_MESSAGE("Get current map for nathan.");
-      auto nathan_map = con.wallet_api_ptr->get_account_storage("nathan", "any");
+      BOOST_TEST_MESSAGE("Get current map for rsquaredchp1.");
+      auto rsquaredchp1_map = con.wallet_api_ptr->get_account_storage("rsquaredchp1", "any");
 
-      BOOST_CHECK_EQUAL(nathan_map[0].id.instance(), 0);
-      BOOST_CHECK_EQUAL(nathan_map[0].account.instance.value, 17);
-      BOOST_CHECK_EQUAL(nathan_map[0].catalog, "any");
-      BOOST_CHECK_EQUAL(nathan_map[0].key, "key1");
-      BOOST_CHECK_EQUAL(nathan_map[0].value->as_string(), "value1");
-      BOOST_CHECK_EQUAL(nathan_map[1].id.instance(), 1);
-      BOOST_CHECK_EQUAL(nathan_map[1].account.instance.value, 17);
-      BOOST_CHECK_EQUAL(nathan_map[1].catalog, "any");
-      BOOST_CHECK_EQUAL(nathan_map[1].key, "key2");
-      BOOST_CHECK_EQUAL(nathan_map[1].value->as_string(), "value2");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[0].id.instance(), 0);
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[0].account.instance.value, 17);
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[0].catalog, "any");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[0].key, "key1");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[0].value->as_string(), "value1");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[1].id.instance(), 1);
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[1].account.instance.value, 17);
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[1].catalog, "any");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[1].key, "key2");
+      BOOST_CHECK_EQUAL(rsquaredchp1_map[1].value->as_string(), "value2");
 
       BOOST_TEST_MESSAGE("Storing in a list.");
 
@@ -1476,26 +1476,26 @@ BOOST_FIXTURE_TEST_CASE( general_storage, cli_fixture )
       favs["milk"];
       favs["banana"];
 
-      con.wallet_api_ptr->account_store_map("nathan", "favourites", false, favs, true);
+      con.wallet_api_ptr->account_store_map("rsquaredchp1", "favourites", false, favs, true);
 
       BOOST_TEST_MESSAGE("The system is generating a block.");
       BOOST_CHECK(generate_block(app1));
 
-      BOOST_TEST_MESSAGE("Get current list for nathan.");
-      auto nathan_list = con.wallet_api_ptr->get_account_storage("nathan", "favourites");
+      BOOST_TEST_MESSAGE("Get current list for rsquaredchp1.");
+      auto rsquaredchp1_list = con.wallet_api_ptr->get_account_storage("rsquaredchp1", "favourites");
 
-      BOOST_CHECK_EQUAL(nathan_list[0].id.instance(), 2);
-      BOOST_CHECK_EQUAL(nathan_list[0].account.instance.value, 17);
-      BOOST_CHECK_EQUAL(nathan_list[0].catalog, "favourites");
-      BOOST_CHECK_EQUAL(nathan_list[0].key, "banana");
-      BOOST_CHECK_EQUAL(nathan_list[1].id.instance(), 3);
-      BOOST_CHECK_EQUAL(nathan_list[1].account.instance.value, 17);
-      BOOST_CHECK_EQUAL(nathan_list[1].catalog, "favourites");
-      BOOST_CHECK_EQUAL(nathan_list[1].key, "chocolate");
-      BOOST_CHECK_EQUAL(nathan_list[2].id.instance(), 4);
-      BOOST_CHECK_EQUAL(nathan_list[2].account.instance.value, 17);
-      BOOST_CHECK_EQUAL(nathan_list[2].catalog, "favourites");
-      BOOST_CHECK_EQUAL(nathan_list[2].key, "milk");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[0].id.instance(), 2);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[0].account.instance.value, 17);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[0].catalog, "favourites");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[0].key, "banana");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[1].id.instance(), 3);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[1].account.instance.value, 17);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[1].catalog, "favourites");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[1].key, "chocolate");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[2].id.instance(), 4);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[2].account.instance.value, 17);
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[2].catalog, "favourites");
+      BOOST_CHECK_EQUAL(rsquaredchp1_list[2].key, "milk");
 
    } catch( fc::exception& e ) {
       edump((e.to_detail_string()));
@@ -1528,32 +1528,32 @@ BOOST_FIXTURE_TEST_CASE(cli_use_authorized_transfer, cli_fixture) {
       //////
       auto db = app1->chain_database();
 
-      account_object nathan_acct = con.wallet_api_ptr->get_account("nathan");
-      INVOKE(upgrade_nathan_account);
+      account_object rsquaredchp1_acct = con.wallet_api_ptr->get_account("rsquaredchp1");
+      INVOKE(upgrade_rsquaredchp1_account);
 
       // Register Alice account
       const auto alice_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "alice", alice_bki.pub_key, alice_bki.pub_key, "nathan", "nathan", 0, true
+              "alice", alice_bki.pub_key, alice_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const account_object &alice_acc = con.wallet_api_ptr->get_account("alice");
 
       // Register Bob account
       const auto bob_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "bob", bob_bki.pub_key, bob_bki.pub_key, "nathan", "nathan", 0, true
+              "bob", bob_bki.pub_key, bob_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const account_object &bob_acc = con.wallet_api_ptr->get_account("bob");
 
       // Register Charlie account
       const graphene::wallet::brain_key_info charlie_bki = con.wallet_api_ptr->suggest_brain_key();
       con.wallet_api_ptr->register_account(
-              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "nathan", "nathan", 0, true
+              "charlie", charlie_bki.pub_key, charlie_bki.pub_key, "rsquaredchp1", "rsquaredchp1", 0, true
       );
       const account_object &charlie_acc = con.wallet_api_ptr->get_account("charlie");
 
       // Fund Alice's account
-      con.wallet_api_ptr->transfer("nathan", "alice", "450000", "1.3.0", "", true);
+      con.wallet_api_ptr->transfer("rsquaredchp1", "alice", "450000", "1.3.0", "", true);
 
       // Initialize common variables
       signed_transaction signed_trx;
@@ -1646,7 +1646,7 @@ BOOST_FIXTURE_TEST_CASE(cli_use_authorized_transfer, cli_fixture) {
       BOOST_CHECK_EQUAL(signed_trx.signatures.size(), 1);
 
       // Check that the signed transaction contains Bob's signature
-      BOOST_CHECK_EQUAL(nathan_acct.active.get_keys().size(), 1);
+      BOOST_CHECK_EQUAL(rsquaredchp1_acct.active.get_keys().size(), 1);
       expected_signers = {bob_bki.pub_key};
       actual_signers = con_bob.wallet_api_ptr->get_transaction_signers(signed_trx);
       BOOST_CHECK(actual_signers == expected_signers);
@@ -1708,26 +1708,26 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
       con.wallet_api_ptr->set_password("supersecret");
       con.wallet_api_ptr->unlock("supersecret");
 
-      // import Nathan account
-      BOOST_TEST_MESSAGE("Importing nathan key");
-      std::vector<std::string> nathan_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(nathan_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
-      BOOST_CHECK(con.wallet_api_ptr->import_key("nathan", nathan_keys[0]));
+      // import RSquaredCHP1 account
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
+      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
-      BOOST_TEST_MESSAGE("Importing nathan's balance");
-      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("nathan", nathan_keys, true);
-      account_object nathan_acct_before_upgrade = con.wallet_api_ptr->get_account("nathan");
+      BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
+      std::vector<signed_transaction> import_txs = con.wallet_api_ptr->import_balance("rsquaredchp1", rsquaredchp1_keys, true);
+      account_object rsquaredchp1_acct_before_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
-      // upgrade nathan
-      BOOST_TEST_MESSAGE("Upgrading Nathan to LTM");
-      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("nathan", true);
-      account_object nathan_acct_after_upgrade = con.wallet_api_ptr->get_account("nathan");
+      // upgrade rsquaredchp1
+      BOOST_TEST_MESSAGE("Upgrading RSquaredCHP1 to LTM");
+      signed_transaction upgrade_tx = con.wallet_api_ptr->upgrade_account("rsquaredchp1", true);
+      account_object rsquaredchp1_acct_after_upgrade = con.wallet_api_ptr->get_account("rsquaredchp1");
 
       // verify that the upgrade was successful
       BOOST_CHECK_PREDICATE( std::not_equal_to<uint32_t>(),
-            (nathan_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
-            (nathan_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
-      BOOST_CHECK(nathan_acct_after_upgrade.is_lifetime_member());
+            (rsquaredchp1_acct_before_upgrade.membership_expiration_date.sec_since_epoch())
+            (rsquaredchp1_acct_after_upgrade.membership_expiration_date.sec_since_epoch()) );
+      BOOST_CHECK(rsquaredchp1_acct_after_upgrade.is_lifetime_member());
 
       // Create new asset called BOBCOIN
       try
@@ -1736,7 +1736,7 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
          asset_ops.max_supply = 1000000;
          asset_ops.core_exchange_rate = price(asset(2),asset(1,asset_id_type(1)));
          fc::optional<graphene::chain::bitasset_options> bit_opts;
-         con.wallet_api_ptr->create_asset("nathan", "BOBCOIN", 5, asset_ops, bit_opts, true);
+         con.wallet_api_ptr->create_asset("rsquaredchp1", "BOBCOIN", 5, asset_ops, bit_opts, true);
       }
       catch(exception& e)
       {
@@ -1752,11 +1752,11 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
          graphene::wallet::brain_key_info bki = con.wallet_api_ptr->suggest_brain_key();
          BOOST_CHECK(!bki.brain_priv_key.empty());
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
-               "alice", "nathan", "nathan", true);
+               "alice", "rsquaredchp1", "rsquaredchp1", true);
          con.wallet_api_ptr->save_wallet_file(con.wallet_filename);
          // attempt to give alice some rsquared
-         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to alice");
-         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "alice", "10000", "1.3.0",
+         BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to alice");
+         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("rsquaredchp1", "alice", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
       }
 
@@ -1765,12 +1765,12 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
          graphene::wallet::brain_key_info bki = con.wallet_api_ptr->suggest_brain_key();
          BOOST_CHECK(!bki.brain_priv_key.empty());
          signed_transaction create_acct_tx = con.wallet_api_ptr->create_account_with_brain_key(bki.brain_priv_key,
-               "bob", "nathan", "nathan", true);
+               "bob", "rsquaredchp1", "rsquaredchp1", true);
          // this should cause resync which will import the keys of alice and bob
          generate_block(app1);
          // attempt to give bob some rsquared
-         BOOST_TEST_MESSAGE("Transferring rsquared from Nathan to Bob");
-         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("nathan", "bob", "10000", "1.3.0",
+         BOOST_TEST_MESSAGE("Transferring rsquared from RSquaredCHP1 to Bob");
+         signed_transaction transfer_tx = con.wallet_api_ptr->transfer("rsquaredchp1", "bob", "10000", "1.3.0",
                "Here are some CORE token for your new account", true);
          con.wallet_api_ptr->issue_asset("bob", "5", "BOBCOIN", "Here are your BOBCOINs", true);
       }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -47,7 +48,7 @@ void debug_witness_plugin::plugin_set_program_options(
    boost::program_options::options_description& command_line_options,
    boost::program_options::options_description& config_file_options)
 {
-   auto default_priv_key = fc::ecc::private_key::regenerate(fc::sha256::hash(std::string("nathan")));
+   auto default_priv_key = fc::ecc::private_key::regenerate(fc::sha256::hash(std::string("rsquaredchp1")));
    command_line_options.add_options()
          ("debug-private-key", bpo::value<vector<string>>()->composing()->multitoken()->
           DEFAULT_VALUE_VECTOR(std::make_pair(chain::public_key_type(default_priv_key.get_public_key()), graphene::utilities::key_to_wif(default_priv_key))),

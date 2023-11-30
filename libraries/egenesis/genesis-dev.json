@@ -1,342 +1,475 @@
 {
-  "initial_timestamp": "2019-02-14T20:32:55",
-  "max_core_supply": "1000000000000000",
+  "initial_timestamp": "2023-02-14T20:32:55",
+  "max_core_supply": "200000000000000",
   "initial_parameters": {
     "current_fees": {
-      "parameters": [[
-          0,{
+      "parameters": [
+        [
+          0,
+          {
             "name": "transfer",
             "fee": 86869,
             "price_per_kbyte": 48260
           }
-        ],[
-          1,{
+        ],
+        [
+          1,
+          {
             "name": "account_create",
             "basic_fee": 482609,
             "premium_fee": 24130471,
             "price_per_kbyte": 48260
           }
-        ],[
-          2,{
+        ],
+        [
+          2,
+          {
             "name": "account_update",
             "fee": 241304,
             "price_per_kbyte": 48260
           }
-        ],[
-          3,{
+        ],
+        [
+          3,
+          {
             "name": "account_whitelist",
             "fee": 482609
           }
-        ],[
-          4,{
+        ],
+        [
+          4,
+          {
             "name": "account_upgrade",
             "membership_annual_fee": 579131307,
             "membership_lifetime_fee": 579131307
           }
-        ],[
-          5,{
+        ],
+        [
+          5,
+          {
             "name": "account_transfer",
             "fee": 96521884
           }
-        ],[
-          6,{
+        ],
+        [
+          6,
+          {
             "name": "asset_create",
             "symbol3": "120652355825",
             "symbol4": "24130471165",
             "long_symbol": 2413047116,
             "price_per_kbyte": 48260
           }
-        ],[
-          7,{
+        ],
+        [
+          7,
+          {
             "name": "asset_update",
-            "fee": 482609,
-            "price_per_kbyte": 48260
+            "fee": 5,
+            "price_per_kbyte": 4
           }
-        ],[
-          8,{
+        ],
+        [
+          8,
+          {
             "name": "asset_update_bitasset",
             "fee": 482609
           }
-        ],[
-          9,{
+        ],
+        [
+          9,
+          {
             "name": "asset_update_feed_producers",
             "fee": 482609
           }
-        ],[
-          10,{
+        ],
+        [
+          10,
+          {
             "name": "asset_issue",
             "fee": 86869,
             "price_per_kbyte": 48260
           }
-        ],[
-          11,{
+        ],
+        [
+          11,
+          {
             "name": "asset_reserve",
             "fee": 4826
           }
-        ],[
-          12,{
+        ],
+        [
+          12,
+          {
             "name": "asset_fund_fee_pool",
             "fee": 482609
           }
-        ],[
-          13,{
+        ],
+        [
+          13,
+          {
             "name": "asset_settle",
             "fee": 96521
           }
-        ],[
-          14,{
+        ],
+        [
+          14,
+          {
             "name": "asset_global_settle",
             "fee": 24130471
           }
-        ],[
-          15,{
+        ],
+        [
+          15,
+          {
             "name": "asset_publish_feed",
             "fee": 482
           }
-        ],[
-          16,{
+        ],
+        [
+          16,
+          {
             "name": "witness_create",
             "fee": 241304711
           }
-        ],[
-          17,{
+        ],
+        [
+          17,
+          {
             "name": "witness_update",
             "fee": 48260
           }
-        ],[
-          18,{
+        ],
+        [
+          18,
+          {
             "name": "proposal_create",
             "fee": 965218,
             "price_per_kbyte": 241304
           }
-        ],[
-          19,{
+        ],
+        [
+          19,
+          {
             "name": "proposal_update",
             "fee": 48260,
             "price_per_kbyte": 48260
           }
-        ],[
-          20,{
+        ],
+        [
+          20,
+          {
             "name": "proposal_delete",
             "fee": 0
           }
-        ],[
-          21,{
+        ],
+        [
+          21,
+          {
             "name": "withdraw_permission_create",
             "fee": 723914
           }
-        ],[
-          22,{
+        ],
+        [
+          22,
+          {
             "name": "withdraw_permission_update",
             "fee": 48260
           }
-        ],[
-          23,{
+        ],
+        [
+          23,
+          {
             "name": "withdraw_permission_claim",
             "fee": 69495,
             "price_per_kbyte": 48260
           }
-        ],[
-          24,{
+        ],
+        [
+          24,
+          {
             "name": "withdraw_permission_delete",
             "fee": 0
           }
-        ],[
-          25,{
+        ],
+        [
+          25,
+          {
             "name": "committee_member_create",
             "fee": 24130471
           }
-        ],[
-          26,{
+        ],
+        [
+          26,
+          {
             "name": "committee_member_update",
             "fee": 48260942
           }
-        ],[
-          27,{
+        ],
+        [
+          27,
+          {
             "name": "committee_member_update_global_parameters",
             "fee": 0
           }
-        ],[
-          28,{
+        ],
+        [
+          28,
+          {
             "name": "vesting_balance_create",
             "fee": 482609
           }
-        ],[
-          29,{
+        ],
+        [
+          29,
+          {
             "name": "vesting_balance_withdraw",
             "fee": 482609
           }
-        ],[
-          30,{
+        ],
+        [
+          30,
+          {
             "name": "custom",
             "fee": 48260,
             "price_per_kbyte": 48260
           }
-        ],[
-          31,{
+        ],
+        [
+          31,
+          {
             "name": "assert",
             "fee": 48260
           }
-        ],[
-          32,{
+        ],
+        [
+          32,
+          {
             "name": "balance_claim",
             "fee": 0
           }
-        ],[
-          33,{
+        ],
+        [
+          33,
+          {
             "name": "override_transfer",
             "fee": 4826094,
             "price_per_kbyte": 48260
           }
-        ],[
-          34,{
+        ],
+        [
+          34,
+          {
             "name": "asset_settle_cancel",
             "fee": 0
           }
-        ],[
-          35,{
+        ],
+        [
+          35,
+          {
             "name": "asset_claim_fees",
             "fee": 4826094
           }
-        ],[
-          36,{
+        ],
+        [
+          36,
+          {
             "name": "fba_distribute",
             "fee": 0
           }
-        ],[
-          37,{
+        ],
+        [
+          37,
+          {
             "name": "asset_claim_pool",
             "fee": 482609
           }
-        ],[
-          38,{
+        ],
+        [
+          38,
+          {
             "name": "asset_update_issuer",
             "fee": 48260942
           }
-        ],[
-          39,{
+        ],
+        [
+          39,
+          {
             "name": "personal_data_create",
             "fee": 86869,
             "price_per_kbyte": 48260
           }
-        ],[
-          40,{
+        ],
+        [
+          40,
+          {
             "name": "personal_data_remove",
             "fee": 0
           }
-        ],[
-          41,{
+        ],
+        [
+          41,
+          {
             "name": "content_card_create",
             "fee": 48260,
             "price_per_kbyte": 48260
           }
-        ],[
-          42,{
+        ],
+        [
+          42,
+          {
             "name": "content_card_update",
             "fee": 48260,
             "price_per_kbyte": 48260
           }
-        ],[
-          43,{
+        ],
+        [
+          43,
+          {
             "name": "content_card_remove",
             "fee": 0
           }
-        ],[
-          44,{
+        ],
+        [
+          44,
+          {
             "name": "permission_create",
             "fee": 482
           }
-        ],[
-          45,{
+        ],
+        [
+          45,
+          {
             "name": "permission_remove",
             "fee": 0
           }
-        ],[
-          46,{
+        ],
+        [
+          46,
+          {
             "name": "commit_create",
             "fee": 0
           }
-        ],[
-          47,{
+        ],
+        [
+          47,
+          {
             "name": "reveal_create",
             "fee": 0
           }
-        ],[
-          48,{
+        ],
+        [
+          48,
+          {
             "name": "worker_create",
             "fee": 241304711
           }
-        ],[
-          49,{
+        ],
+        [
+          49,
+          {
             "name": "htlc_create",
             "fee": 4826,
             "fee_per_day": 159261
           }
-        ],[
-          50,{
+        ],
+        [
+          50,
+          {
             "name": "htlc_redeem",
-            "fee": 4826,
-            "fee_per_kb": 482609
+            "fee": 0,
+            "fee_per_kb": 0
           }
-        ],[
-          51,{
+        ],
+        [
+          51,
+          {
             "name": "htlc_redeemed",
             "fee": 0
           }
-        ],[
-          52,{
+        ],
+        [
+          52,
+          {
             "name": "htlc_extend",
             "fee": 4826,
             "fee_per_day": 159261
           }
-        ],[
-          53,{
+        ],
+        [
+          53,
+          {
             "name": "htlc_refund",
             "fee": 0
           }
-        ],[
-          54,{
+        ],
+        [
+          54,
+          {
             "name": "limit_order_create",
             "fee": 48260
           }
-        ],[
-          55,{
+        ],
+        [
+          55,
+          {
             "name": "limit_order_cancel",
             "fee": 482
           }
-        ],[
-          56,{
+        ],
+        [
+          56,
+          {
             "name": "call_order_update",
             "fee": 48260
           }
-        ],[
-          57,{
+        ],
+        [
+          57,
+          {
             "name": "fill_order",
             "fee": 0
           }
-        ],[
-          58,{
+        ],
+        [
+          58,
+          {
             "name": "custom_authority_create",
             "fee": 0
           }
-        ],[
-          59,{
+        ],
+        [
+          59,
+          {
             "name": "custom_authority_update",
             "fee": 0
           }
-        ],[
-          60,{
+        ],
+        [
+          60,
+          {
             "name": "custom_authority_delete",
             "fee": 0
           }
-        ],[
-          61,{
+        ],
+        [
+          61,
+          {
             "name": "ticket_create",
             "fee": 0
           }
-        ],[
-          62,{
+        ],
+        [
+          62,
+          {
             "name": "ticket_update",
+            "fee": 0
+          }
+        ],
+        [
+          63,
+          {
+            "name": "ico_balance_claim",
             "fee": 0
           }
         ]
@@ -371,150 +504,184 @@
     "rsquared_witnesses_top_max": 63,
     "rsquared_witnesses_active_max": 21,
     "extensions": {
-        "electoral_threshold": 4,
-        "updatable_htlc_options": {
-            "max_timeout_secs": 2592000,
-            "max_preimage_size": 10240
-        }
+      "electoral_threshold": 4,
+      "updatable_htlc_options": {
+        "max_timeout_secs": 2592000,
+        "max_preimage_size": 10240
+      }
     }
   },
-  "initial_accounts": [{
+  "initial_accounts": [
+    {
       "name": "init0",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init1",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init2",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init3",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init4",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init5",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init6",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init7",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init8",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init9",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
+    },
+    {
       "name": "init10",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": true
-    },{
-      "name": "nathan",
+    },
+    {
+      "name": "rsquaredchp1",
       "owner_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "active_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ",
       "is_lifetime_member": false
     }
   ],
   "initial_assets": [],
-  "initial_balances": [{
+  "initial_balances": [
+    {
       "owner": "RQRXBrWn6V3fn1KdCZRo4DVmrMq7MpTtic5CW",
       "asset_symbol": "RQRX",
-      "amount": "1000000000000000"
+      "amount": "100000000000000"
     }
   ],
+  "ico_balances": [],
   "initial_vesting_balances": [],
   "initial_active_witnesses": 11,
-  "initial_witness_candidates": [{
+  "initial_witness_candidates": [
+    {
       "owner_name": "init0",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init1",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init2",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init3",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init4",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init5",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init6",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init7",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init8",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init9",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
-    },{
+    },
+    {
       "owner_name": "init10",
       "block_signing_key": "RQRX6JaiMEZZ57Q75Xh3kVbJ4owX13p7f1kkV76B3xLNFuWHVbRSyZ"
     }
   ],
-  "initial_committee_candidates": [{
+  "initial_committee_candidates": [
+    {
       "owner_name": "init0"
-    },{
+    },
+    {
       "owner_name": "init1"
-    },{
+    },
+    {
       "owner_name": "init2"
-    },{
+    },
+    {
       "owner_name": "init3"
-    },{
+    },
+    {
       "owner_name": "init4"
-    },{
+    },
+    {
       "owner_name": "init5"
-    },{
+    },
+    {
       "owner_name": "init6"
-    },{
+    },
+    {
       "owner_name": "init7"
-    },{
+    },
+    {
       "owner_name": "init8"
-    },{
+    },
+    {
       "owner_name": "init9"
-    },{
+    },
+    {
       "owner_name": "init10"
     }
   ],
   "initial_worker_candidates": [],
   "immutable_parameters": {
     "min_committee_member_count": 11,
-    "min_witness_count": 11,
+    "min_witness_count": 63,
     "num_special_accounts": 0,
     "num_special_assets": 0
   }
 }
-
-
