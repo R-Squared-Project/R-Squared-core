@@ -37,7 +37,7 @@ void_result ico_balance_claim_evaluator::do_evaluate(const ico_balance_claim_ope
 
    const account_object* account = d.find(fc::variant(op.deposit_to_account, 1).as<account_id_type>(1));
 
-   FC_ASSERT(tokendistribution::verifyMessage(op.eth_pub_key, account->name, op.eth_sign) == 1);
+   FC_ASSERT(tokendistribution::verifyMessage(op.eth_pub_key, account->name, op.eth_sign) == 0, "The key or the signature is not correct");
    FC_ASSERT(ico_balance->eth_address == tokendistribution::getAddress(op.eth_pub_key));
 
    //FC_ASSERT(op.total_claimed.asset_id == ico_balance->asset_type());

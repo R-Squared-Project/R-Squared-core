@@ -61,7 +61,7 @@ std::string bytesHex(const Bytes &v)
     std::string result;
     result.reserve(v.size() * 2); // two digits per character
 
-    static constexpr char hex[] = "0123456789ABCDEF";
+    static constexpr char hex[] = "0123456789abcdef";
 
     for (uint8_t c : v)
     {

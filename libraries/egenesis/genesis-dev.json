@@ -680,7 +680,7 @@
   "initial_worker_candidates": [],
   "immutable_parameters": {
     "min_committee_member_count": 11,
-    "min_witness_count": 63,
+    "min_witness_count": 11,
     "num_special_accounts": 0,
     "num_special_assets": 0
   }

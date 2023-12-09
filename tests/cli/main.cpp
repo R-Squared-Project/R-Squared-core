@@ -289,7 +289,7 @@ struct cli_fixture
       app_dir( graphene::utilities::temp_directory_path() ),
       app1( start_application(app_dir, server_port_number) ),
       con( app1, app_dir, server_port_number ),
-      rsquaredchp1_keys( {"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"} )
+      rsquaredchp1_keys( {"5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy"} )
    {
       BOOST_TEST_MESSAGE("Setup cli_wallet::boost_fixture_test_case");
 
@@ -304,7 +304,7 @@ struct cli_fixture
 
          // import RSquaredCHP1 account
          BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
-         BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+         BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy");
          BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
       } catch( fc::exception& e ) {
          edump((e.to_detail_string()));
@@ -992,8 +992,8 @@ BOOST_AUTO_TEST_CASE( cli_multisig_transaction )
 
       // import RSquaredCHP1 account
       BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
-      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      std::vector<std::string> rsquaredchp1_keys{"5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy");
       BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
       BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
@@ -1167,8 +1167,8 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc )
 
       // import RSquaredCHP1 account
       BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
-      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      std::vector<std::string> rsquaredchp1_keys{"5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy");
       BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
       BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
@@ -1710,8 +1710,8 @@ BOOST_AUTO_TEST_CASE( cli_create_htlc_bsip64 )
 
       // import RSquaredCHP1 account
       BOOST_TEST_MESSAGE("Importing rsquaredchp1 key");
-      std::vector<std::string> rsquaredchp1_keys{"5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"};
-      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3");
+      std::vector<std::string> rsquaredchp1_keys{"5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy"};
+      BOOST_CHECK_EQUAL(rsquaredchp1_keys[0], "5K2oKcPvqu9dmt8EwLEF7KghJamEk1npeQa9nm8gQjuxPisybxy");
       BOOST_CHECK(con.wallet_api_ptr->import_key("rsquaredchp1", rsquaredchp1_keys[0]));
 
       BOOST_TEST_MESSAGE("Importing rsquaredchp1's balance");
