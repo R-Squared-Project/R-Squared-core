@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2020 Abit More, and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -44,14 +45,14 @@ BOOST_AUTO_TEST_CASE( update_max_supply )
       generate_block();
       set_expiration( db, trx );
 
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
       // create a UIA
-      const asset_object& uia = create_user_issued_asset( "UIATEST", nathan, charge_market_fee );
+      const asset_object& uia = create_user_issued_asset( "UIATEST", rsquaredchp1, charge_market_fee );
       asset_id_type uia_id = uia.id;
 
-      // issue some to Nathan
-      issue_uia( nathan_id, uia.amount( GRAPHENE_MAX_SHARE_SUPPLY - 100 ) );
+      // issue some to RSquaredCHP1
+      issue_uia( rsquaredchp1_id, uia.amount( GRAPHENE_MAX_SHARE_SUPPLY - 100 ) );
 
       BOOST_CHECK( uia_id(db).can_update_max_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).options.max_supply.value, GRAPHENE_MAX_SHARE_SUPPLY );
@@ -59,7 +60,7 @@ BOOST_AUTO_TEST_CASE( update_max_supply )
 
       // update max supply to a smaller number
       asset_update_operation auop;
-      auop.issuer = nathan_id;
+      auop.issuer = rsquaredchp1_id;
       auop.asset_to_update = uia_id;
       auop.new_options = uia_id(db).options;
       auop.new_options.max_supply -= 90;
@@ -233,7 +234,7 @@ BOOST_AUTO_TEST_CASE( update_max_supply )
       BOOST_CHECK_EQUAL( uia_id(db).options.market_fee_percent, 120u );
 
       // reserve all supply
-      reserve_asset( nathan_id, uia_id(db).amount( GRAPHENE_MAX_SHARE_SUPPLY - 100 ) );
+      reserve_asset( rsquaredchp1_id, uia_id(db).amount( GRAPHENE_MAX_SHARE_SUPPLY - 100 ) );
 
       BOOST_CHECK( !uia_id(db).can_update_max_supply() );
       // max_supply > current_supply
@@ -310,7 +311,7 @@ BOOST_AUTO_TEST_CASE( update_max_supply )
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 0 );
 
       // issue some
-      issue_uia( nathan_id, uia_id(db).amount( 100 ) );
+      issue_uia( rsquaredchp1_id, uia_id(db).amount( 100 ) );
 
       BOOST_CHECK( uia_id(db).can_update_max_supply() );
       // max_supply > current_supply
@@ -366,24 +367,24 @@ BOOST_AUTO_TEST_CASE( disable_new_supply_uia )
 
       set_expiration( db, trx );
 
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
       // create a UIA
-      const asset_object& uia = create_user_issued_asset( "UIATEST", nathan, charge_market_fee );
+      const asset_object& uia = create_user_issued_asset( "UIATEST", rsquaredchp1, charge_market_fee );
       asset_id_type uia_id = uia.id;
 
       BOOST_CHECK( uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 0 );
 
-      // issue some to Nathan
-      issue_uia( nathan_id, uia_id(db).amount( 100 ) );
+      // issue some to RSquaredCHP1
+      issue_uia( rsquaredchp1_id, uia_id(db).amount( 100 ) );
 
       BOOST_CHECK( uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 100 );
 
       // prepare to update
       asset_update_operation auop;
-      auop.issuer = nathan_id;
+      auop.issuer = rsquaredchp1_id;
       auop.asset_to_update = uia_id;
       auop.new_options = uia_id(db).options;
 
@@ -397,7 +398,7 @@ BOOST_AUTO_TEST_CASE( disable_new_supply_uia )
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 100 );
 
       // unable to issue more coins
-      BOOST_CHECK_THROW( issue_uia( nathan_id, uia_id(db).amount( 100 ) ), fc::exception );
+      BOOST_CHECK_THROW( issue_uia( rsquaredchp1_id, uia_id(db).amount( 100 ) ), fc::exception );
 
       BOOST_CHECK( !uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 100 );
@@ -411,8 +412,8 @@ BOOST_AUTO_TEST_CASE( disable_new_supply_uia )
       BOOST_CHECK( uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 100 );
 
-      // issue some to Nathan
-      issue_uia( nathan_id, uia_id(db).amount( 100 ) );
+      // issue some to RSquaredCHP1
+      issue_uia( rsquaredchp1_id, uia_id(db).amount( 100 ) );
 
       BOOST_CHECK( uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 200 );
@@ -442,7 +443,7 @@ BOOST_AUTO_TEST_CASE( disable_new_supply_uia )
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 200 );
 
       // unable to issue more coins
-      BOOST_CHECK_THROW( issue_uia( nathan_id, uia_id(db).amount( 100 ) ), fc::exception );
+      BOOST_CHECK_THROW( issue_uia( rsquaredchp1_id, uia_id(db).amount( 100 ) ), fc::exception );
 
       BOOST_CHECK( !uia_id(db).can_create_new_supply() );
       BOOST_CHECK_EQUAL( uia_id(db).dynamic_data(db).current_supply.value, 200 );
@@ -471,17 +472,17 @@ BOOST_AUTO_TEST_CASE( skip_core_exchange_rate )
 
       set_expiration( db, trx );
 
-      ACTORS((nathan));
+      ACTORS((rsquaredchp1));
 
       // create a UIA
-      const asset_object& uia = create_user_issued_asset( "UIATEST", nathan, charge_market_fee );
+      const asset_object& uia = create_user_issued_asset( "UIATEST", rsquaredchp1, charge_market_fee );
       asset_id_type uia_id = uia.id;
 
       BOOST_CHECK( uia_id(db).options.core_exchange_rate == price(asset(1, uia_id), asset(1)) );
 
       // prepare to update
       asset_update_operation auop;
-      auop.issuer = nathan_id;
+      auop.issuer = rsquaredchp1_id;
       auop.asset_to_update = uia_id;
       auop.new_options = uia_id(db).options;
 
@@ -541,10 +542,10 @@ BOOST_AUTO_TEST_CASE( invalid_flags_in_asset )
       generate_block();
       set_expiration( db, trx );
 
-      ACTORS((nathan)(feeder));
+      ACTORS((rsquaredchp1)(feeder));
 
       auto init_amount = 10000000 * GRAPHENE_BLOCKCHAIN_PRECISION;
-      fund( nathan, asset(init_amount) );
+      fund( rsquaredchp1, asset(init_amount) );
       fund( feeder, asset(init_amount) );
 
       uint16_t bitmask = ASSET_ISSUER_PERMISSION_ENABLE_BITS_MASK;
@@ -555,8 +556,8 @@ BOOST_AUTO_TEST_CASE( invalid_flags_in_asset )
 
       // Able to create UIA with invalid flags
       asset_create_operation acop;
-      acop.issuer = nathan_id;
-      acop.symbol = "NATHANCOIN";
+      acop.issuer = rsquaredchp1_id;
+      acop.symbol = "RSQRCHP1COIN";
       acop.precision = 2;
       acop.common_options.core_exchange_rate = price(asset(1,asset_id_type(1)),asset(1));
       acop.common_options.max_supply = GRAPHENE_MAX_SHARE_SUPPLY;
@@ -568,15 +569,15 @@ BOOST_AUTO_TEST_CASE( invalid_flags_in_asset )
       trx.operations.push_back( acop );
 
       processed_transaction ptx = PUSH_TX(db, trx, ~0);
-      const asset_object& nathancoin = db.get<asset_object>(ptx.operation_results[0].get<object_id_type>());
-      asset_id_type nathancoin_id = nathancoin.id;
+      const asset_object& rsquaredchp1coin = db.get<asset_object>(ptx.operation_results[0].get<object_id_type>());
+      asset_id_type rsquaredchp1coin_id = rsquaredchp1coin.id;
 
       // There are invalid bits in flags
-      BOOST_CHECK( !(nathancoin_id(db).options.flags & ~UIA_VALID_FLAGS_MASK) );
+      BOOST_CHECK( !(rsquaredchp1coin_id(db).options.flags & ~UIA_VALID_FLAGS_MASK) );
 
       // Able to create MPA with invalid flags
       asset_create_operation acop2 = acop;
-      acop2.symbol = "NATHANBIT";
+      acop2.symbol = "RSQRCHP1BIT";
       acop2.bitasset_opts = bitasset_options();
       //acop2.common_options.flags = bitflag;
       acop2.common_options.issuer_permissions = bitmask;
@@ -587,7 +588,7 @@ BOOST_AUTO_TEST_CASE( invalid_flags_in_asset )
       GRAPHENE_CHECK_THROW( PUSH_TX( db, trx, ~0 ), fc::assert_exception );
 
       // Unable to create a new UIA with an unknown bit in flags
-      acop.symbol = "NEWNATHANCOIN";
+      acop.symbol = "NEWQSQUARED1COIN";
       // With all possible bits in permissions set to 1
       acop2.common_options.issuer_permissions = UIA_ASSET_ISSUER_PERMISSION_MASK;
       for( uint16_t bit = 0x8000; bit > 0; bit >>= 1 )
@@ -607,10 +608,10 @@ BOOST_AUTO_TEST_CASE( invalid_flags_in_asset )
       trx.operations.clear();
       trx.operations.push_back( acop );
       ptx = PUSH_TX(db, trx, ~0);
-      const asset_object& newnathancoin = db.get<asset_object>(ptx.operation_results[0].get<object_id_type>());
-      asset_id_type newnathancoin_id = newnathancoin.id;
+      const asset_object& newrsquaredchp1coin = db.get<asset_object>(ptx.operation_results[0].get<object_id_type>());
+      asset_id_type newrsquaredchp1coin_id = newrsquaredchp1coin.id;
 
-      BOOST_CHECK_EQUAL( newnathancoin_id(db).options.flags, UIA_VALID_FLAGS_MASK );
+      BOOST_CHECK_EQUAL( newrsquaredchp1coin_id(db).options.flags, UIA_VALID_FLAGS_MASK );
 
       // Able to propose too
       propose( acop );

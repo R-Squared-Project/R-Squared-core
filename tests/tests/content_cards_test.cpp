@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  * 
  * The MIT License
  *
@@ -51,7 +52,7 @@ BOOST_FIXTURE_TEST_SUITE( content_cards_tests, database_fixture )
 BOOST_AUTO_TEST_CASE(content_cards_plugin_disabled_test)
 {
 try {
-   ACTORS((nathan)(alice)(robert)(patty));
+   ACTORS((rsquaredchp1)(alice)(robert)(patty));
 
    content_card_create_operation op;
    op.subject_account = alice_id;
@@ -82,7 +83,7 @@ catch (fc::exception &e) {
 BOOST_AUTO_TEST_CASE(content_cards_plugin_enabled_test)
 {
 try {
-   ACTORS((nathan)(alice)(robert)(patty));
+   ACTORS((rsquaredchp1)(alice)(robert)(patty));
 
    app.register_plugin<graphene::content_cards::content_cards_plugin>(true);
 

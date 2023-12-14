@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
  * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -29,6 +30,7 @@
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/balance_object.hpp>
+#include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/block_summary_object.hpp>
 #include <graphene/chain/budget_record_object.hpp>
 #include <graphene/chain/buyback_object.hpp>
@@ -58,6 +60,7 @@
 #include <graphene/chain/asset_evaluator.hpp>
 #include <graphene/chain/assert_evaluator.hpp>
 #include <graphene/chain/balance_evaluator.hpp>
+#include <graphene/chain/ico_balance_evaluator.hpp>
 #include <graphene/chain/committee_member_evaluator.hpp>
 #include <graphene/chain/custom_evaluator.hpp>
 #include <graphene/chain/market_evaluator.hpp>
@@ -121,6 +124,7 @@ void database::initialize_evaluators()
    register_evaluator<withdraw_permission_delete_evaluator>();
    register_evaluator<worker_create_evaluator>();
    register_evaluator<balance_claim_evaluator>();
+   register_evaluator<ico_balance_claim_evaluator>();
    register_evaluator<asset_claim_fees_evaluator>();
    register_evaluator<asset_update_issuer_evaluator>();
    register_evaluator<asset_claim_pool_evaluator>();
@@ -162,6 +166,7 @@ void database::initialize_indexes()
    add_index< primary_index<vesting_balance_index> >();
    add_index< primary_index<worker_index> >();
    add_index< primary_index<balance_index> >();
+   add_index< primary_index<ico_balance_index> >();
    add_index< primary_index< htlc_index> >();
    add_index< primary_index< custom_authority_index> >();
    add_index< primary_index<ticket_index> >();
@@ -529,6 +534,18 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       create<balance_object>([&handout,total_allocation,asset_id](balance_object& b) {
          b.balance = asset(handout.amount, asset_id);
          b.owner = handout.owner;
+      });
+
+      total_supplies[ asset_id ] += handout.amount;
+   }
+
+   // Create ico balances
+   for( const auto& handout : genesis_state.ico_balances )
+   {
+      const auto asset_id = get_asset_id(GRAPHENE_SYMBOL);
+      create<ico_balance_object>([&handout,total_allocation,asset_id](ico_balance_object& b) {
+         b.balance = asset(handout.amount, asset_id);
+         b.eth_address = handout.eth_address;
       });
 
       total_supplies[ asset_id ] += handout.amount;

@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE(elasticsearch_account_history) {
       if(delete_account_history) { // all records deleted
 
          //account_id_type() do 3 ops
-         auto nathan = create_account("nathan");
-         create_user_issued_asset("USD", nathan, 0);
+         auto rsquaredchp1 = create_account("rsquaredchp1");
+         create_user_issued_asset("USD", rsquaredchp1, 0);
          auto dan = create_account("dan");
          auto bob = create_account("bob");
 
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE(elasticsearch_objects) {
       if(delete_objects) { // all records deleted
 
          // asset and bitasset
-         auto nathan = create_account("nathan");
-         create_user_issued_asset("USD", nathan, 0);
+         auto rsquaredchp1 = create_account("rsquaredchp1");
+         create_user_issued_asset("USD", rsquaredchp1, 0);
          generate_block();
 
          string query = "{ \"query\" : { \"bool\" : { \"must\" : [{\"match_all\": {}}] } } }";
