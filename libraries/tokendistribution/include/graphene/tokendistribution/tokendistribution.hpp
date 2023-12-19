@@ -36,6 +36,6 @@ void prepareSignature(std::string& pubKey);
 
 std::string getAddress(std::string pubKey);
 
-int verifyMessage (std::string pubKey, std::string acc, std::string sig);
+int verifyMessage (std::string pubKey, std::string msg, std::string sig);
 
 } }

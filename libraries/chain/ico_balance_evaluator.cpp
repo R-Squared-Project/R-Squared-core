@@ -22,6 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+#include <ctime>
+#include <iomanip>
+
 #include <graphene/chain/ico_balance_evaluator.hpp>
 #include <graphene/protocol/pts_address.hpp>
 #include <graphene/tokendistribution/tokendistribution.hpp>
@@ -37,7 +40,15 @@ void_result ico_balance_claim_evaluator::do_evaluate(const ico_balance_claim_ope
 
    const account_object* account = d.find(fc::variant(op.deposit_to_account, 1).as<account_id_type>(1));
 
-   FC_ASSERT(tokendistribution::verifyMessage(op.eth_pub_key, account->name, op.eth_sign) == 0, "The key or the signature is not correct");
+   // Build the verification phrase
+   std::time_t tm = time_t( d.head_block_time().sec_since_epoch() );
+   std::string datetime(11,0);
+   datetime.resize(std::strftime(&datetime[0], datetime.size(), "%Y-%m-%d", std::localtime(&tm)));
+
+   using namespace std::string_literals;
+   std::string msg = "I "s + account->name + " want to claim "s + GRAPHENE_SYMBOL + " tokens. "s + datetime + "."s;
+
+   FC_ASSERT(tokendistribution::verifyMessage(op.eth_pub_key, msg, op.eth_sign) == 0, "The key or the signature is not correct");
    FC_ASSERT(ico_balance->eth_address == tokendistribution::getAddress(op.eth_pub_key));
 
    //FC_ASSERT(op.total_claimed.asset_id == ico_balance->asset_type());
