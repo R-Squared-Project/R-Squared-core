@@ -27,9 +27,6 @@
 #include "secp256k1.h"
 #include <fc/exception/exception.hpp>
 
-#include <ctime>
-#include <iomanip>
-
 #include <graphene/tokendistribution/Keccak256.hpp>
 
 namespace graphene { namespace tokendistribution {
@@ -64,18 +61,8 @@ std::string getAddress(std::string pubKey)
    return address;
 }
 
-int verifyMessage (std::string pubKey, std::string acc, std::string sig) {
+int verifyMessage (std::string pubKey, std::string msg, std::string sig) {
    preparePubKey(pubKey);
-
-   // Build the verification phrase
-   std::time_t tm = std::time(nullptr);
-   std::string datetime(11,0);
-   datetime.resize(std::strftime(&datetime[0], datetime.size(), "%Y-%m-%d", std::localtime(&tm)));
-
-   const std::string asset = "RQRX";
-
-   using namespace std::string_literals;
-   std::string msg = "I "s + acc + " want to claim "s + asset + " tokens. "s + datetime + "."s;
 
    // Wrap the phrase
    std::ostringstream msgToHash;
