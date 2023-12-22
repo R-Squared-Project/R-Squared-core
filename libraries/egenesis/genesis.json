@@ -761,7 +761,7 @@
     {
       "name": "wit30",
       "owner_key": "RQRX5ut9nWnXQzkp81LvGUde6RwS65hwBeakbzeG27ppYMR5wc4ZG9",
-      "active_key": "RQRX6psQpGqmkooGTBpziu6pXi5X7ii2ajPqbKgbFbgQW87ESqdxd",
+      "active_key": "RQRX6psQpGqmkooGTBpziu6pXi5X7ii2ajPqbKgbFbgQW87ESqdxdi",
       "is_lifetime_member": true
     },
     {
@@ -34651,7 +34651,7 @@
     },
     {
       "owner_name": "wit30",
-      "block_signing_key": "RQRX6psQpGqmkooGTBpziu6pXi5X7ii2ajPqbKgbFbgQW87ESqdxd"
+      "active_key": "RQRX6psQpGqmkooGTBpziu6pXi5X7ii2ajPqbKgbFbgQW87ESqdxdi"
     },
     {
       "owner_name": "wit31",
