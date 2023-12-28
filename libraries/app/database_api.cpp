@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  * 
  * The MIT License
  *
@@ -814,6 +815,34 @@ vector<balance_object> database_api_impl::get_balance_objects( const vector<addr
       {
          auto itr = by_owner_idx.lower_bound( boost::make_tuple( owner, asset_id_type(0) ) );
          while( itr != by_owner_idx.end() && itr->owner == owner )
+         {
+            result.push_back( *itr );
+            ++itr;
+         }
+      }
+      return result;
+   }
+   FC_CAPTURE_AND_RETHROW( (addrs) )
+}
+
+vector<ico_balance_object> database_api::get_ico_balance_objects( const vector<string>& addrs )const
+{
+   return my->get_ico_balance_objects( addrs );
+}
+
+vector<ico_balance_object> database_api_impl::get_ico_balance_objects( const vector<string>& addrs )const
+{
+   try
+   {
+      const auto& ico_bal_idx = _db.get_index_type<ico_balance_index>();
+      const auto& by_eth_addr_idx = ico_bal_idx.indices().get<by_eth_address>();
+
+      vector<ico_balance_object> result;
+
+      for( const auto& addr : addrs )
+      {
+         auto itr = by_eth_addr_idx.lower_bound( boost::make_tuple( addr, asset_id_type(0) ) );
+         while( itr != by_eth_addr_idx.end() && itr->eth_address == addr )
          {
             result.push_back( *itr );
             ++itr;
@@ -2312,33 +2341,6 @@ vector<proposal_object> database_api_impl::get_proposed_global_parameters()const
 
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
-// Blinded balances                                                 //
-//                                                                  //
-//////////////////////////////////////////////////////////////////////
-
-vector<blinded_balance_object> database_api::get_blinded_balances(
-                                  const flat_set<commitment_type>& commitments )const
-{
-   return my->get_blinded_balances( commitments );
-}
-
-vector<blinded_balance_object> database_api_impl::get_blinded_balances(
-                                  const flat_set<commitment_type>& commitments )const
-{
-   vector<blinded_balance_object> result; result.reserve(commitments.size());
-   const auto& bal_idx = _db.get_index_type<blinded_balance_index>();
-   const auto& by_commitment_idx = bal_idx.indices().get<by_commitment>();
-   for( const auto& c : commitments )
-   {
-      auto itr = by_commitment_idx.find( c );
-      if( itr != by_commitment_idx.end() )
-         result.push_back( *itr );
-   }
-   return result;
-}
-
-//////////////////////////////////////////////////////////////////////
-//                                                                  //
 //  Withdrawals                                                     //
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
@@ -2517,7 +2519,7 @@ vector<htlc_object> database_api_impl::list_htlcs(const htlc_id_type start, uint
 
 //////////////////////////////////////////////////////////////////////
 //                                                                  //
-//  RevPop                                                          //
+//  R-Squared                                                       //
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
@@ -2574,59 +2576,6 @@ fc::optional<personal_data_object> database_api_impl::get_last_personal_data( co
    return fc::optional<personal_data_object>(last_pd);
 }
 
-vector<personal_data_v2_object> database_api::get_personal_data_v2( const account_id_type subject_account,
-                                                              const account_id_type operator_account) const
-{
-   return my->get_personal_data_v2(subject_account, operator_account);
-}
-
-vector<personal_data_v2_object> database_api_impl::get_personal_data_v2( const account_id_type subject_account,
-                                                                   const account_id_type operator_account) const
-{
-   const auto& pd_idx = _db.get_index_type<personal_data_v2_index>();
-   const auto& by_op_idx = pd_idx.indices().get<by_subject_account>();
-   auto itr = by_op_idx.lower_bound(boost::make_tuple(subject_account, operator_account));
-
-   vector<personal_data_v2_object> result;
-   while( itr->subject_account == subject_account && itr->operator_account == operator_account )
-   {
-      result.push_back(*itr);
-      ++itr;
-   }
-
-   return result;
-}
-
-fc::optional<personal_data_v2_object> database_api::get_last_personal_data_v2( const account_id_type subject_account,
-                                                                         const account_id_type operator_account) const
-{
-   return my->get_last_personal_data_v2(subject_account, operator_account);
-}
-
-fc::optional<personal_data_v2_object> database_api_impl::get_last_personal_data_v2( const account_id_type subject_account,
-                                                                              const account_id_type operator_account) const
-{
-   const auto& pd_idx = _db.get_index_type<personal_data_v2_index>();
-   const auto& by_op_idx = pd_idx.indices().get<by_subject_account>();
-   auto itr = by_op_idx.lower_bound(boost::make_tuple(subject_account, operator_account));
-
-   if ( itr->subject_account != subject_account || itr->operator_account != operator_account ){
-      return fc::optional<personal_data_v2_object>();
-   }
-
-   auto last_pd = *itr;
-   ++itr;
-   while( itr->subject_account == subject_account && itr->operator_account == operator_account )
-   {
-      if (itr->id > last_pd.id){
-         last_pd = *itr;
-      }
-      ++itr;
-   }
-
-   return fc::optional<personal_data_v2_object>(last_pd);
-}
-
 fc::optional<content_card_object> database_api::get_content_card_by_id( const content_card_id_type content_id ) const
 {
    return my->get_content_card_by_id(content_id);
@@ -2666,54 +2615,6 @@ vector<content_card_object> database_api_impl::get_content_cards( const account_
    auto itr = by_op_idx.lower_bound(boost::make_tuple(subject_account, content_id));
 
    vector<content_card_object> result;
-   while( itr->subject_account == subject_account && limit-- )
-   {
-      result.push_back(*itr);
-      ++itr;
-   }
-
-   return result;
-}
-
-fc::optional<content_card_v2_object> database_api::get_content_card_v2_by_id( const content_card_v2_id_type content_id ) const
-{
-   return my->get_content_card_v2_by_id(content_id);
-}
-
-fc::optional<content_card_v2_object> database_api_impl::get_content_card_v2_by_id( const content_card_v2_id_type content_id ) const
-{
-   const auto& node_properties = _db.get_node_properties();
-   FC_ASSERT(node_properties.active_plugins.find("content_cards") != node_properties.active_plugins.end(),
-    "This api is switched off because content_cards plugin does not enabled" );
-
-   const auto& cc_idx = _db.get_index_type<content_card_v2_index>();
-   const auto& by_op_idx = cc_idx.indices().get<by_id>();
-   auto itr = by_op_idx.lower_bound(content_id);
-
-   if ( itr->id != content_id ){
-      return fc::optional<content_card_v2_object>();
-   }
-   return *itr;
-}
-
-vector<content_card_v2_object> database_api::get_content_cards_v2( const account_id_type subject_account,
-                                                             const content_card_v2_id_type content_id, uint32_t limit ) const
-{
-   return my->get_content_cards_v2(subject_account, content_id, limit);
-}
-
-vector<content_card_v2_object> database_api_impl::get_content_cards_v2( const account_id_type subject_account,
-                                                                  const content_card_v2_id_type content_id, uint32_t limit ) const
-{
-   const auto& node_properties = _db.get_node_properties();
-   FC_ASSERT(node_properties.active_plugins.find("content_cards") != node_properties.active_plugins.end(),
-    "This api is switched off because content_cards plugin does not enabled" );
-
-   const auto& cc_idx = _db.get_index_type<content_card_v2_index>();
-   const auto& by_op_idx = cc_idx.indices().get<by_subject_account>();
-   auto itr = by_op_idx.lower_bound(boost::make_tuple(subject_account, content_id));
-
-   vector<content_card_v2_object> result;
    while( itr->subject_account == subject_account && limit-- )
    {
       result.push_back(*itr);

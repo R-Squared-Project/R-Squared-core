@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
  *
  * The MIT License
  *
@@ -936,6 +936,16 @@ void wallet_api::flood_network(string prefix, uint32_t number_of_transactions)
    my->flood_network(prefix, number_of_transactions);
 }
 
+signed_transaction wallet_api::propose_parameter_extension_change(
+   const string& proposing_account,
+   fc::time_point_sec expiration_time,
+   const variant_object& changed_extensions,
+   bool broadcast /* = false */
+   )
+{
+   return my->propose_parameter_extension_change( proposing_account, expiration_time, changed_extensions, broadcast );
+}
+
 signed_transaction wallet_api::propose_parameter_change(
    const string& proposing_account,
    fc::time_point_sec expiration_time,
@@ -987,20 +997,10 @@ signed_transaction wallet_api::create_personal_data(
       const string& operator_account,
       const string& url,
       const string& hash,
-      bool broadcast )
-{ 
-   return my->create_personal_data( subject_account, operator_account, url, hash, broadcast );
-}
-
-signed_transaction wallet_api::create_personal_data_v2(
-      const string& subject_account,
-      const string& operator_account,
-      const string& url,
-      const string& hash,
       const string& storage_data,
       bool broadcast )
 { 
-   return my->create_personal_data_v2( subject_account, operator_account, url, hash, storage_data, broadcast );
+   return my->create_personal_data( subject_account, operator_account, url, hash, storage_data, broadcast );
 }
 
 signed_transaction wallet_api::remove_personal_data(
@@ -1012,27 +1012,11 @@ signed_transaction wallet_api::remove_personal_data(
    return my->remove_personal_data(subject_account, operator_account, hash, broadcast );
 }
 
-signed_transaction wallet_api::remove_personal_data_v2(
-      const string& subject_account,
-      const string& operator_account,
-      const string& hash,
-      bool broadcast )
-{
-   return my->remove_personal_data_v2(subject_account, operator_account, hash, broadcast );
-}
-
 std::vector<personal_data_object> wallet_api::get_personal_data(
       const string& subject_account,
       const string& operator_account) const
 {
    return my->get_personal_data(subject_account, operator_account);
-}
-
-std::vector<personal_data_v2_object> wallet_api::get_personal_data_v2(
-      const string& subject_account,
-      const string& operator_account) const
-{
-   return my->get_personal_data_v2(subject_account, operator_account);
 }
 
 personal_data_object wallet_api::get_last_personal_data(
@@ -1042,26 +1026,7 @@ personal_data_object wallet_api::get_last_personal_data(
    return my->get_last_personal_data(subject_account, operator_account);
 }
 
-personal_data_v2_object wallet_api::get_last_personal_data_v2(
-      const string& subject_account,
-      const string& operator_account) const
-{
-   return my->get_last_personal_data_v2(subject_account, operator_account);
-}
-
 signed_transaction wallet_api::create_content_card(
-      const string& subject_account,
-      const string& hash,
-      const string& url,
-      const string& type,
-      const string& description,
-      const string& content_key,
-      bool broadcast ) const
-{
-   return my->create_content_card(subject_account, hash, url, type, description, content_key, broadcast);
-}
-
-signed_transaction wallet_api::create_content_card_v2(
       const string& subject_account,
       const string& hash,
       const string& url,
@@ -1071,7 +1036,7 @@ signed_transaction wallet_api::create_content_card_v2(
       const string& storage_data,
       bool broadcast ) const
 {
-   return my->create_content_card_v2(subject_account, hash, url, type, description, content_key, storage_data, broadcast);
+   return my->create_content_card(subject_account, hash, url, type, description, content_key, storage_data, broadcast);
 }
 
 signed_transaction wallet_api::update_content_card(
@@ -1081,22 +1046,10 @@ signed_transaction wallet_api::update_content_card(
       const string& type,
       const string& description,
       const string& content_key,
-      bool broadcast ) const
-{
-   return my->update_content_card(subject_account, hash, url, type, description, content_key, broadcast);
-}
-
-signed_transaction wallet_api::update_content_card_v2(
-      const string& subject_account,
-      const string& hash,
-      const string& url,
-      const string& type,
-      const string& description,
-      const string& content_key,
       const string& storage_data,
       bool broadcast ) const
 {
-   return my->update_content_card_v2(subject_account, hash, url, type, description, content_key, storage_data, broadcast);
+   return my->update_content_card(subject_account, hash, url, type, description, content_key, storage_data, broadcast);
 }
 
 signed_transaction wallet_api::remove_content_card( const string& subject_account,
@@ -1104,13 +1057,6 @@ signed_transaction wallet_api::remove_content_card( const string& subject_accoun
       bool broadcast ) const
 {
    return my->remove_content_card(subject_account, content_id, broadcast);
-}
-
-signed_transaction wallet_api::remove_content_card_v2( const string& subject_account,
-      uint64_t content_id,
-      bool broadcast ) const
-{
-   return my->remove_content_card_v2(subject_account, content_id, broadcast);
 }
 
 signed_transaction wallet_api::create_permission(
@@ -1136,25 +1082,12 @@ content_card_object wallet_api::get_content_card_by_id( uint64_t content_id ) co
    return my->get_content_card_by_id(content_id);
 }
 
-content_card_v2_object wallet_api::get_content_card_v2_by_id( uint64_t content_id ) const
-{
-   return my->get_content_card_v2_by_id(content_id);
-}
-
 std::vector<content_card_object> wallet_api::get_content_cards(
       const string& subject_account,
       uint64_t content_id,
       unsigned limit ) const
 {
    return my->get_content_cards(subject_account, content_id, limit);
-}
-
-std::vector<content_card_v2_object> wallet_api::get_content_cards_v2(
-      const string& subject_account,
-      uint64_t content_id,
-      unsigned limit ) const
-{
-   return my->get_content_cards_v2(subject_account, content_id, limit);
 }
 
 permission_object wallet_api::get_permission_by_id( uint64_t permission_id ) const
@@ -1325,6 +1258,15 @@ vector< signed_transaction > wallet_api::import_balance(
    return my->import_balance( name_or_id, wif_keys, broadcast );
 }
 
+vector< signed_transaction > wallet_api::ico_import_balance(
+      string account_name_or_id,
+      string eth_pub_key,
+      string eth_sign,
+      bool broadcast )
+{
+   return my->ico_import_balance( account_name_or_id, eth_pub_key, eth_sign, broadcast );
+}
+
 map<public_key_type, string> wallet_api::dump_private_keys()
 {
    FC_ASSERT(!is_locked());
@@ -1398,15 +1340,6 @@ bool wallet_api::verify_encapsulated_message( string message )
    return my->verify_encapsulated_message( message );
 }
 
-
-string wallet_api::get_key_label( public_key_type key )const
-{
-   auto key_itr   = my->_wallet.labeled_keys.get<by_key>().find(key);
-   if( key_itr != my->_wallet.labeled_keys.get<by_key>().end() )
-      return key_itr->label;
-   return string();
-}
-
 string wallet_api::get_private_key( public_key_type pubkey )const
 {
    return key_to_wif( my->get_private_key( pubkey ) );
@@ -1421,522 +1354,6 @@ public_key_type  wallet_api::get_public_key( string label )const
       return key_itr->key;
    return public_key_type();
 }
-
-bool               wallet_api::set_key_label( public_key_type key, string label )
-{
-   auto result = my->_wallet.labeled_keys.insert( key_label{label,key} );
-   if( result.second  ) return true;
-
-   auto key_itr   = my->_wallet.labeled_keys.get<by_key>().find(key);
-   auto label_itr = my->_wallet.labeled_keys.get<by_label>().find(label);
-   if( label_itr == my->_wallet.labeled_keys.get<by_label>().end() )
-   {
-      if( key_itr != my->_wallet.labeled_keys.get<by_key>().end() )
-         return my->_wallet.labeled_keys.get<by_key>().modify( key_itr, [&]( key_label& obj ){ obj.label = label; } );
-   }
-   return false;
-}
-map<string,public_key_type> wallet_api::get_blind_accounts()const
-{
-   map<string,public_key_type> result;
-   for( const auto& item : my->_wallet.labeled_keys )
-      result[item.label] = item.key;
-   return result;
-}
-map<string,public_key_type> wallet_api::get_my_blind_accounts()const
-{
-   FC_ASSERT( !is_locked() );
-   map<string,public_key_type> result;
-   for( const auto& item : my->_wallet.labeled_keys )
-   {
-      if( my->_keys.find(item.key) != my->_keys.end() )
-         result[item.label] = item.key;
-   }
-   return result;
-}
-
-public_key_type    wallet_api::create_blind_account( string label, string brain_key  )
-{
-   FC_ASSERT( !is_locked() );
-
-   auto label_itr = my->_wallet.labeled_keys.get<by_label>().find(label);
-   if( label_itr !=  my->_wallet.labeled_keys.get<by_label>().end() )
-      FC_ASSERT( !"Key with label already exists" );
-   brain_key = fc::trim_and_normalize_spaces( brain_key );
-   auto secret = fc::sha256::hash( brain_key.c_str(), brain_key.size() );
-   auto priv_key = fc::ecc::private_key::regenerate( secret );
-   public_key_type pub_key  = priv_key.get_public_key();
-
-   FC_ASSERT( set_key_label( pub_key, label ) );
-
-   my->_keys[pub_key] = graphene::utilities::key_to_wif( priv_key );
-
-   save_wallet_file();
-   return pub_key;
-}
-
-vector<asset>   wallet_api::get_blind_balances( string key_or_label )
-{
-   vector<asset> result;
-   map<asset_id_type, share_type> balances;
-
-   vector<commitment_type> used;
-
-   auto pub_key = get_public_key( key_or_label );
-   auto& to_asset_used_idx = my->_wallet.blind_receipts.get<by_to_asset_used>();
-   auto start = to_asset_used_idx.lower_bound( std::make_tuple(pub_key,asset_id_type(0),false)  );
-   auto end = to_asset_used_idx.lower_bound( std::make_tuple(pub_key,asset_id_type(uint32_t(0xffffffff)),true)  );
-   while( start != end )
-   {
-      if( !start->used  )
-      {
-         auto answer = my->_remote_db->get_blinded_balances( {start->commitment()} );
-         if( answer.size() )
-            balances[start->amount.asset_id] += start->amount.amount;
-         else
-            used.push_back( start->commitment() );
-      }
-      ++start;
-   }
-   for( const auto& u : used )
-   {
-      auto itr = my->_wallet.blind_receipts.get<by_commitment>().find( u );
-      my->_wallet.blind_receipts.modify( itr, []( blind_receipt& r ){ r.used = true; } );
-   }
-   for( auto item : balances )
-      result.push_back( asset( item.second, item.first ) );
-   return result;
-}
-
-blind_confirmation wallet_api::transfer_from_blind( string from_blind_account_key_or_label,
-                                                    string to_account_id_or_name,
-                                                    string amount_in,
-                                                    string symbol,
-                                                    bool broadcast )
-{ try {
-   transfer_from_blind_operation from_blind;
-
-
-   auto fees  = my->_remote_db->get_global_properties().parameters.get_current_fees();
-   fc::optional<asset_object> asset_obj = get_asset(symbol);
-   FC_ASSERT(asset_obj.valid(), "Could not find asset matching ${asset}", ("asset", symbol));
-   auto amount = asset_obj->amount_from_string(amount_in);
-
-   from_blind.fee  = fees.calculate_fee( from_blind, asset_obj->options.core_exchange_rate );
-
-   auto blind_in = asset_obj->amount_to_string( from_blind.fee + amount );
-
-
-   auto conf = blind_transfer_help( from_blind_account_key_or_label,
-                               from_blind_account_key_or_label,
-                               blind_in, symbol, false, true/*to_temp*/ );
-   FC_ASSERT( conf.outputs.size() > 0 );
-
-   auto to_account = my->get_account( to_account_id_or_name );
-   from_blind.to = to_account.id;
-   from_blind.amount = amount;
-   from_blind.blinding_factor = conf.outputs.back().decrypted_memo.blinding_factor;
-   from_blind.inputs.push_back( {conf.outputs.back().decrypted_memo.commitment, authority() } );
-   from_blind.fee  = fees.calculate_fee( from_blind, asset_obj->options.core_exchange_rate );
-
-   idump( (from_blind) );
-   conf.trx.operations.push_back(from_blind);
-   ilog( "about to validate" );
-   conf.trx.validate();
-
-   ilog( "about to broadcast" );
-   conf.trx = sign_transaction( conf.trx, broadcast );
-
-   if( broadcast && conf.outputs.size() == 2 ) {
-
-       // Save the change
-       blind_confirmation::output conf_output;
-       blind_confirmation::output change_output = conf.outputs[0];
-
-       // The wallet must have a private key for confirmation.to, this is used to decrypt the memo
-       public_key_type from_key = get_public_key(from_blind_account_key_or_label);
-       conf_output.confirmation.to = from_key;
-       conf_output.confirmation.one_time_key = change_output.confirmation.one_time_key;
-       conf_output.confirmation.encrypted_memo = change_output.confirmation.encrypted_memo;
-       conf_output.confirmation_receipt = conf_output.confirmation;
-       //try {
-       receive_blind_transfer( conf_output.confirmation_receipt,
-                               from_blind_account_key_or_label,
-                               "@"+to_account.name );
-       //} catch ( ... ){}
-   }
-
-   return conf;
-} FC_CAPTURE_AND_RETHROW( (from_blind_account_key_or_label)(to_account_id_or_name)(amount_in)(symbol) ) }
-
-blind_confirmation wallet_api::blind_transfer( string from_key_or_label,
-                                               string to_key_or_label,
-                                               string amount_in,
-                                               string symbol,
-                                               bool broadcast )
-{
-   return blind_transfer_help( from_key_or_label, to_key_or_label, amount_in, symbol, broadcast, false );
-}
-blind_confirmation wallet_api::blind_transfer_help( string from_key_or_label,
-                                               string to_key_or_label,
-                                               string amount_in,
-                                               string symbol,
-                                               bool broadcast,
-                                               bool to_temp )
-{
-   blind_confirmation confirm;
-   try {
-
-   FC_ASSERT( !is_locked() );
-   public_key_type from_key = get_public_key(from_key_or_label);
-   public_key_type to_key   = get_public_key(to_key_or_label);
-
-   fc::optional<asset_object> asset_obj = get_asset(symbol);
-   FC_ASSERT(asset_obj.valid(), "Could not find asset matching ${asset}", ("asset", symbol));
-
-   blind_transfer_operation blind_tr;
-   blind_tr.outputs.resize(2);
-
-   auto fees  = my->_remote_db->get_global_properties().parameters.get_current_fees();
-
-   auto amount = asset_obj->amount_from_string(amount_in);
-
-   asset total_amount = asset_obj->amount(0);
-
-   vector<fc::sha256> blinding_factors;
-
-   //auto from_priv_key = my->get_private_key( from_key );
-
-   blind_tr.fee  = fees.calculate_fee( blind_tr, asset_obj->options.core_exchange_rate );
-
-   vector<commitment_type> used;
-
-   auto& to_asset_used_idx = my->_wallet.blind_receipts.get<by_to_asset_used>();
-   auto start = to_asset_used_idx.lower_bound( std::make_tuple(from_key,amount.asset_id,false)  );
-   auto end = to_asset_used_idx.lower_bound( std::make_tuple(from_key,amount.asset_id,true)  );
-   while( start != end )
-   {
-      auto result = my->_remote_db->get_blinded_balances( {start->commitment() } );
-      if( result.size() == 0 )
-      {
-         used.push_back( start->commitment() );
-      }
-      else
-      {
-         blind_tr.inputs.push_back({start->commitment(), start->control_authority});
-         blinding_factors.push_back( start->data.blinding_factor );
-         total_amount += start->amount;
-
-         if( total_amount >= amount + blind_tr.fee )
-            break;
-      }
-      ++start;
-   }
-   for( const auto& u : used )
-   {
-      auto itr = my->_wallet.blind_receipts.get<by_commitment>().find( u );
-      my->_wallet.blind_receipts.modify( itr, []( blind_receipt& r ){ r.used = true; } );
-   }
-
-   FC_ASSERT( total_amount >= amount+blind_tr.fee,
-              "Insufficient Balance",
-              ("available",total_amount)("amount",amount)("fee",blind_tr.fee) );
-
-   auto one_time_key = fc::ecc::private_key::generate();
-   auto secret       = one_time_key.get_shared_secret( to_key );
-   auto child        = fc::sha256::hash( secret );
-   auto nonce        = fc::sha256::hash( one_time_key.get_secret() );
-   auto blind_factor = fc::sha256::hash( child );
-
-   auto from_secret  = one_time_key.get_shared_secret( from_key );
-   auto from_child   = fc::sha256::hash( from_secret );
-   auto from_nonce   = fc::sha256::hash( nonce );
-
-   auto change = total_amount - amount - blind_tr.fee;
-   fc::sha256 change_blind_factor;
-   fc::sha256 to_blind_factor;
-   if( change.amount > 0 )
-   {
-      idump(("to_blind_factor")(blind_factor) );
-      blinding_factors.push_back( blind_factor );
-      change_blind_factor = fc::ecc::blind_sum( blinding_factors, blinding_factors.size() - 1 );
-      wdump(("change_blind_factor")(change_blind_factor) );
-   }
-   else // change == 0
-   {
-      blind_tr.outputs.resize(1);
-      blind_factor = fc::ecc::blind_sum( blinding_factors, blinding_factors.size() );
-      idump(("to_sum_blind_factor")(blind_factor) );
-      blinding_factors.push_back( blind_factor );
-      idump(("nochange to_blind_factor")(blind_factor) );
-   }
-   fc::ecc::public_key from_pub_key = from_key;
-   fc::ecc::public_key to_pub_key = to_key;
-
-   blind_output to_out;
-   to_out.owner       = to_temp ? authority() : authority( 1, public_key_type( to_pub_key.child( child ) ), 1 );
-   to_out.commitment  = fc::ecc::blind( blind_factor, amount.amount.value );
-   idump(("to_out.blind")(blind_factor)(to_out.commitment) );
-
-
-   if( blind_tr.outputs.size() > 1 )
-   {
-      to_out.range_proof = fc::ecc::range_proof_sign( 0, to_out.commitment, blind_factor, nonce,
-                                                      0, RANGE_PROOF_MANTISSA, amount.amount.value );
-
-      blind_output change_out;
-      change_out.owner       = authority( 1, public_key_type( from_pub_key.child( from_child ) ), 1 );
-      change_out.commitment  = fc::ecc::blind( change_blind_factor, change.amount.value );
-      change_out.range_proof = fc::ecc::range_proof_sign( 0, change_out.commitment, change_blind_factor, from_nonce,
-                                                          0, RANGE_PROOF_MANTISSA, change.amount.value );
-      blind_tr.outputs[1] = change_out;
-
-
-      blind_confirmation::output conf_output;
-      conf_output.label = from_key_or_label;
-      conf_output.pub_key = from_key;
-      conf_output.decrypted_memo.from = from_key;
-      conf_output.decrypted_memo.amount = change;
-      conf_output.decrypted_memo.blinding_factor = change_blind_factor;
-      conf_output.decrypted_memo.commitment = change_out.commitment;
-      conf_output.decrypted_memo.check   = from_secret._hash[0].value();
-      conf_output.confirmation.one_time_key = one_time_key.get_public_key();
-      conf_output.confirmation.to = from_key;
-      conf_output.confirmation.encrypted_memo =
-            fc::aes_encrypt( from_secret, fc::raw::pack( conf_output.decrypted_memo ) );
-      conf_output.auth = change_out.owner;
-      conf_output.confirmation_receipt = conf_output.confirmation;
-
-      confirm.outputs.push_back( conf_output );
-   }
-   blind_tr.outputs[0] = to_out;
-
-   blind_confirmation::output conf_output;
-   conf_output.label = to_key_or_label;
-   conf_output.pub_key = to_key;
-   conf_output.decrypted_memo.from = from_key;
-   conf_output.decrypted_memo.amount = amount;
-   conf_output.decrypted_memo.blinding_factor = blind_factor;
-   conf_output.decrypted_memo.commitment = to_out.commitment;
-   conf_output.decrypted_memo.check   = secret._hash[0].value();
-   conf_output.confirmation.one_time_key = one_time_key.get_public_key();
-   conf_output.confirmation.to = to_key;
-   conf_output.confirmation.encrypted_memo = fc::aes_encrypt( secret, fc::raw::pack( conf_output.decrypted_memo ) );
-   conf_output.auth = to_out.owner;
-   conf_output.confirmation_receipt = conf_output.confirmation;
-
-   confirm.outputs.push_back( conf_output );
-
-   /** commitments must be in sorted order */
-   std::sort( blind_tr.outputs.begin(), blind_tr.outputs.end(),
-              [&]( const blind_output& a, const blind_output& b ){ return a.commitment < b.commitment; } );
-   std::sort( blind_tr.inputs.begin(), blind_tr.inputs.end(),
-              [&]( const blind_input& a, const blind_input& b ){ return a.commitment < b.commitment; } );
-
-   confirm.trx.operations.emplace_back( std::move(blind_tr) );
-   ilog( "validate before" );
-   confirm.trx.validate();
-   confirm.trx = sign_transaction(confirm.trx, broadcast);
-
-   if( broadcast )
-   {
-      for( const auto& out : confirm.outputs )
-      {
-         try { receive_blind_transfer( out.confirmation_receipt, from_key_or_label, "" ); } catch ( ... ){}
-      }
-   }
-
-   return confirm;
-} FC_CAPTURE_AND_RETHROW( (from_key_or_label)(to_key_or_label)(amount_in)(symbol)(broadcast)(confirm) ) }
-
-
-
-/*
- *  Transfers a public balance from @from to one or more blinded balances using a
- *  stealth transfer.
- */
-blind_confirmation wallet_api::transfer_to_blind( string from_account_id_or_name,
-                                                  string asset_symbol,
-                                                  /* map from key or label to amount */
-                                                  vector<pair<string, string>> to_amounts,
-                                                  bool broadcast )
-{ try {
-   FC_ASSERT( !is_locked() );
-   idump((to_amounts));
-
-   blind_confirmation confirm;
-   account_object from_account = my->get_account(from_account_id_or_name);
-
-   fc::optional<asset_object> asset_obj = get_asset(asset_symbol);
-   FC_ASSERT(asset_obj, "Could not find asset matching ${asset}", ("asset", asset_symbol));
-
-   transfer_to_blind_operation bop;
-   bop.from   = from_account.id;
-
-   vector<fc::sha256> blinding_factors;
-
-   asset total_amount = asset_obj->amount(0);
-
-   for( auto item : to_amounts )
-   {
-      auto one_time_key = fc::ecc::private_key::generate();
-      auto to_key       = get_public_key( item.first );
-      auto secret       = one_time_key.get_shared_secret( to_key );
-      auto child        = fc::sha256::hash( secret );
-      auto nonce        = fc::sha256::hash( one_time_key.get_secret() );
-      auto blind_factor = fc::sha256::hash( child );
-
-      blinding_factors.push_back( blind_factor );
-
-      auto amount = asset_obj->amount_from_string(item.second);
-      total_amount += amount;
-
-
-      fc::ecc::public_key to_pub_key = to_key;
-      blind_output out;
-      out.owner       = authority( 1, public_key_type( to_pub_key.child( child ) ), 1 );
-      out.commitment  = fc::ecc::blind( blind_factor, amount.amount.value );
-      if( to_amounts.size() > 1 )
-         out.range_proof = fc::ecc::range_proof_sign( 0, out.commitment, blind_factor, nonce,
-                                                      0, RANGE_PROOF_MANTISSA, amount.amount.value );
-
-      blind_confirmation::output conf_output;
-      conf_output.label = item.first;
-      conf_output.pub_key = to_key;
-      conf_output.decrypted_memo.amount = amount;
-      conf_output.decrypted_memo.blinding_factor = blind_factor;
-      conf_output.decrypted_memo.commitment = out.commitment;
-      conf_output.decrypted_memo.check   = secret._hash[0].value();
-      conf_output.confirmation.one_time_key = one_time_key.get_public_key();
-      conf_output.confirmation.to = to_key;
-      conf_output.confirmation.encrypted_memo =
-            fc::aes_encrypt( secret, fc::raw::pack( conf_output.decrypted_memo ) );
-      conf_output.confirmation_receipt = conf_output.confirmation;
-
-      confirm.outputs.push_back( conf_output );
-
-      bop.outputs.push_back(out);
-   }
-   bop.amount          = total_amount;
-   bop.blinding_factor = fc::ecc::blind_sum( blinding_factors, blinding_factors.size() );
-
-   /** commitments must be in sorted order */
-   std::sort( bop.outputs.begin(), bop.outputs.end(),
-              [&]( const blind_output& a, const blind_output& b ){ return a.commitment < b.commitment; } );
-
-   confirm.trx.operations.push_back( bop );
-   my->set_operation_fees( confirm.trx, my->_remote_db->get_global_properties().parameters.get_current_fees());
-   confirm.trx.validate();
-   confirm.trx = sign_transaction(confirm.trx, broadcast);
-
-   if( broadcast )
-   {
-      for( const auto& out : confirm.outputs )
-      {
-         try {
-            receive_blind_transfer( out.confirmation_receipt, "@"+from_account.name, "from @"+from_account.name );
-         } catch ( ... ){}
-      }
-   }
-
-   return confirm;
-} FC_CAPTURE_AND_RETHROW( (from_account_id_or_name)(asset_symbol)(to_amounts) ) }
-
-blind_receipt wallet_api::receive_blind_transfer( string confirmation_receipt, string opt_from, string opt_memo )
-{
-   FC_ASSERT( !is_locked() );
-   stealth_confirmation conf(confirmation_receipt);
-   FC_ASSERT( conf.to );
-
-   blind_receipt result;
-   result.conf = conf;
-
-   auto to_priv_key_itr = my->_keys.find( *conf.to );
-   FC_ASSERT( to_priv_key_itr != my->_keys.end(), "No private key for receiver", ("conf",conf) );
-
-
-   auto to_priv_key = wif_to_key( to_priv_key_itr->second );
-   FC_ASSERT( to_priv_key );
-
-   auto secret       = to_priv_key->get_shared_secret( conf.one_time_key );
-   auto child        = fc::sha256::hash( secret );
-
-   auto child_priv_key = to_priv_key->child( child );
-   //auto blind_factor = fc::sha256::hash( child );
-
-   auto plain_memo = fc::aes_decrypt( secret, conf.encrypted_memo );
-   auto memo = fc::raw::unpack<stealth_confirmation::memo_data>( plain_memo );
-
-   result.to_key   = *conf.to;
-   result.to_label = get_key_label( result.to_key );
-   if( memo.from )
-   {
-      result.from_key = *memo.from;
-      result.from_label = get_key_label( result.from_key );
-      if( result.from_label == string() )
-      {
-         result.from_label = opt_from;
-         set_key_label( result.from_key, result.from_label );
-      }
-   }
-   else
-   {
-      result.from_label = opt_from;
-   }
-   result.amount = memo.amount;
-   result.memo = opt_memo;
-
-   // confirm the amount matches the commitment (verify the blinding factor)
-   auto commtiment_test = fc::ecc::blind( memo.blinding_factor, memo.amount.amount.value );
-   FC_ASSERT( fc::ecc::verify_sum( {commtiment_test}, {memo.commitment}, 0 ) );
-
-   blind_balance bal;
-   bal.amount = memo.amount;
-   bal.to     = *conf.to;
-   if( memo.from ) bal.from   = *memo.from;
-   bal.one_time_key = conf.one_time_key;
-   bal.blinding_factor = memo.blinding_factor;
-   bal.commitment = memo.commitment;
-   bal.used = false;
-
-   auto child_pubkey = child_priv_key.get_public_key();
-   auto owner = authority(1, public_key_type(child_pubkey), 1);
-   result.control_authority = owner;
-   result.data = memo;
-
-   auto child_key_itr = owner.key_auths.find( child_pubkey );
-   if( child_key_itr != owner.key_auths.end() )
-      my->_keys[child_key_itr->first] = key_to_wif( child_priv_key );
-
-   // my->_wallet.blinded_balances[memo.amount.asset_id][bal.to].push_back( bal );
-
-   result.date = fc::time_point::now();
-   my->_wallet.blind_receipts.insert( result );
-   my->_keys[child_pubkey] = key_to_wif( child_priv_key );
-
-   save_wallet_file();
-
-   return result;
-}
-
-vector<blind_receipt> wallet_api::blind_history( string key_or_account )
-{
-   vector<blind_receipt> result;
-   auto pub_key = get_public_key( key_or_account );
-
-   if( pub_key == public_key_type() )
-      return vector<blind_receipt>();
-
-   for( auto& r : my->_wallet.blind_receipts )
-   {
-      if( r.from_key == pub_key || r.to_key == pub_key )
-         result.push_back( r );
-   }
-   std::sort( result.begin(), result.end(),
-              [&]( const blind_receipt& a, const blind_receipt& b ){ return a.date > b.date; } );
-   return result;
-}
-
 order_book wallet_api::get_order_book( const string& base, const string& quote, unsigned limit )
 {
    return( my->_remote_db->get_order_book( base, quote, limit ) );

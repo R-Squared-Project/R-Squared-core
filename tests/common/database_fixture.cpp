@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -332,7 +334,7 @@ std::shared_ptr<boost::program_options::variables_map> database_fixture_base::in
       fc::set_option( options, "elasticsearch-operation-string", true );
       fc::set_option( options, "elasticsearch-mode", uint16_t(2) );
 
-      fixture.es_index_prefix = string("revpop-") + fc::to_string(uint64_t(rand())) + "-";
+      fixture.es_index_prefix = string("rsquared-") + fc::to_string(uint64_t(rand())) + "-";
       BOOST_TEST_MESSAGE( string("ES index prefix is ") + fixture.es_index_prefix );
       fc::set_option( options, "elasticsearch-index-prefix", fixture.es_index_prefix );
    }
@@ -366,7 +368,7 @@ std::shared_ptr<boost::program_options::variables_map> database_fixture_base::in
             || fixture.current_test_name == "htlc_database_api"
             || fixture.current_suite_name == "database_api_tests"
             || fixture.current_suite_name == "api_limit_tests"
-            || fixture.current_suite_name == "revpop_14_tests" )
+            || fixture.current_suite_name == "electoral_threshold_tests" )
    {
       fixture.app.register_plugin<graphene::api_helper_indexes::api_helper_indexes>(true);
    }
@@ -433,7 +435,7 @@ void database_fixture_base::enable_workers_payments(bool enable)
    // Create network params update proposal
    const chain_parameters& current_params = db.get_global_properties().parameters;
    chain_parameters new_params = current_params;
-   new_params.worker_budget_per_day = enable ? 1 : 0;
+   new_params.worker_budget = enable;
 
    committee_member_update_global_parameters_operation cmuop;
    cmuop.new_parameters = new_params;
@@ -477,10 +479,10 @@ void database_fixture_base::enable_workers_payments(bool enable)
 
    // Check
    if (enable) {
-      BOOST_CHECK_EQUAL( db.get_global_properties().parameters.worker_budget_per_day.value, 1 );
+      BOOST_CHECK_EQUAL( db.get_global_properties().parameters.worker_budget, true );
       ilog("Payment to workers is switched on.");
    } else {
-      BOOST_CHECK_EQUAL( db.get_global_properties().parameters.worker_budget_per_day.value, 0 );
+      BOOST_CHECK_EQUAL( db.get_global_properties().parameters.worker_budget, false );
       ilog("Payment to workers is switched off.");
    }
 
@@ -565,7 +567,6 @@ void database_fixture_base::verify_asset_supplies( const database& db )
          total_balances[bad.options.short_backing_asset] += bad.settlement_fund;
          total_balances[bad.options.short_backing_asset] += dasset_obj.accumulated_collateral_fees;
       }
-      total_balances[asset_obj.id] += dasset_obj.confidential_supply.value;
    }
    for( const vesting_balance_object& vbo : db.get_index_type< vesting_balance_index >().indices() )
       total_balances[ vbo.balance.asset_id ] += vbo.balance.amount;
@@ -663,7 +664,7 @@ uint32_t database_fixture_base::generate_blocks(fc::time_point_sec timestamp, bo
 }
 
 account_create_operation database_fixture_base::make_account(
-   const std::string& name /* = "nathan" */,
+   const std::string& name /* = "rsquaredchp1" */,
    public_key_type key /* = key_id_type() */
    )
 { try {
@@ -974,6 +975,36 @@ void database_fixture_base::sign(signed_transaction& trx, const fc::ecc::private
 digest_type database_fixture_base::digest( const transaction& tx )
 {
    return tx.digest();
+}
+
+const limit_order_object* database_fixture_base::create_sell_order(account_id_type user, const asset& amount, const asset& recv,
+                                                const time_point_sec order_expiration,
+                                                const price& fee_core_exchange_rate )
+{
+   auto r =  create_sell_order( user(db), amount, recv, order_expiration, fee_core_exchange_rate );
+   verify_asset_supplies(db);
+   return r;
+}
+
+const limit_order_object* database_fixture_base::create_sell_order( const account_object& user, const asset& amount, const asset& recv,
+                                                const time_point_sec order_expiration,
+                                                const price& fee_core_exchange_rate )
+{
+   set_expiration( db, trx );
+   trx.operations.clear();
+
+   limit_order_create_operation buy_order;
+   buy_order.seller = user.id;
+   buy_order.amount_to_sell = amount;
+   buy_order.min_to_receive = recv;
+   buy_order.expiration = order_expiration;
+   trx.operations.push_back(buy_order);
+   for( auto& op : trx.operations ) db.current_fee_schedule().set_fee(op, fee_core_exchange_rate);
+   trx.validate();
+   auto processed = PUSH_TX(db, trx, ~0);
+   trx.operations.clear();
+   verify_asset_supplies(db);
+   return db.find<limit_order_object>( processed.operation_results[0].get<object_id_type>() );
 }
 
 void database_fixture_base::transfer(

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  * 
  * The MIT License
  *
@@ -78,8 +79,8 @@ namespace bpo = boost::program_options;
 namespace detail {
 
    graphene::chain::genesis_state_type create_example_genesis() {
-      auto nathan_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
-      dlog("Allocating all stake to ${key}", ("key", utilities::key_to_wif(nathan_key)));
+      auto rsquaredchp1_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
+      dlog("Allocating all stake to ${key}", ("key", utilities::key_to_wif(rsquaredchp1_key)));
       graphene::chain::genesis_state_type initial_state;
       initial_state.initial_parameters.get_mutable_fees() = fee_schedule::get_default();
       initial_state.initial_active_witnesses = GRAPHENE_DEFAULT_MIN_WITNESS_COUNT;
@@ -90,17 +91,19 @@ namespace detail {
       {
          auto name = "init"+fc::to_string(i);
          initial_state.initial_accounts.emplace_back(name,
-                                                     nathan_key.get_public_key(),
-                                                     nathan_key.get_public_key(),
+                                                     rsquaredchp1_key.get_public_key(),
+                                                     rsquaredchp1_key.get_public_key(),
                                                      true);
          initial_state.initial_committee_candidates.push_back({name});
-         initial_state.initial_witness_candidates.push_back({name, nathan_key.get_public_key()});
+         initial_state.initial_witness_candidates.push_back({name, rsquaredchp1_key.get_public_key()});
       }
 
-      initial_state.initial_accounts.emplace_back("nathan", nathan_key.get_public_key());
-      initial_state.initial_balances.push_back({nathan_key.get_public_key(),
+      initial_state.initial_accounts.emplace_back("rsquaredchp1", rsquaredchp1_key.get_public_key());
+      initial_state.initial_balances.push_back({rsquaredchp1_key.get_public_key(),
                                                 GRAPHENE_SYMBOL,
                                                 GRAPHENE_MAX_SHARE_SUPPLY});
+      initial_state.ico_balances.push_back({"B8F1dB13B36dD64A7fcCD22223Bd9a4444Be2e66", // eth address
+                                                240000 });
       initial_state.initial_chain_id = fc::sha256::hash( "BOGUS" );
 
       return initial_state;
@@ -122,7 +125,7 @@ application_impl::~application_impl()
 
 void application_impl::reset_p2p_node(const fc::path& data_dir)
 { try {
-   _p2p_network = std::make_shared<net::node>("RevPop Reference Implementation");
+   _p2p_network = std::make_shared<net::node>("R-Squared Reference Implementation");
 
    _p2p_network->load_configuration(data_dir / "p2p");
    _p2p_network->set_node_delegate(shared_from_this());

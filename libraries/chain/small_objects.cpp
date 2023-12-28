@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019 BitShares Blockchain Foundation, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
  *
  * The MIT License
  *
@@ -25,12 +26,12 @@
 #include <graphene/protocol/fee_schedule.hpp>
 
 #include <graphene/chain/balance_object.hpp>
+#include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/block_summary_object.hpp>
 #include <graphene/chain/budget_record_object.hpp>
 #include <graphene/chain/buyback_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
-#include <graphene/chain/confidential_object.hpp>
 #include <graphene/chain/fba_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/htlc_object.hpp>
@@ -47,6 +48,9 @@
 
 FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::balance_object, (graphene::db::object),
                     (owner)(balance)(vesting_policy)(last_claim_date) )
+
+FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::ico_balance_object, (graphene::db::object),
+                    (eth_address)(balance) )
 
 FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::block_summary_object, (graphene::db::object), (block_id) )
 
@@ -90,9 +94,6 @@ FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::chain_property_object, (graphen
 
 FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::committee_member_object, (graphene::db::object),
                     (committee_member_account)(vote_id)(total_votes)(url) )
-
-FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::blinded_balance_object, (graphene::db::object),
-                                (commitment)(asset_id)(owner) )
 
 FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::fba_accumulator_object, (graphene::db::object),
                                 (accumulated_fba_fees)(designated_asset) )
@@ -199,6 +200,7 @@ FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::custom_authority_object, (graph
                                (auth)(restrictions)(restriction_counter) )
 
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::balance_object )
+GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::ico_balance_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::block_summary_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::budget_record )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::budget_record_object )
@@ -206,7 +208,6 @@ GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::buyback_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::immutable_chain_parameters )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::chain_property_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::committee_member_object )
-GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::blinded_balance_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::fba_accumulator_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::dynamic_global_property_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::global_property_object )

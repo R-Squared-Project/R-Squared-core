@@ -1,22 +1,29 @@
-/**
- * The Revolution Populi Project
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+/*
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * 
+ * The MIT License
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 #include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 
 namespace graphene
 {
@@ -29,10 +36,12 @@ namespace graphene
          const auto &by_op_idx = cr_idx.indices().get<by_account>();
 
          uint64_t seed = 0;
+         uint32_t maintenance_time = get_dynamic_global_properties().next_maintenance_time.sec_since_epoch();
+         uint32_t prev_maintenance_time = maintenance_time - get_global_properties().parameters.maintenance_interval;
          for (const auto &acc : accounts)
          {
             auto itr = by_op_idx.lower_bound(acc);
-            if (itr != by_op_idx.end() && itr->account == acc)
+            if (itr != by_op_idx.end() && itr->account == acc && prev_maintenance_time <= itr->maintenance_time && itr->maintenance_time < maintenance_time)
             {
                seed += itr->value;
             }
@@ -46,80 +55,15 @@ namespace graphene
          const auto &by_op_idx = cr_idx.indices().get<by_account>();
 
          vector<account_id_type> result;
+         uint32_t maintenance_time = get_dynamic_global_properties().next_maintenance_time.sec_since_epoch();
+         uint32_t prev_maintenance_time = maintenance_time - get_global_properties().parameters.maintenance_interval;
          for (const auto &acc : accounts)
          {
             auto itr = by_op_idx.lower_bound(acc);
-            if (itr != by_op_idx.end() && itr->account == acc && itr->value != 0)
+            if (itr != by_op_idx.end() && itr->account == acc && itr->value != 0 && prev_maintenance_time <= itr->maintenance_time && itr->maintenance_time < maintenance_time)
+
             {
                result.push_back(itr->account);
-            }
-         }
-         return result;
-      }
-
-      uint64_t database::get_commit_reveal_seed_v2(const vector<account_id_type> &accounts) const
-      {
-         const auto &cr_idx = get_index_type<commit_reveal_v2_index>();
-         const auto &by_op_idx = cr_idx.indices().get<by_account>();
-
-         uint64_t seed = 0;
-         uint32_t maintenance_time = get_dynamic_global_properties().next_maintenance_time.sec_since_epoch();
-         if (HARDFORK_REVPOP_13_PASSED(head_block_time()))
-         {
-            uint32_t prev_maintenance_time = maintenance_time - get_global_properties().parameters.maintenance_interval;
-            for (const auto &acc : accounts)
-            {
-               auto itr = by_op_idx.lower_bound(acc);
-               if (itr != by_op_idx.end() && itr->account == acc && prev_maintenance_time <= itr->maintenance_time && itr->maintenance_time < maintenance_time)
-               {
-                  seed += itr->value;
-               }
-            }
-         }
-         else
-         {
-            for (const auto &acc : accounts)
-            {
-               auto itr = by_op_idx.lower_bound(acc);
-               if (itr != by_op_idx.end() && itr->account == acc && itr->maintenance_time == maintenance_time)
-               {
-                  seed += itr->value;
-               }
-            }
-         }
-         return seed;
-      }
-
-      vector<account_id_type> database::filter_commit_reveal_participant_v2(const vector<account_id_type> &accounts) const
-      {
-         const auto &cr_idx = get_index_type<commit_reveal_v2_index>();
-         const auto &by_op_idx = cr_idx.indices().get<by_account>();
-
-         vector<account_id_type> result;
-         uint32_t maintenance_time = get_dynamic_global_properties().next_maintenance_time.sec_since_epoch();
-         if (HARDFORK_REVPOP_13_PASSED(head_block_time()))
-         {
-            uint32_t prev_maintenance_time = maintenance_time - get_global_properties().parameters.maintenance_interval;
-            for (const auto &acc : accounts)
-            {
-               auto itr = by_op_idx.lower_bound(acc);
-               if (itr != by_op_idx.end() && itr->account == acc && itr->value != 0 && prev_maintenance_time <= itr->maintenance_time && itr->maintenance_time < maintenance_time)
-
-               {
-                  result.push_back(itr->account);
-               }
-            }
-         }
-         else
-         {
-            for (const auto &acc : accounts)
-            {
-               auto itr = by_op_idx.lower_bound(acc);
-               if (itr != by_op_idx.end() && itr->account == acc && itr->value != 0 && itr->maintenance_time == maintenance_time)
-
-               {
-                  result.push_back(itr->account);
-               }
             }
          }
          return result;

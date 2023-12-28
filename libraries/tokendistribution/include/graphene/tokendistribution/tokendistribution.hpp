@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2019 Contributors.
+ * Copyright (c) Project Nayuki
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -22,20 +24,18 @@
  * THE SOFTWARE.
  */
 
-#include "restriction_predicate.hxx"
-#include "sliced_lists.hxx"
+#pragma once
 
-namespace graphene { namespace protocol {
-using result_type = object_restriction_predicate<operation>;
+#include <string>
 
-result_type get_restriction_predicate_list_11(size_t idx, vector<restriction> rs) {
-   return typelist::runtime::dispatch(operation_list_11::list(), idx, [&rs] (auto t) -> result_type {
-      using Op = typename decltype(t)::type;
-      return [p=restrictions_to_predicate<Op>(std::move(rs), true)] (const operation& op) {
-         FC_ASSERT(op.which() == operation::tag<Op>::value,
-                   "Supplied operation is incorrect type for restriction predicate");
-         return p(op.get<Op>());
-      };
-   });
-}
+namespace graphene { namespace tokendistribution {
+
+void preparePubKey(std::string* pubKey);
+
+void prepareSignature(std::string& pubKey);
+
+std::string getAddress(std::string pubKey);
+
+int verifyMessage (std::string pubKey, std::string msg, std::string sig);
+
 } }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
  *
  * The MIT License
  *
@@ -22,42 +22,29 @@
  * THE SOFTWARE.
  */
 #pragma once
+
+#include <graphene/protocol/transaction.hpp>
+#include <graphene/chain/database.hpp>
+#include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/evaluator.hpp>
-#include <graphene/chain/types.hpp>
+#include <graphene/chain/exceptions.hpp>
 
 namespace graphene { namespace chain {
 
-class transfer_to_blind_evaluator : public evaluator<transfer_to_blind_evaluator>
+class ico_balance_claim_evaluator : public evaluator<ico_balance_claim_evaluator>
 {
-   public:
-      typedef transfer_to_blind_operation operation_type;
+public:
+   typedef ico_balance_claim_operation operation_type;
 
-      void_result do_evaluate( const transfer_to_blind_operation& o );
-      void_result do_apply( const transfer_to_blind_operation& o ) ;
+   const ico_balance_object* ico_balance = nullptr;
 
-      virtual void pay_fee() override;
+   void_result do_evaluate(const ico_balance_claim_operation& op);
+
+   /**
+    * @note the fee is always 0 for this particular operation because once the
+    * balance is claimed it frees up memory and it cannot be used to spam the network
+    */
+   void_result do_apply(const ico_balance_claim_operation& op);
 };
 
-class transfer_from_blind_evaluator : public evaluator<transfer_from_blind_evaluator>
-{
-   public:
-      typedef transfer_from_blind_operation operation_type;
-
-      void_result do_evaluate( const transfer_from_blind_operation& o );
-      void_result do_apply( const transfer_from_blind_operation& o ) ;
-
-      virtual void pay_fee() override;
-};
-
-class blind_transfer_evaluator : public evaluator<blind_transfer_evaluator>
-{
-   public:
-      typedef blind_transfer_operation operation_type;
-
-      void_result do_evaluate( const blind_transfer_operation& o );
-      void_result do_apply( const blind_transfer_operation& o ) ;
-
-      virtual void pay_fee() override;
-};
-
-} } // namespace graphene::chain
+} } // graphene::chain

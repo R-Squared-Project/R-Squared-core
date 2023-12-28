@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -42,8 +44,8 @@ BOOST_AUTO_TEST_CASE(get_account_history) {
       graphene::app::history_api hist_api(app);
 
       //account_id_type() do 3 ops
-      auto nathan = create_account("nathan");
-      create_user_issued_asset("USD", nathan, 0);
+      auto rsquaredchp1 = create_account("rsquaredchp1");
+      create_user_issued_asset("USD", rsquaredchp1, 0);
       create_account("dan");
       create_account("bob");
 

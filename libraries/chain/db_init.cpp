@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -29,12 +30,12 @@
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/balance_object.hpp>
+#include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/block_summary_object.hpp>
 #include <graphene/chain/budget_record_object.hpp>
 #include <graphene/chain/buyback_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
-#include <graphene/chain/confidential_object.hpp>
 #include <graphene/chain/fba_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/market_object.hpp>
@@ -51,19 +52,16 @@
 #include <graphene/chain/htlc_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
 #include <graphene/chain/personal_data_object.hpp>
-#include <graphene/chain/personal_data_v2_object.hpp>
 #include <graphene/chain/content_card_object.hpp>
-#include <graphene/chain/content_card_v2_object.hpp>
 #include <graphene/chain/permission_object.hpp>
 #include <graphene/chain/commit_reveal_object.hpp>
-#include <graphene/chain/commit_reveal_v2_object.hpp>
 
 #include <graphene/chain/account_evaluator.hpp>
 #include <graphene/chain/asset_evaluator.hpp>
 #include <graphene/chain/assert_evaluator.hpp>
 #include <graphene/chain/balance_evaluator.hpp>
+#include <graphene/chain/ico_balance_evaluator.hpp>
 #include <graphene/chain/committee_member_evaluator.hpp>
-#include <graphene/chain/confidential_evaluator.hpp>
 #include <graphene/chain/custom_evaluator.hpp>
 #include <graphene/chain/market_evaluator.hpp>
 #include <graphene/chain/proposal_evaluator.hpp>
@@ -76,13 +74,9 @@
 #include <graphene/chain/htlc_evaluator.hpp>
 #include <graphene/chain/custom_authority_evaluator.hpp>
 #include <graphene/chain/personal_data_evaluator.hpp>
-#include <graphene/chain/personal_data_v2_evaluator.hpp>
 #include <graphene/chain/content_card_evaluator.hpp>
-#include <graphene/chain/content_card_v2_evaluator.hpp>
 #include <graphene/chain/permission_evaluator.hpp>
 #include <graphene/chain/commit_reveal_evaluator.hpp>
-#include <graphene/chain/commit_reveal_v2_evaluator.hpp>
-#include <graphene/chain/commit_reveal_v3_evaluator.hpp>
 
 #include <fc/crypto/digest.hpp>
 
@@ -130,9 +124,7 @@ void database::initialize_evaluators()
    register_evaluator<withdraw_permission_delete_evaluator>();
    register_evaluator<worker_create_evaluator>();
    register_evaluator<balance_claim_evaluator>();
-   register_evaluator<transfer_to_blind_evaluator>();
-   register_evaluator<transfer_from_blind_evaluator>();
-   register_evaluator<blind_transfer_evaluator>();
+   register_evaluator<ico_balance_claim_evaluator>();
    register_evaluator<asset_claim_fees_evaluator>();
    register_evaluator<asset_update_issuer_evaluator>();
    register_evaluator<asset_claim_pool_evaluator>();
@@ -146,23 +138,13 @@ void database::initialize_evaluators()
    register_evaluator<ticket_update_evaluator>();
    register_evaluator<personal_data_create_evaluator>();
    register_evaluator<personal_data_remove_evaluator>();
-   register_evaluator<personal_data_v2_create_evaluator>();
-   register_evaluator<personal_data_v2_remove_evaluator>();
    register_evaluator<content_card_create_evaluator>();
    register_evaluator<content_card_update_evaluator>();
    register_evaluator<content_card_remove_evaluator>();
-   register_evaluator<content_card_v2_create_evaluator>();
-   register_evaluator<content_card_v2_update_evaluator>();
-   register_evaluator<content_card_v2_remove_evaluator>();
    register_evaluator<permission_create_evaluator>();
    register_evaluator<permission_remove_evaluator>();
-   register_evaluator<vote_counter_update_evaluator>();
    register_evaluator<commit_create_evaluator>();
    register_evaluator<reveal_create_evaluator>();
-   register_evaluator<commit_create_v2_evaluator>();
-   register_evaluator<reveal_create_v2_evaluator>();
-   register_evaluator<commit_create_v3_evaluator>();
-   register_evaluator<reveal_create_v3_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -184,7 +166,7 @@ void database::initialize_indexes()
    add_index< primary_index<vesting_balance_index> >();
    add_index< primary_index<worker_index> >();
    add_index< primary_index<balance_index> >();
-   add_index< primary_index<blinded_balance_index> >();
+   add_index< primary_index<ico_balance_index> >();
    add_index< primary_index< htlc_index> >();
    add_index< primary_index< custom_authority_index> >();
    add_index< primary_index<ticket_index> >();
@@ -209,12 +191,9 @@ void database::initialize_indexes()
    add_index< primary_index< simple_index< fba_accumulator_object       > > >();
 
    add_index< primary_index< personal_data_index,                       20> >();
-   add_index< primary_index< personal_data_v2_index,                    20> >();
    add_index< primary_index< content_card_index,                        20> >();
-   add_index< primary_index< content_card_v2_index,                     20> >();
    add_index< primary_index< permission_index,                          20> >();
    add_index< primary_index< commit_reveal_index,                       20> >();
-   add_index< primary_index< commit_reveal_v2_index,                    20> >();
 }
 
 void database::init_genesis(const genesis_state_type& genesis_state)
@@ -555,6 +534,18 @@ void database::init_genesis(const genesis_state_type& genesis_state)
       create<balance_object>([&handout,total_allocation,asset_id](balance_object& b) {
          b.balance = asset(handout.amount, asset_id);
          b.owner = handout.owner;
+      });
+
+      total_supplies[ asset_id ] += handout.amount;
+   }
+
+   // Create ico balances
+   for( const auto& handout : genesis_state.ico_balances )
+   {
+      const auto asset_id = get_asset_id(GRAPHENE_SYMBOL);
+      create<ico_balance_object>([&handout,total_allocation,asset_id](ico_balance_object& b) {
+         b.balance = asset(handout.amount, asset_id);
+         b.eth_address = handout.eth_address;
       });
 
       total_supplies[ asset_id ] += handout.amount;

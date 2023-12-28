@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -53,20 +55,20 @@ auto make_get_custom(const database& db) {
 BOOST_AUTO_TEST_CASE( simple_single_signature )
 { try {
    try {
-      fc::ecc::private_key nathan_key = fc::ecc::private_key::generate();
-      const account_object& nathan = create_account("nathan", nathan_key.get_public_key());
+      fc::ecc::private_key rsquaredchp1_key = fc::ecc::private_key::generate();
+      const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key());
       const asset_object& core = asset_id_type()(db);
-      auto old_balance = fund(nathan);
+      auto old_balance = fund(rsquaredchp1);
 
       transfer_operation op;
-      op.from = nathan.id;
+      op.from = rsquaredchp1.id;
       op.to = account_id_type();
       op.amount = core.amount(500);
       trx.operations.push_back(op);
-      sign(trx, nathan_key);
+      sign(trx, rsquaredchp1_key);
       PUSH_TX( db, trx, database::skip_transaction_dupe_check );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), static_cast<int64_t>(old_balance - 500));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), static_cast<int64_t>(old_balance - 500));
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -76,52 +78,52 @@ BOOST_AUTO_TEST_CASE( simple_single_signature )
 BOOST_AUTO_TEST_CASE( any_two_of_three )
 {
    try {
-      fc::ecc::private_key nathan_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
-      fc::ecc::private_key nathan_key2 = fc::ecc::private_key::regenerate(fc::digest("key2"));
-      fc::ecc::private_key nathan_key3 = fc::ecc::private_key::regenerate(fc::digest("key3"));
-      const account_object& nathan = create_account("nathan", nathan_key1.get_public_key() );
+      fc::ecc::private_key rsquaredchp1_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
+      fc::ecc::private_key rsquaredchp1_key2 = fc::ecc::private_key::regenerate(fc::digest("key2"));
+      fc::ecc::private_key rsquaredchp1_key3 = fc::ecc::private_key::regenerate(fc::digest("key3"));
+      const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key1.get_public_key() );
       const asset_object& core = asset_id_type()(db);
-      auto old_balance = fund(nathan);
+      auto old_balance = fund(rsquaredchp1);
 
       try {
          account_update_operation op;
-         op.account = nathan.id;
-         op.active = authority(2, public_key_type(nathan_key1.get_public_key()), 1, public_key_type(nathan_key2.get_public_key()), 1, public_key_type(nathan_key3.get_public_key()), 1);
+         op.account = rsquaredchp1.id;
+         op.active = authority(2, public_key_type(rsquaredchp1_key1.get_public_key()), 1, public_key_type(rsquaredchp1_key2.get_public_key()), 1, public_key_type(rsquaredchp1_key3.get_public_key()), 1);
          op.owner = *op.active;
          trx.operations.push_back(op);
-         sign(trx, nathan_key1);
+         sign(trx, rsquaredchp1_key1);
          PUSH_TX( db, trx, database::skip_transaction_dupe_check );
          trx.clear();
-      } FC_CAPTURE_AND_RETHROW ((nathan.active))
+      } FC_CAPTURE_AND_RETHROW ((rsquaredchp1.active))
 
       transfer_operation op;
-      op.from = nathan.id;
+      op.from = rsquaredchp1.id;
       op.to = account_id_type();
       op.amount = core.amount(500);
       trx.operations.push_back(op);
-      sign(trx, nathan_key1);
+      sign(trx, rsquaredchp1_key1);
       GRAPHENE_CHECK_THROW(PUSH_TX( db, trx, database::skip_transaction_dupe_check ), fc::exception);
-      sign(trx, nathan_key2);
+      sign(trx, rsquaredchp1_key2);
       PUSH_TX( db, trx, database::skip_transaction_dupe_check );
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), static_cast<int64_t>(old_balance - 500));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), static_cast<int64_t>(old_balance - 500));
 
       trx.clear_signatures();
-      sign(trx, nathan_key2);
-      sign(trx, nathan_key3);
+      sign(trx, rsquaredchp1_key2);
+      sign(trx, rsquaredchp1_key3);
       PUSH_TX( db, trx, database::skip_transaction_dupe_check );
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), static_cast<int64_t>(old_balance - 1000));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), static_cast<int64_t>(old_balance - 1000));
 
       trx.clear_signatures();
-      sign(trx, nathan_key1);
-      sign(trx, nathan_key3);
+      sign(trx, rsquaredchp1_key1);
+      sign(trx, rsquaredchp1_key3);
       PUSH_TX( db, trx, database::skip_transaction_dupe_check );
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), static_cast<int64_t>(old_balance - 1500));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), static_cast<int64_t>(old_balance - 1500));
 
       trx.clear_signatures();
       //sign(trx, fc::ecc::private_key::generate());
-      sign(trx,nathan_key3);
+      sign(trx,rsquaredchp1_key3);
       GRAPHENE_CHECK_THROW(PUSH_TX( db, trx, database::skip_transaction_dupe_check ), fc::exception);
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), static_cast<int64_t>(old_balance - 1500));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), static_cast<int64_t>(old_balance - 1500));
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -300,21 +302,21 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
       INVOKE(any_two_of_three);
 
       fc::ecc::private_key committee_key = init_account_priv_key;
-      fc::ecc::private_key nathan_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
-      fc::ecc::private_key nathan_key2 = fc::ecc::private_key::regenerate(fc::digest("key2"));
-      fc::ecc::private_key nathan_key3 = fc::ecc::private_key::regenerate(fc::digest("key3"));
+      fc::ecc::private_key rsquaredchp1_key1 = fc::ecc::private_key::regenerate(fc::digest("key1"));
+      fc::ecc::private_key rsquaredchp1_key2 = fc::ecc::private_key::regenerate(fc::digest("key2"));
+      fc::ecc::private_key rsquaredchp1_key3 = fc::ecc::private_key::regenerate(fc::digest("key3"));
 
       const account_object& moneyman = create_account("moneyman", init_account_pub_key);
-      const account_object& nathan = get_account("nathan");
+      const account_object& rsquaredchp1 = get_account("rsquaredchp1");
       const asset_object& core = asset_id_type()(db);
 
       transfer(account_id_type()(db), moneyman, core.amount(1000000));
 
-      //Following any_two_of_three, nathan's active authority is satisfied by any two of {key1,key2,key3}
-      BOOST_TEST_MESSAGE( "moneyman is creating proposal for nathan to transfer 100 CORE to moneyman" );
+      //Following any_two_of_three, rsquaredchp1's active authority is satisfied by any two of {key1,key2,key3}
+      BOOST_TEST_MESSAGE( "moneyman is creating proposal for rsquaredchp1 to transfer 100 CORE to moneyman" );
 
       transfer_operation transfer_op;
-      transfer_op.from = nathan.id;
+      transfer_op.from = rsquaredchp1.id;
       transfer_op.to  = moneyman.get_id();
       transfer_op.amount = core.amount(100); 
 
@@ -323,7 +325,7 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
       op.proposed_ops.emplace_back( transfer_op );
       op.expiration_time =  db.head_block_time() + fc::days(1);
                                      
-      asset nathan_start_balance = db.get_balance(nathan.get_id(), core.get_id());
+      asset rsquaredchp1_start_balance = db.get_balance(rsquaredchp1.get_id(), core.get_id());
       {
          vector<authority> other;
          flat_set<account_id_type> active_set, owner_set;
@@ -339,7 +341,7 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
          BOOST_CHECK_EQUAL(active_set.size(), 1lu);
          BOOST_CHECK_EQUAL(owner_set.size(), 0lu);
          BOOST_CHECK_EQUAL(other.size(), 0lu);
-         BOOST_CHECK(*active_set.begin() == nathan.id);
+         BOOST_CHECK(*active_set.begin() == rsquaredchp1.id);
       }
 
       trx.operations.push_back(op);
@@ -352,17 +354,17 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
       BOOST_CHECK_EQUAL(proposal.available_active_approvals.size(), 0lu);
       BOOST_CHECK_EQUAL(proposal.required_owner_approvals.size(), 0lu);
       BOOST_CHECK_EQUAL(proposal.available_owner_approvals.size(), 0lu);
-      BOOST_CHECK(*proposal.required_active_approvals.begin() == nathan.id);
+      BOOST_CHECK(*proposal.required_active_approvals.begin() == rsquaredchp1.id);
 
       proposal_update_operation pup;
       pup.proposal = proposal.id;
-      pup.fee_paying_account = nathan.id;
-      BOOST_TEST_MESSAGE( "Updating the proposal to have nathan's authority" );
-      pup.active_approvals_to_add.insert(nathan.id);
+      pup.fee_paying_account = rsquaredchp1.id;
+      BOOST_TEST_MESSAGE( "Updating the proposal to have rsquaredchp1's authority" );
+      pup.active_approvals_to_add.insert(rsquaredchp1.id);
 
       trx.operations = {pup};
       sign( trx,   committee_key  );
-      //committee may not add nathan's approval.
+      //committee may not add rsquaredchp1's approval.
       GRAPHENE_CHECK_THROW(PUSH_TX( db, trx ), fc::exception);
       pup.active_approvals_to_add.clear();
       pup.active_approvals_to_add.insert(account_id_type());
@@ -373,15 +375,15 @@ BOOST_AUTO_TEST_CASE( proposed_single_account )
 
       trx.clear_signatures();
       pup.active_approvals_to_add.clear();
-      pup.active_approvals_to_add.insert(nathan.id);
+      pup.active_approvals_to_add.insert(rsquaredchp1.id);
       
       trx.operations = {pup};
-      sign( trx,   nathan_key3  );
-      sign( trx,   nathan_key2  );
+      sign( trx,   rsquaredchp1_key3  );
+      sign( trx,   rsquaredchp1_key2  );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), nathan_start_balance.amount.value);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), rsquaredchp1_start_balance.amount.value);
       PUSH_TX( db, trx );
-      BOOST_CHECK_EQUAL(get_balance(nathan, core), nathan_start_balance.amount.value - 100);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, core), rsquaredchp1_start_balance.amount.value - 100);
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -439,9 +441,9 @@ BOOST_AUTO_TEST_CASE( committee_authority )
    generate_blocks(db.get_dynamic_global_properties().next_maintenance_time);
    set_expiration(db, trx);
 
-   fc::ecc::private_key nathan_key = fc::ecc::private_key::generate();
+   fc::ecc::private_key rsquaredchp1_key = fc::ecc::private_key::generate();
    fc::ecc::private_key committee_key = init_account_priv_key;
-   const account_object nathan = create_account("nathan", nathan_key.get_public_key());
+   const account_object rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key());
    const auto& global_params = db.get_global_properties().parameters;
 
    generate_block();
@@ -452,20 +454,20 @@ BOOST_AUTO_TEST_CASE( committee_authority )
       p.parameters.committee_proposal_review_period = fc::days(1).to_seconds();
    });
 
-   BOOST_TEST_MESSAGE( "transfering 100000 CORE to nathan, signing with committee key should fail because this requires it to be part of a proposal" );
+   BOOST_TEST_MESSAGE( "transfering 100000 CORE to rsquaredchp1, signing with committee key should fail because this requires it to be part of a proposal" );
    transfer_operation top;
-   top.to = nathan.id;
+   top.to = rsquaredchp1.id;
    top.amount = asset(100000);
    trx.operations.push_back(top);
    sign(trx, committee_key);
    GRAPHENE_CHECK_THROW(PUSH_TX( db, trx ), graphene::chain::invalid_committee_approval );
 
-   auto _sign = [&] { trx.clear_signatures(); sign( trx, nathan_key ); };
+   auto _sign = [&] { trx.clear_signatures(); sign( trx, rsquaredchp1_key ); };
 
    proposal_create_operation pop;
    pop.proposed_ops.push_back({trx.operations.front()});
    pop.expiration_time = db.head_block_time() + global_params.committee_proposal_review_period*2;
-   pop.fee_paying_account = nathan.id;
+   pop.fee_paying_account = rsquaredchp1.id;
    trx.operations = {pop};
    _sign();
 
@@ -485,12 +487,12 @@ BOOST_AUTO_TEST_CASE( committee_authority )
    BOOST_CHECK(prop.expiration_time == pop.expiration_time);
    BOOST_CHECK(prop.review_period_time && *prop.review_period_time == pop.expiration_time - *pop.review_period_seconds);
    BOOST_CHECK(prop.proposed_transaction.operations.size() == 1);
-   BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 0);
+   BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 0);
    BOOST_CHECK(!db.get<proposal_object>(prop.id).is_authorized_to_execute(db));
 
    generate_block();
    BOOST_REQUIRE(db.find_object(prop.id));
-   BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 0);
+   BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 0);
 
    BOOST_TEST_MESSAGE( "Checking that the proposal is not authorized to execute" );
    BOOST_REQUIRE(!db.get<proposal_object>(prop.id).is_authorized_to_execute(db));
@@ -511,7 +513,7 @@ BOOST_AUTO_TEST_CASE( committee_authority )
    trx.operations.push_back(uop);
    sign( trx, committee_key );
    PUSH_TX(db, trx);
-   BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 0);
+   BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 0);
    BOOST_CHECK(db.get<proposal_object>(prop.id).is_authorized_to_execute(db));
 
    trx.clear_signatures();
@@ -524,7 +526,7 @@ BOOST_AUTO_TEST_CASE( committee_authority )
    GRAPHENE_CHECK_THROW(PUSH_TX( db, trx ), fc::exception);
 
    generate_blocks(prop.expiration_time);
-   BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 100000);
+   BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 100000);
    // proposal deleted
    BOOST_CHECK_THROW( db.get<proposal_object>(prop.id), fc::exception );
 } FC_LOG_AND_RETHROW() }
@@ -540,11 +542,11 @@ BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
    fc::ecc::private_key committee_key = init_account_priv_key;
    fc::ecc::private_key committee_member_key = fc::ecc::private_key::generate();
 
-   //Meet nathan. He has a little money.
-   const account_object* nathan = &create_account("nathan");
-   transfer(account_id_type()(db), *nathan, asset(5000));
+   //Meet rsquaredchp1. He has a little money.
+   const account_object* rsquaredchp1 = &create_account("rsquaredchp1");
+   transfer(account_id_type()(db), *rsquaredchp1, asset(5000));
    generate_block();
-   nathan = &get_account("nathan");
+   rsquaredchp1 = &get_account("rsquaredchp1");
    flat_set<vote_id_type> committee_members;
 
    /*
@@ -560,17 +562,17 @@ BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
       upgrade_to_lifetime_member(account);
       committee_members.insert(create_committee_member(account).vote_id);
    }
-   BOOST_REQUIRE_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_REQUIRE_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
 
-   //A proposal is created to give nathan lots more money.
+   //A proposal is created to give rsquaredchp1 lots more money.
    proposal_create_operation pop = proposal_create_operation::committee_proposal(db.get_global_properties().parameters, db.head_block_time());
    pop.fee_paying_account = GRAPHENE_TEMP_ACCOUNT;
    pop.expiration_time = db.head_block_time() + *pop.review_period_seconds + fc::days(1).to_seconds();
-   ilog( "Creating proposal to give nathan money that expires: ${e}", ("e", pop.expiration_time ) );
+   ilog( "Creating proposal to give rsquaredchp1 money that expires: ${e}", ("e", pop.expiration_time ) );
    ilog( "The proposal has a review period of: ${r} sec", ("r",*pop.review_period_seconds) );
 
    transfer_operation top;
-   top.to = nathan->id;
+   top.to = rsquaredchp1->id;
    top.amount = asset(100000);
    pop.proposed_ops.emplace_back(top);
    trx.operations.push_back(pop);
@@ -591,9 +593,9 @@ BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
 
    ilog( "Generating blocks for 2 days" );
    generate_block();
-   BOOST_REQUIRE_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_REQUIRE_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
    generate_block();
-   BOOST_REQUIRE_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_REQUIRE_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
    //Time passes... the proposal is now in its review period.
    //generate_blocks(*pid(db).review_period_time);
    generate_blocks(db.head_block_time() + fc::days(2) );
@@ -601,59 +603,59 @@ BOOST_FIXTURE_TEST_CASE( fired_committee_members, database_fixture )
 
    fc::time_point_sec maintenance_time = db.get_dynamic_global_properties().next_maintenance_time;
    BOOST_CHECK_LT(maintenance_time.sec_since_epoch(), pid(db).expiration_time.sec_since_epoch());
-   //Yay! The proposal to give nathan more money is authorized.
+   //Yay! The proposal to give rsquaredchp1 more money is authorized.
    BOOST_REQUIRE(pid(db).is_authorized_to_execute(db));
 
-   nathan = &get_account("nathan");
+   rsquaredchp1 = &get_account("rsquaredchp1");
    // no money yet
-   BOOST_REQUIRE_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_REQUIRE_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
 
    {
-      //Oh noes! Nathan votes for a whole new slate of committee_members!
+      //RSquaredCHP1 votes for a whole new slate of committee_members!
       account_update_operation op;
-      op.account = nathan->id;
-      op.new_options = nathan->options;
+      op.account = rsquaredchp1->id;
+      op.new_options = rsquaredchp1->options;
       op.new_options->votes = committee_members;
       trx.operations.push_back(op);
       set_expiration( db, trx );
       PUSH_TX( db, trx, ~0 );
       trx.operations.clear();
    }
-   idump((get_balance(*nathan, asset_id_type()(db))));
+   idump((get_balance(*rsquaredchp1, asset_id_type()(db))));
    // still no money
-   BOOST_CHECK_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_CHECK_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
 
    //Time passes... the set of active committee_members gets updated.
    generate_blocks(maintenance_time);
    //The proposal is no longer authorized, because the active committee_members got changed.
    BOOST_CHECK(!pid(db).is_authorized_to_execute(db));
    // still no money
-   BOOST_CHECK_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   BOOST_CHECK_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
 
    //Time passes... the proposal has now expired.
    generate_blocks(pid(db).expiration_time);
    BOOST_CHECK(db.find(pid) == nullptr);
 
-   //Nathan never got any more money because the proposal was rejected.
-   BOOST_CHECK_EQUAL(get_balance(*nathan, asset_id_type()(db)), 5000);
+   //RSquaredCHP1 never got any more money because the proposal was rejected.
+   BOOST_CHECK_EQUAL(get_balance(*rsquaredchp1, asset_id_type()(db)), 5000);
 } FC_LOG_AND_RETHROW() }
 
 BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
 { try {
    generate_block();
 
-   auto nathan_key = generate_private_key("nathan");
+   auto rsquaredchp1_key = generate_private_key("rsquaredchp1");
    auto dan_key = generate_private_key("dan");
-   const account_object& nathan = create_account("nathan", nathan_key.get_public_key() );
+   const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key() );
    const account_object& dan = create_account("dan", dan_key.get_public_key() );
 
-   transfer(account_id_type()(db), nathan, asset(100000));
+   transfer(account_id_type()(db), rsquaredchp1, asset(100000));
    transfer(account_id_type()(db), dan, asset(100000));
 
    {
       transfer_operation top;
       top.from = dan.get_id();
-      top.to = nathan.get_id();
+      top.to = rsquaredchp1.get_id();
       top.amount = asset(500);
 
       proposal_create_operation pop;
@@ -661,10 +663,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
       std::swap(top.from, top.to);
       pop.proposed_ops.emplace_back(top);
 
-      pop.fee_paying_account = nathan.get_id();
+      pop.fee_paying_account = rsquaredchp1.get_id();
       pop.expiration_time = db.head_block_time() + fc::days(1);
       trx.operations.push_back(pop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
    }
@@ -678,10 +680,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
       proposal_id_type pid = prop.id;
       proposal_update_operation uop;
       uop.proposal = prop.id;
-      uop.active_approvals_to_add.insert(nathan.get_id());
-      uop.fee_paying_account = nathan.get_id();
+      uop.active_approvals_to_add.insert(rsquaredchp1.get_id());
+      uop.fee_paying_account = rsquaredchp1.get_id();
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
 
@@ -690,7 +692,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_two_accounts, database_fixture )
 
       uop.active_approvals_to_add = {dan.get_id()};
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       GRAPHENE_REQUIRE_THROW(PUSH_TX( db, trx ), fc::exception);
       sign( trx, dan_key );
       PUSH_TX( db, trx );
@@ -703,18 +705,18 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
 { try {
    generate_block();
 
-   auto nathan_key = generate_private_key("nathan");
+   auto rsquaredchp1_key = generate_private_key("rsquaredchp1");
    auto dan_key = generate_private_key("dan");
-   const account_object& nathan = create_account("nathan", nathan_key.get_public_key() );
+   const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key() );
    const account_object& dan = create_account("dan", dan_key.get_public_key() );
 
-   transfer(account_id_type()(db), nathan, asset(100000));
+   transfer(account_id_type()(db), rsquaredchp1, asset(100000));
    transfer(account_id_type()(db), dan, asset(100000));
 
    {
       transfer_operation top;
       top.from = dan.get_id();
-      top.to = nathan.get_id();
+      top.to = rsquaredchp1.get_id();
       top.amount = asset(500);
 
       proposal_create_operation pop;
@@ -723,10 +725,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
       top.amount = asset(6000);
       pop.proposed_ops.emplace_back(top);
 
-      pop.fee_paying_account = nathan.get_id();
+      pop.fee_paying_account = rsquaredchp1.get_id();
       pop.expiration_time = db.head_block_time() + fc::days(1);
       trx.operations.push_back(pop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
    }
@@ -738,11 +740,11 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
 
    {
       proposal_update_operation uop;
-      uop.fee_paying_account = nathan.get_id();
+      uop.fee_paying_account = rsquaredchp1.get_id();
       uop.proposal = prop.id;
-      uop.active_approvals_to_add.insert(nathan.get_id());
+      uop.active_approvals_to_add.insert(rsquaredchp1.get_id());
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
       BOOST_CHECK(!prop.is_authorized_to_execute(db));
@@ -750,7 +752,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
 
       std::swap(uop.active_approvals_to_add, uop.active_approvals_to_remove);
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
       BOOST_CHECK(!prop.is_authorized_to_execute(db));
@@ -760,13 +762,13 @@ BOOST_FIXTURE_TEST_CASE( proposal_delete, database_fixture )
    {
       proposal_id_type pid = prop.id;
       proposal_delete_operation dop;
-      dop.fee_paying_account = nathan.get_id();
+      dop.fee_paying_account = rsquaredchp1.get_id();
       dop.proposal = pid;
       trx.operations.push_back(dop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       BOOST_CHECK(db.find_object(pid) == nullptr);
-      BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 100000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 100000);
    }
 } FC_LOG_AND_RETHROW() }
 
@@ -774,23 +776,23 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
 { try {
    generate_block();
 
-   auto nathan_key = generate_private_key("nathan");
+   auto rsquaredchp1_key = generate_private_key("rsquaredchp1");
    auto dan_key = generate_private_key("dan");
-   const account_object& nathan = create_account("nathan", nathan_key.get_public_key() );
+   const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key() );
    const account_object& dan = create_account("dan", dan_key.get_public_key() );
 
-   transfer(account_id_type()(db), nathan, asset(100000));
+   transfer(account_id_type()(db), rsquaredchp1, asset(100000));
    transfer(account_id_type()(db), dan, asset(100000));
 
    {
       transfer_operation top;
       top.from = dan.get_id();
-      top.to = nathan.get_id();
+      top.to = rsquaredchp1.get_id();
       top.amount = asset(500);
 
       account_update_operation uop;
-      uop.account = nathan.get_id();
-      uop.owner = authority(1, public_key_type(generate_private_key("nathan2").get_public_key()), 1);
+      uop.account = rsquaredchp1.get_id();
+      uop.owner = authority(1, public_key_type(generate_private_key("rsquaredchp12").get_public_key()), 1);
 
       proposal_create_operation pop;
       pop.proposed_ops.emplace_back(top);
@@ -799,10 +801,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
       top.amount = asset(6000);
       pop.proposed_ops.emplace_back(top);
 
-      pop.fee_paying_account = nathan.get_id();
+      pop.fee_paying_account = rsquaredchp1.get_id();
       pop.expiration_time = db.head_block_time() + fc::days(1);
       trx.operations.push_back(pop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
    }
@@ -814,11 +816,11 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
 
    {
       proposal_update_operation uop;
-      uop.fee_paying_account = nathan.get_id();
+      uop.fee_paying_account = rsquaredchp1.get_id();
       uop.proposal = prop.id;
-      uop.owner_approvals_to_add.insert(nathan.get_id());
+      uop.owner_approvals_to_add.insert(rsquaredchp1.get_id());
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
       BOOST_CHECK(!prop.is_authorized_to_execute(db));
@@ -826,7 +828,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
 
       std::swap(uop.owner_approvals_to_add, uop.owner_approvals_to_remove);
       trx.operations.push_back(uop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
       BOOST_CHECK(!prop.is_authorized_to_execute(db));
@@ -836,14 +838,14 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_delete, database_fixture )
    {
       proposal_id_type pid = prop.id;
       proposal_delete_operation dop;
-      dop.fee_paying_account = nathan.get_id();
+      dop.fee_paying_account = rsquaredchp1.get_id();
       dop.proposal = pid;
       dop.using_owner_authority = true;
       trx.operations.push_back(dop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       BOOST_CHECK(db.find_object(pid) == nullptr);
-      BOOST_CHECK_EQUAL(get_balance(nathan, asset_id_type()(db)), 100000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, asset_id_type()(db)), 100000);
    }
 } FC_LOG_AND_RETHROW() }
 
@@ -851,23 +853,23 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
 { try {
    generate_block();
 
-   auto nathan_key = generate_private_key("nathan");
+   auto rsquaredchp1_key = generate_private_key("rsquaredchp1");
    auto dan_key = generate_private_key("dan");
-   const account_object& nathan = create_account("nathan", nathan_key.get_public_key() );
+   const account_object& rsquaredchp1 = create_account("rsquaredchp1", rsquaredchp1_key.get_public_key() );
    const account_object& dan = create_account("dan", dan_key.get_public_key() );
 
-   transfer(account_id_type()(db), nathan, asset(100000));
+   transfer(account_id_type()(db), rsquaredchp1, asset(100000));
    transfer(account_id_type()(db), dan, asset(100000));
 
    {
       transfer_operation top;
       top.from = dan.get_id();
-      top.to = nathan.get_id();
+      top.to = rsquaredchp1.get_id();
       top.amount = asset(500);
 
       account_update_operation uop;
-      uop.account = nathan.get_id();
-      uop.owner = authority(1, public_key_type(generate_private_key("nathan2").get_public_key()), 1);
+      uop.account = rsquaredchp1.get_id();
+      uop.owner = authority(1, public_key_type(generate_private_key("rsquaredchp12").get_public_key()), 1);
 
       proposal_create_operation pop;
       pop.proposed_ops.emplace_back(top);
@@ -876,10 +878,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
       top.amount = asset(6000);
       pop.proposed_ops.emplace_back(top);
 
-      pop.fee_paying_account = nathan.get_id();
+      pop.fee_paying_account = rsquaredchp1.get_id();
       pop.expiration_time = db.head_block_time() + fc::days(1);
       trx.operations.push_back(pop);
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
    }
@@ -892,12 +894,12 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
    {
       proposal_id_type pid = prop.id;
       proposal_update_operation uop;
-      uop.fee_paying_account = nathan.get_id();
+      uop.fee_paying_account = rsquaredchp1.get_id();
       uop.proposal = prop.id;
       uop.key_approvals_to_add.insert(dan.active.key_auths.begin()->first);
       trx.operations.push_back(uop);
       set_expiration( db, trx );
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       sign( trx, dan_key );
       PUSH_TX( db, trx );
       trx.clear();
@@ -907,7 +909,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
       std::swap(uop.key_approvals_to_add, uop.key_approvals_to_remove);
       trx.operations.push_back(uop);
       trx.expiration += fc::seconds(1);  // Survive trx dupe check
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       sign( trx, dan_key );
       PUSH_TX( db, trx );
       trx.clear();
@@ -917,7 +919,7 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
       std::swap(uop.key_approvals_to_add, uop.key_approvals_to_remove);
       trx.operations.push_back(uop);
       trx.expiration += fc::seconds(1);  // Survive trx dupe check
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       sign( trx, dan_key );
       PUSH_TX( db, trx );
       trx.clear();
@@ -925,10 +927,10 @@ BOOST_FIXTURE_TEST_CASE( proposal_owner_authority_complete, database_fixture )
       BOOST_CHECK_EQUAL(prop.available_key_approvals.size(), 1lu);
 
       uop.key_approvals_to_add.clear();
-      uop.owner_approvals_to_add.insert(nathan.get_id());
+      uop.owner_approvals_to_add.insert(rsquaredchp1.get_id());
       trx.operations.push_back(uop);
       trx.expiration += fc::seconds(1);  // Survive trx dupe check
-      sign( trx, nathan_key );
+      sign( trx, rsquaredchp1_key );
       PUSH_TX( db, trx );
       trx.clear();
       BOOST_CHECK(db.find_object(pid) == nullptr);
@@ -1095,28 +1097,28 @@ BOOST_FIXTURE_TEST_CASE( bogus_signature, database_fixture )
 
 BOOST_FIXTURE_TEST_CASE( voting_account, database_fixture )
 { try {
-   ACTORS((nathan)(vikram));
-   upgrade_to_lifetime_member(nathan_id);
+   ACTORS((rsquaredchp1)(vikram));
+   upgrade_to_lifetime_member(rsquaredchp1_id);
    upgrade_to_lifetime_member(vikram_id);
-   committee_member_id_type nathan_committee_member = create_committee_member(nathan_id(db)).id;
+   committee_member_id_type rsquaredchp1_committee_member = create_committee_member(rsquaredchp1_id(db)).id;
    committee_member_id_type vikram_committee_member = create_committee_member(vikram_id(db)).id;
 
    //wdump((db.get_balance(account_id_type(), asset_id_type())));
    generate_block();
 
    //wdump((db.get_balance(account_id_type(), asset_id_type())));
-   transfer(account_id_type(), nathan_id, asset(1000000));
+   transfer(account_id_type(), rsquaredchp1_id, asset(1000000));
    transfer(account_id_type(), vikram_id, asset(100));
 
    {
       account_update_operation op;
-      op.account = nathan_id;
-      op.new_options = nathan_id(db).options;
+      op.account = rsquaredchp1_id;
+      op.new_options = rsquaredchp1_id(db).options;
       op.new_options->voting_account = vikram_id;
-      op.new_options->votes = flat_set<vote_id_type>{nathan_committee_member(db).vote_id};
+      op.new_options->votes = flat_set<vote_id_type>{rsquaredchp1_committee_member(db).vote_id};
       op.new_options->num_committee = 1;
       trx.operations.push_back(op);
-      sign( trx, nathan_private_key );
+      sign( trx, rsquaredchp1_private_key );
       PUSH_TX( db, trx );
       trx.clear();
    }
@@ -1141,7 +1143,7 @@ BOOST_FIXTURE_TEST_CASE( voting_account, database_fixture )
    generate_blocks(db.get_dynamic_global_properties().next_maintenance_time + GRAPHENE_DEFAULT_BLOCK_INTERVAL);
    BOOST_CHECK(std::find(db.get_global_properties().active_committee_members.begin(),
                          db.get_global_properties().active_committee_members.end(),
-                         nathan_committee_member) == db.get_global_properties().active_committee_members.end());
+                         rsquaredchp1_committee_member) == db.get_global_properties().active_committee_members.end());
    BOOST_CHECK(std::find(db.get_global_properties().active_committee_members.begin(),
                          db.get_global_properties().active_committee_members.end(),
                          vikram_committee_member) != db.get_global_properties().active_committee_members.end());
@@ -2218,11 +2220,11 @@ BOOST_AUTO_TEST_CASE( irrelevant_signatures )
    ACTORS( (alice)(bob) );
    fund( alice );
 
-   // PK: RVP4vsFgTXJcGQMKCFayF2hrNRfYcKjNZ6Mzk8aw9M4zuWfscPhzE, A: RVPGfxPKKLj6tdTUB7i3mHsd2m7QvPLPy2YA
+   // PK: RQRX4vsFgTXJcGQMKCFayF2hrNRfYcKjNZ6Mzk8aw9M4zuWfscPhzE, A: RQRXGfxPKKLj6tdTUB7i3mHsd2m7QvPLPy2YA
    const fc::ecc::private_key test2 = fc::ecc::private_key::regenerate( fc::sha256::hash( std::string( "test-2" ) ) );
    const public_key_type test2_pub( test2.get_public_key() );
 
-   // PK: RVP7FXC7S9UH7HEH8QiuJ8Xv1NRJJZd1GomALLm9ffjtH95Tb2ZQB, A: RVPBajRqmdrXqmDpZhJ8sgkGagdeXneHFVeM
+   // PK: RQRX7FXC7S9UH7HEH8QiuJ8Xv1NRJJZd1GomALLm9ffjtH95Tb2ZQB, A: RQRXBajRqmdrXqmDpZhJ8sgkGagdeXneHFVeM
    const fc::ecc::private_key test3 = fc::ecc::private_key::regenerate( fc::sha256::hash( std::string( "test-3" ) ) );
    const public_key_type test3_pub( test3.get_public_key() );
 

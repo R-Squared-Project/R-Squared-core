@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -57,7 +59,7 @@ int main( int argc, char** argv )
 {
    try
    {
-      bpo::options_description cli_options("RevPop empty blocks");
+      bpo::options_description cli_options("R-Squared empty blocks");
       cli_options.add_options()
             ("help,h", "Print this help message and exit.")
             ("data-dir", bpo::value<boost::filesystem::path>()->default_value("empty_blocks_data_dir"), "Directory containing generator database")
@@ -117,7 +119,7 @@ int main( int argc, char** argv )
       uint32_t num_blocks = options["num-blocks"].as<uint32_t>();
       uint32_t miss_rate = options["miss-rate"].as<uint32_t>();
 
-      fc::ecc::private_key nathan_priv_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+      fc::ecc::private_key rsquaredchp1_priv_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
 
       database db;
       fc::path db_path = data_dir / "db";
@@ -128,7 +130,7 @@ int main( int argc, char** argv )
 
       for( uint32_t i = 1; i < num_blocks; ++i )
       {
-         signed_block b = db.generate_block(db.get_slot_time(slot), db.get_scheduled_witness(slot), nathan_priv_key, database::skip_nothing);
+         signed_block b = db.generate_block(db.get_slot_time(slot), db.get_scheduled_witness(slot), rsquaredchp1_priv_key, database::skip_nothing);
          FC_ASSERT( db.head_block_id() == b.id() );
          fc::sha256 h = b.digest();
          uint64_t rand = h._hash[0].value();

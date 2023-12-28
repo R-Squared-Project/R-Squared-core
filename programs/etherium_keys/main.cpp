@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019 Contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -22,20 +23,38 @@
  * THE SOFTWARE.
  */
 
-#include "restriction_predicate.hxx"
-#include "sliced_lists.hxx"
+#include <string>
+#include <vector>
+#include <iostream>
 
-namespace graphene { namespace protocol {
-using result_type = object_restriction_predicate<operation>;
+#include <graphene/tokendistribution/tokendistribution.hpp>
+#include <fc/exception/exception.hpp>
 
-result_type get_restriction_predicate_list_10(size_t idx, vector<restriction> rs) {
-   return typelist::runtime::dispatch(operation_list_10::list(), idx, [&rs] (auto t) -> result_type {
-      using Op = typename decltype(t)::type;
-      return [p=restrictions_to_predicate<Op>(std::move(rs), true)] (const operation& op) {
-         FC_ASSERT(op.which() == operation::tag<Op>::value,
-                   "Supplied operation is incorrect type for restriction predicate");
-         return p(op.get<Op>());
-      };
-   });
+using namespace graphene::tokendistribution;
+
+int main(int argc, char **argv)
+{
+   std::string pubKey = "04e68acfc0253a10620dff706b0a1b1f1f5833ea3beb3bde2250d5f271f3563606672ebc45e0b7ea2e816ecb70ca03137b1c9476eec63d4632e990020b7b6fba39";
+   try
+   {
+      std::string address = getAddress(pubKey);
+      std::cout << address << std::endl;
+   }
+   catch (const fc::exception &e)
+   {
+      edump((e.to_detail_string()));
+   }
+
+   try
+   {
+      std::string sig = "0b149134fcb989ae11ceb2dabe86f2cdd16e04088c72bebe378f78011296b2876304d468b200b9d7925823607934cb5a6d99660f1870f802e1d4c97b25b22c7e1c";
+      int result = verifyMessage(pubKey, "init0", sig);
+      assert(result != 1);
+   }
+   catch (const fc::exception &e)
+   {
+      edump((e.to_detail_string()));
+   }
+
+   return 0;
 }
-} }

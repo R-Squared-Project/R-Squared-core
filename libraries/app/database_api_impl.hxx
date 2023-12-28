@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -88,6 +89,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
                                           const flat_set<asset_id_type>& assets )const;
       vector<asset> get_named_account_balances(const std::string& name, const flat_set<asset_id_type>& assets)const;
       vector<balance_object> get_balance_objects( const vector<address>& addrs )const;
+      vector<ico_balance_object> get_ico_balance_objects( const vector<string>& addrs )const;
       vector<asset> get_vested_balances( const vector<balance_id_type>& objs )const;
       vector<vesting_balance_object> get_vesting_balances( const std::string account_id_or_name )const;
 
@@ -180,9 +182,6 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       vector<proposal_object> get_proposed_transactions( const std::string account_id_or_name )const;
       vector<proposal_object> get_proposed_global_parameters()const;
 
-      // Blinded balances
-      vector<blinded_balance_object> get_blinded_balances( const flat_set<commitment_type>& commitments )const;
-
       // Withdrawals
       vector<withdraw_permission_object> get_withdraw_permissions_by_giver( const std::string account_id_or_name,
                                                                             withdraw_permission_id_type start,
@@ -199,21 +198,14 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
                                           htlc_id_type start, uint32_t limit) const;
       vector<htlc_object> list_htlcs(const htlc_id_type lower_bound_id, uint32_t limit) const;
 
-      // RevPop personal data
+      // R-Squared personal data
       vector<personal_data_object> get_personal_data( const account_id_type subject_account,
                                                       const account_id_type operator_account ) const;
       fc::optional<personal_data_object> get_last_personal_data( const account_id_type subject_account,
                                                                  const account_id_type operator_account ) const;
-      vector<personal_data_v2_object> get_personal_data_v2( const account_id_type subject_account,
-                                                      const account_id_type operator_account ) const;
-      fc::optional<personal_data_v2_object> get_last_personal_data_v2( const account_id_type subject_account,
-                                                                 const account_id_type operator_account ) const;
       fc::optional<content_card_object> get_content_card_by_id( const content_card_id_type content_id ) const;
       vector<content_card_object> get_content_cards( const account_id_type subject_account,
                                                      const content_card_id_type content_id, uint32_t limit ) const;
-      fc::optional<content_card_v2_object> get_content_card_v2_by_id( const content_card_v2_id_type content_id ) const;
-      vector<content_card_v2_object> get_content_cards_v2( const account_id_type subject_account,
-                                                     const content_card_v2_id_type content_id, uint32_t limit ) const;
       fc::optional<permission_object> get_permission_by_id( const permission_id_type permission_id ) const;
       vector<permission_object> get_permissions( const account_id_type operator_account,
                                                  const permission_id_type permission_id, uint32_t limit ) const;

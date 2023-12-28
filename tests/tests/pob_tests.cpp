@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2020 Abit More, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -41,7 +43,7 @@ BOOST_AUTO_TEST_CASE( validation_and_basic_logic_test )
       generate_block();
       set_expiration( db, trx );
 
-      ACTORS((sam)(ted)(nathan));
+      ACTORS((sam)(ted)(rsquaredchp1));
 
       auto fee_amount = 50 * GRAPHENE_BLOCKCHAIN_PRECISION;
 
@@ -49,7 +51,7 @@ BOOST_AUTO_TEST_CASE( validation_and_basic_logic_test )
       fund( sam, asset(init_amount) );
       fund( ted, asset(init_amount) );
 
-      const asset_object& usd = create_user_issued_asset( "MYUSD", nathan, 0 );
+      const asset_object& usd = create_user_issued_asset( "MYUSD", rsquaredchp1, 0 );
       issue_uia( sam, usd.amount(init_amount) );
       issue_uia( ted, usd.amount(init_amount) );
 

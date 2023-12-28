@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -31,19 +32,16 @@
 #include <graphene/chain/database.hpp>
 
 #include <graphene/chain/balance_object.hpp>
+#include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/committee_member_object.hpp>
-#include <graphene/chain/confidential_object.hpp>
 #include <graphene/chain/operation_history_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/personal_data_object.hpp>
-#include <graphene/chain/personal_data_v2_object.hpp>
 #include <graphene/chain/content_card_object.hpp>
-#include <graphene/chain/content_card_v2_object.hpp>
 #include <graphene/chain/permission_object.hpp>
 #include <graphene/chain/commit_reveal_object.hpp>
-#include <graphene/chain/commit_reveal_v2_object.hpp>
 #include <graphene/chain/witness_schedule_object.hpp>
 
 #include <fc/api.hpp>
@@ -354,6 +352,13 @@ class database_api
        * @return all unclaimed balance objects for the addresses
        */
       vector<balance_object> get_balance_objects( const vector<address>& addrs )const;
+
+      /**
+       * @brief Return all unclaimed ico balance objects for a list of eth addresses
+       * @param addrs a list of eth addresses
+       * @return all unclaimed balance objects for the eth addresses
+       */
+      vector<ico_balance_object> get_ico_balance_objects( const vector<std::string>& addrs )const;
 
       /**
        * @brief Calculate how much assets in the given balance objects are able to be claimed at current head
@@ -833,17 +838,6 @@ class database_api
        */
       vector<proposal_object> get_proposed_global_parameters()const;
 
-      //////////////////////
-      // Blinded balances //
-      //////////////////////
-
-      /**
-       * @brief return the set of blinded balance objects by commitment ID
-       * @param commitments a set of commitments to query for
-       * @return the set of blinded balance objects by commitment ID
-       */
-      vector<blinded_balance_object> get_blinded_balances( const flat_set<commitment_type>& commitments )const;
-
       /////////////////
       // Withdrawals //
       /////////////////
@@ -872,9 +866,9 @@ class database_api
                                                                                 withdraw_permission_id_type start,
                                                                                 uint32_t limit )const;
 
-      ////////////
-      // RevPop //
-      ////////////
+      ///////////////
+      // R-Squared //
+      ///////////////
 
       /**
        * @brief Get personal data
@@ -894,23 +888,6 @@ class database_api
                                                                  const account_id_type operator_account ) const;
 
       /**
-       * @brief Get personal data v2
-       * @param owner_account The owner of personal data.
-       * @param permission_account An account who is permitted to use personal data.
-       * @return The personal data object list
-      */
-      vector<personal_data_v2_object> get_personal_data_v2( const account_id_type subject_account,
-                                                      const account_id_type operator_account ) const;
-      /**
-       * @brief Get personal data v2 with maximum id
-       * @param owner_account The owner of personal data.
-       * @param permission_account An account who is permitted to use personal data.
-       * @return The personal data object
-       */
-      fc::optional<personal_data_v2_object> get_last_personal_data_v2( const account_id_type subject_account,
-                                                                 const account_id_type operator_account ) const;
-
-      /**
        * @brief Get content card by id
        * @param content_id The id of content card
        * @return The content card object
@@ -926,23 +903,6 @@ class database_api
        */
       vector<content_card_object> get_content_cards( const account_id_type subject_account,
                                                      const content_card_id_type content_id, uint32_t limit ) const;
-
-      /**
-       * @brief Get content card by id
-       * @param content_id The id of content card
-       * @return The content card object
-       */
-      fc::optional<content_card_v2_object> get_content_card_v2_by_id( const content_card_v2_id_type content_id ) const;
-
-      /**
-       * @brief Get list of content cards
-       * @param subject_account The owner account of the content
-       * @param content_id Lower bound of content id to start getting results
-       * @param limit Maximum number of content card objects to fetch
-       * @return The content card object list
-       */
-      vector<content_card_v2_object> get_content_cards_v2( const account_id_type subject_account,
-                                                     const content_card_v2_id_type content_id, uint32_t limit ) const;
 
       /**
        * @brief Get permission object by id
@@ -1057,6 +1017,7 @@ FC_API(graphene::app::database_api,
    (get_account_balances)
    (get_named_account_balances)
    (get_balance_objects)
+   (get_ico_balance_objects)
    (get_vested_balances)
    (get_vesting_balances)
 
@@ -1121,9 +1082,6 @@ FC_API(graphene::app::database_api,
    (get_proposed_transactions)
    (get_proposed_global_parameters)
 
-   // Blinded balances
-   (get_blinded_balances)
-
    // Withdrawals
    (get_withdraw_permissions_by_giver)
    (get_withdraw_permissions_by_recipient)
@@ -1135,10 +1093,6 @@ FC_API(graphene::app::database_api,
    (get_content_cards)
    (get_permission_by_id)
    (get_permissions)
-   (get_content_card_v2_by_id)
-   (get_content_cards_v2)
-   (get_personal_data_v2)
-   (get_last_personal_data_v2)
 
    // HTLC
    (get_htlc)

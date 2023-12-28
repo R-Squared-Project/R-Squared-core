@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -85,7 +86,7 @@ namespace graphene { namespace chain {
       void prepare_fee(account_id_type account_id, asset fee);
 
       /**
-       * Convert the fee into RVP through the exchange pool.
+       * Convert the fee into RQRX through the exchange pool.
        *
        * Reads core_fee_paid field for how much CORE is deducted from the exchange pool,
        * and fee_from_account for how much USD is added to the pool.

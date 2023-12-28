@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
  *
  * The MIT License
  *
@@ -47,6 +48,12 @@ void balance_claim_operation::validate()const
 {
    FC_ASSERT( fee == asset() );
    FC_ASSERT( balance_owner_key != public_key_type() );
+}
+
+void ico_balance_claim_operation::validate()const
+{
+   FC_ASSERT( fee == asset() );
+   FC_ASSERT( eth_pub_key.size() == 128 );
 }
 
 /**

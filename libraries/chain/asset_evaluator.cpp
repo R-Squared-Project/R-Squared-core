@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015-2018 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors. 
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -42,8 +44,8 @@ void_result asset_create_evaluator::do_evaluate( const asset_create_operation& o
 
    const database& d = db();
 
-   const account_object& nathan_account = *d.get_index_type<account_index>().indices().get<by_name>().find("nathan");
-   FC_ASSERT( op.issuer == nathan_account.get_id(),
+   const account_object& rsquaredchp1_account = *d.get_index_type<account_index>().indices().get<by_name>().find("rsquaredchp1");
+   FC_ASSERT( op.issuer == rsquaredchp1_account.get_id(),
                "At the moment, the user ${u} is not allowed to be a creator for a coin ${s}.",
                ("u",op.issuer(d).name)("s",op.symbol) );
 

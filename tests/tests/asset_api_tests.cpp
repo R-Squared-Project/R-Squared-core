@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2018 oxarbitrage, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -40,8 +42,8 @@ BOOST_AUTO_TEST_CASE( asset_holders )
    graphene::app::asset_api asset_api(app);
 
    // create an asset and some accounts
-   auto nathan = create_account("nathan");
-   create_user_issued_asset("USD", nathan, 0);
+   auto rsquaredchp1 = create_account("rsquaredchp1");
+   create_user_issued_asset("USD", rsquaredchp1, 0);
    auto dan = create_account("dan");
    auto bob = create_account("bob");
    auto alice = create_account("alice");
@@ -66,8 +68,8 @@ BOOST_AUTO_TEST_CASE( api_limit_get_asset_holders )
    graphene::app::asset_api asset_api(app);
 
    // create an asset and some accounts
-   auto nathan = create_account("nathan");
-   create_user_issued_asset("USD", nathan, 0);
+   auto rsquaredchp1 = create_account("rsquaredchp1");
+   create_user_issued_asset("USD", rsquaredchp1, 0);
    auto dan = create_account("dan");
    auto bob = create_account("bob");
    auto alice = create_account("alice");

@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -66,7 +68,7 @@ BOOST_AUTO_TEST_CASE(load_configuration_options_test_config_logging_files_create
    auto node = new app::application();
    bpo::options_description cli, cfg;
    node->set_program_options(cli, cfg);
-   bpo::options_description cfg_options("RevPop Witness Node");
+   bpo::options_description cfg_options("R-Squared Witness Node");
    cfg_options.add(cfg);
 
    /// check preconditions
@@ -303,27 +305,27 @@ BOOST_AUTO_TEST_CASE( two_node_network )
       BOOST_TEST_MESSAGE( "Creating transfer tx" );
       graphene::chain::precomputable_transaction trx;
       {
-         account_id_type nathan_id = db2->get_index_type<account_index>().indices().get<by_name>().find( "nathan" )->id;
-         fc::ecc::private_key nathan_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+         account_id_type rsquaredchp1_id = db2->get_index_type<account_index>().indices().get<by_name>().find( "rsquaredchp1" )->id;
+         fc::ecc::private_key rsquaredchp1_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
 
          balance_claim_operation claim_op;
          balance_id_type bid = balance_id_type();
-         claim_op.deposit_to_account = nathan_id;
+         claim_op.deposit_to_account = rsquaredchp1_id;
          claim_op.balance_to_claim = bid;
-         claim_op.balance_owner_key = nathan_key.get_public_key();
+         claim_op.balance_owner_key = rsquaredchp1_key.get_public_key();
          claim_op.total_claimed = bid(*db1).balance;
          trx.operations.push_back( claim_op );
          db1->current_fee_schedule().set_fee( trx.operations.back() );
 
          transfer_operation xfer_op;
-         xfer_op.from = nathan_id;
+         xfer_op.from = rsquaredchp1_id;
          xfer_op.to = GRAPHENE_NULL_ACCOUNT;
          xfer_op.amount = asset( 1000000 );
          trx.operations.push_back( xfer_op );
          db1->current_fee_schedule().set_fee( trx.operations.back() );
 
          trx.set_expiration( db1->get_slot_time( 10 ) );
-         trx.sign( nathan_key, db1->get_chain_id() );
+         trx.sign( rsquaredchp1_key, db1->get_chain_id() );
          trx.validate();
       }
 
@@ -347,7 +349,7 @@ BOOST_AUTO_TEST_CASE( two_node_network )
 
       // Block test
       BOOST_TEST_MESSAGE( "Generating block on db2" );
-      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("nathan")));
+      fc::ecc::private_key committee_key = fc::ecc::private_key::regenerate(fc::sha256::hash(string("rsquaredchp1")));
 
       // the other node will reject the block if its timestamp is in the future, so we wait
       fc::wait_for( broadcast_wait_time, [db2] () {

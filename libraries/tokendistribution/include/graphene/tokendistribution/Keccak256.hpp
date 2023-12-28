@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019 Contributors.
+ * Copyright (c) Project Nayuki
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
  *
  * The MIT License
  *
@@ -22,20 +23,43 @@
  * THE SOFTWARE.
  */
 
-#include "restriction_predicate.hxx"
-#include "sliced_lists.hxx"
+#pragma once
 
-namespace graphene { namespace protocol {
-using result_type = object_restriction_predicate<operation>;
+#include <vector>
+#include <string>
 
-result_type get_restriction_predicate_list_12(size_t idx, vector<restriction> rs) {
-   return typelist::runtime::dispatch(operation_list_12::list(), idx, [&rs] (auto t) -> result_type {
-      using Op = typename decltype(t)::type;
-      return [p=restrictions_to_predicate<Op>(std::move(rs), true)] (const operation& op) {
-         FC_ASSERT(op.which() == operation::tag<Op>::value,
-                   "Supplied operation is incorrect type for restriction predicate");
-         return p(op.get<Op>());
-      };
-   });
-}
+namespace graphene { namespace tokendistribution {
+
+typedef std::vector<std::uint8_t> Bytes;
+
+Bytes asciiBytes(const char *str);
+Bytes hexBytes(const char *str);
+std::string bytesHex(const Bytes &v);
+
+/*
+* Computes the Keccak-256 hash of a sequence of bytes. The hash value is 32 bytes long.
+* Provides just one static method.
+*/
+class Keccak256 final
+{
+public:
+    static constexpr int HASH_LEN = 32;
+
+    static void getHash(const std::uint8_t msg[], std::size_t len, std::uint8_t hashResult[HASH_LEN]);
+
+private:
+    static constexpr int BLOCK_SIZE = 200 - HASH_LEN * 2;
+
+    static constexpr int NUM_ROUNDS = 24;
+
+    static void absorb(std::uint64_t state[5][5]);
+
+    // Requires 0 <= i <= 63
+    static std::uint64_t rotl64(std::uint64_t x, int i);
+
+    Keccak256() = delete; // Not instantiable
+
+    static const unsigned char ROTATION[5][5];
+};
+
 } }

@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -185,19 +187,19 @@ BOOST_AUTO_TEST_CASE( create_account_test )
       trx.validate();
       PUSH_TX( db, trx, ~0 );
 
-      const account_object& nathan_account = get_account("nathan");
-      BOOST_CHECK(nathan_account.id.space() == protocol_ids);
-      BOOST_CHECK(nathan_account.id.type() == account_object_type);
-      BOOST_CHECK(nathan_account.name == "nathan");
+      const account_object& rsquaredchp1_account = get_account("rsquaredchp1");
+      BOOST_CHECK(rsquaredchp1_account.id.space() == protocol_ids);
+      BOOST_CHECK(rsquaredchp1_account.id.type() == account_object_type);
+      BOOST_CHECK(rsquaredchp1_account.name == "rsquaredchp1");
 
-      BOOST_REQUIRE(nathan_account.owner.num_auths() == 1);
-      BOOST_CHECK(nathan_account.owner.key_auths.at(committee_key) == 123);
-      BOOST_REQUIRE(nathan_account.active.num_auths() == 1);
-      BOOST_CHECK(nathan_account.active.key_auths.at(committee_key) == 321);
-      BOOST_CHECK(nathan_account.options.voting_account == GRAPHENE_PROXY_TO_SELF_ACCOUNT);
-      BOOST_CHECK(nathan_account.options.memo_key == committee_key);
+      BOOST_REQUIRE(rsquaredchp1_account.owner.num_auths() == 1);
+      BOOST_CHECK(rsquaredchp1_account.owner.key_auths.at(committee_key) == 123);
+      BOOST_REQUIRE(rsquaredchp1_account.active.num_auths() == 1);
+      BOOST_CHECK(rsquaredchp1_account.active.key_auths.at(committee_key) == 321);
+      BOOST_CHECK(rsquaredchp1_account.options.voting_account == GRAPHENE_PROXY_TO_SELF_ACCOUNT);
+      BOOST_CHECK(rsquaredchp1_account.options.memo_key == committee_key);
 
-      const account_statistics_object& statistics = nathan_account.statistics(db);
+      const account_statistics_object& statistics = rsquaredchp1_account.statistics(db);
       BOOST_CHECK(statistics.id.space() == implementation_ids);
       BOOST_CHECK(statistics.id.type() == impl_account_statistics_object_type);
    } catch (fc::exception& e) {
@@ -209,47 +211,47 @@ BOOST_AUTO_TEST_CASE( create_account_test )
 BOOST_AUTO_TEST_CASE( update_account )
 {
    try {
-      const account_object& nathan = create_account("nathan", init_account_pub_key);
-      const fc::ecc::private_key nathan_new_key = fc::ecc::private_key::generate();
-      const public_key_type key_id = nathan_new_key.get_public_key();
+      const account_object& rsquaredchp1 = create_account("rsquaredchp1", init_account_pub_key);
+      const fc::ecc::private_key rsquaredchp1_new_key = fc::ecc::private_key::generate();
+      const public_key_type key_id = rsquaredchp1_new_key.get_public_key();
       const auto& active_committee_members = db.get_global_properties().active_committee_members;
 
-      transfer(account_id_type()(db), nathan, asset(1000000000));
+      transfer(account_id_type()(db), rsquaredchp1, asset(1000000000));
 
       trx.operations.clear();
       account_update_operation op;
-      op.account = nathan.id;
+      op.account = rsquaredchp1.id;
       op.owner = authority(2, key_id, 1, init_account_pub_key, 1);
       op.active = authority(2, key_id, 1, init_account_pub_key, 1);
-      op.new_options = nathan.options;
+      op.new_options = rsquaredchp1.options;
       op.new_options->votes = flat_set<vote_id_type>({active_committee_members[0](db).vote_id, active_committee_members[5](db).vote_id});
       op.new_options->num_committee = 2;
       trx.operations.push_back(op);
       BOOST_TEST_MESSAGE( "Updating account" );
       PUSH_TX( db, trx, ~0 );
 
-      BOOST_CHECK(nathan.options.memo_key == init_account_pub_key);
-      BOOST_CHECK(nathan.active.weight_threshold == 2);
-      BOOST_CHECK(nathan.active.num_auths() == 2);
-      BOOST_CHECK(nathan.active.key_auths.at(key_id) == 1);
-      BOOST_CHECK(nathan.active.key_auths.at(init_account_pub_key) == 1);
-      BOOST_CHECK(nathan.owner.weight_threshold == 2);
-      BOOST_CHECK(nathan.owner.num_auths() == 2);
-      BOOST_CHECK(nathan.owner.key_auths.at(key_id) == 1);
-      BOOST_CHECK(nathan.owner.key_auths.at(init_account_pub_key) == 1);
-      BOOST_CHECK(nathan.options.votes.size() == 2);
+      BOOST_CHECK(rsquaredchp1.options.memo_key == init_account_pub_key);
+      BOOST_CHECK(rsquaredchp1.active.weight_threshold == 2);
+      BOOST_CHECK(rsquaredchp1.active.num_auths() == 2);
+      BOOST_CHECK(rsquaredchp1.active.key_auths.at(key_id) == 1);
+      BOOST_CHECK(rsquaredchp1.active.key_auths.at(init_account_pub_key) == 1);
+      BOOST_CHECK(rsquaredchp1.owner.weight_threshold == 2);
+      BOOST_CHECK(rsquaredchp1.owner.num_auths() == 2);
+      BOOST_CHECK(rsquaredchp1.owner.key_auths.at(key_id) == 1);
+      BOOST_CHECK(rsquaredchp1.owner.key_auths.at(init_account_pub_key) == 1);
+      BOOST_CHECK(rsquaredchp1.options.votes.size() == 2);
 
       enable_fees();
       {
          account_upgrade_operation op;
-         op.account_to_upgrade = nathan.id;
+         op.account_to_upgrade = rsquaredchp1.id;
          op.upgrade_to_lifetime_member = true;
          op.fee = db.get_global_properties().parameters.get_current_fees().calculate_fee(op);
          trx.operations = {op};
          PUSH_TX( db, trx, ~0 );
       }
 
-      BOOST_CHECK( nathan.is_lifetime_member() );
+      BOOST_CHECK( rsquaredchp1.is_lifetime_member() );
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -264,10 +266,10 @@ BOOST_AUTO_TEST_CASE( transfer_core_asset )
       account_id_type committee_account;
       asset committee_balance = db.get_balance(account_id_type(), asset_id_type());
 
-      const account_object& nathan_account = get_account("nathan");
+      const account_object& rsquaredchp1_account = get_account("rsquaredchp1");
       transfer_operation top;
       top.from = committee_account;
-      top.to = nathan_account.id;
+      top.to = rsquaredchp1_account.id;
       top.amount = asset( 10000);
       trx.operations.push_back(top);
       for( auto& op : trx.operations ) db.current_fee_schedule().set_fee(op);
@@ -280,10 +282,10 @@ BOOST_AUTO_TEST_CASE( transfer_core_asset )
                         (committee_balance.amount - 10000 - fee.amount).value);
       committee_balance = db.get_balance(account_id_type(), asset_id_type());
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, asset_id_type()(db)), 10000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, asset_id_type()(db)), 10000);
 
       trx = signed_transaction();
-      top.from = nathan_account.id;
+      top.from = rsquaredchp1_account.id;
       top.to = committee_account;
       top.amount = asset(2000);
       trx.operations.push_back(top);
@@ -295,7 +297,7 @@ BOOST_AUTO_TEST_CASE( transfer_core_asset )
       trx.validate();
       PUSH_TX( db, trx, ~0 );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, asset_id_type()(db)), 8000 - fee.amount.value);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, asset_id_type()(db)), 8000 - fee.amount.value);
       BOOST_CHECK_EQUAL(get_balance(account_id_type()(db), asset_id_type()(db)), committee_balance.amount.value + 2000);
 
    } catch (fc::exception& e) {
@@ -331,13 +333,13 @@ BOOST_AUTO_TEST_CASE( create_uia )
 {
    try {
       const auto& idx = db.get_index_type<account_index>().indices().get<by_name>();
-      const auto itr = idx.find("nathan");
-      const account_object& nathan_account =  itr != idx.end() ? *itr : create_account("nathan");
+      const auto itr = idx.find("rsquaredchp1");
+      const account_object& rsquaredchp1_account =  itr != idx.end() ? *itr : create_account("rsquaredchp1");
 
       asset_id_type test_asset_id = db.get_index<asset_object>().get_next_id();
 
       asset_create_operation creator;
-      creator.issuer = nathan_account.id;
+      creator.issuer = rsquaredchp1_account.id;
       creator.fee = asset();
       creator.symbol = UIA_TEST_SYMBOL;
       creator.common_options.max_supply = 100000000;
@@ -389,7 +391,7 @@ BOOST_AUTO_TEST_CASE( update_uia )
    try {
       INVOKE(create_uia);
       const auto& test = get_asset(UIA_TEST_SYMBOL);
-      const auto& nathan = get_account("nathan");
+      const auto& rsquaredchp1 = get_account("rsquaredchp1");
 
       asset_update_operation op;
       op.issuer = test.issuer;
@@ -413,12 +415,12 @@ BOOST_AUTO_TEST_CASE( update_uia )
       PUSH_TX( db, trx, ~0 );
       REQUIRE_THROW_WITH_VALUE(op, new_options.core_exchange_rate, price());
       op.new_options.core_exchange_rate = test.options.core_exchange_rate;
-      //op.new_issuer = nathan.id;
+      //op.new_issuer = rsquaredchp1.id;
       trx.operations.back() = op;
       PUSH_TX( db, trx, ~0 );
 
       BOOST_TEST_MESSAGE( "Test setting flags" );
-      op.issuer = nathan.id;
+      op.issuer = rsquaredchp1.id;
       op.new_issuer.reset();
       op.new_options.flags = transfer_restricted | white_list;
       trx.operations.back() = op;
@@ -443,7 +445,7 @@ BOOST_AUTO_TEST_CASE( update_uia )
       asset_issue_operation issue_op;
       issue_op.issuer = op.issuer;
       issue_op.asset_to_issue =  asset(5000000,op.asset_to_update);
-      issue_op.issue_to_account = nathan.get_id();
+      issue_op.issue_to_account = rsquaredchp1.get_id();
       trx.operations.push_back(issue_op);
       PUSH_TX(db, trx, ~0);
       
@@ -551,36 +553,36 @@ BOOST_AUTO_TEST_CASE( update_uia_issuer )
 
       };
 
-      // Create nathan account
-      fc::ecc::private_key nathan_owner  = fc::ecc::private_key::regenerate(fc::digest("key1"));
-      fc::ecc::private_key nathan_active = fc::ecc::private_key::regenerate(fc::digest("key2"));
+      // Create rsquaredchp1 account
+      fc::ecc::private_key rsquaredchp1_owner  = fc::ecc::private_key::regenerate(fc::digest("key1"));
+      fc::ecc::private_key rsquaredchp1_active = fc::ecc::private_key::regenerate(fc::digest("key2"));
       fc::ecc::private_key bob_owner    = fc::ecc::private_key::regenerate(fc::digest("key3"));
       fc::ecc::private_key bob_active   = fc::ecc::private_key::regenerate(fc::digest("key4"));
 
       // Create accounts
-      const auto& nathan = create_account_2_keys("nathan", nathan_active, nathan_owner);
+      const auto& rsquaredchp1 = create_account_2_keys("rsquaredchp1", rsquaredchp1_active, rsquaredchp1_owner);
       const auto& bob = create_account_2_keys("bob", bob_active, bob_owner);
-      const account_id_type nathan_id = nathan.id;
+      const account_id_type rsquaredchp1_id = rsquaredchp1.id;
       const account_id_type bob_id = bob.id;
 
       // Create asset
-      const auto& test = create_user_issued_asset("UPDATEISSUER", nathan_id(db), 0);
+      const auto& test = create_user_issued_asset("UPDATEISSUER", rsquaredchp1_id(db), 0);
       const asset_id_type test_id = test.id;
 
-      update_issuer_proposal( test_id, nathan_id(db), bob_id(db), nathan_owner);
+      update_issuer_proposal( test_id, rsquaredchp1_id(db), bob_id(db), rsquaredchp1_owner);
 
       BOOST_TEST_MESSAGE( "Can't change issuer if not my asset" );
-      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, bob_id(db), nathan_id(db), bob_active ), fc::exception );
-      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, bob_id(db), nathan_id(db), bob_owner ), fc::exception );
+      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, bob_id(db), rsquaredchp1_id(db), bob_active ), fc::exception );
+      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, bob_id(db), rsquaredchp1_id(db), bob_owner ), fc::exception );
 
-      BOOST_TEST_MESSAGE( "Can't change issuer with nathan's active key" );
-      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, nathan_id(db), bob_id(db), nathan_active ), fc::exception );
+      BOOST_TEST_MESSAGE( "Can't change issuer with rsquaredchp1's active key" );
+      GRAPHENE_REQUIRE_THROW( update_issuer( test_id, rsquaredchp1_id(db), bob_id(db), rsquaredchp1_active ), fc::exception );
 
       BOOST_TEST_MESSAGE( "Old method with asset_update needs to fail" );
       GRAPHENE_REQUIRE_THROW( update_asset_issuer( test_id(db), bob_id(db)  ), fc::exception );
 
       BOOST_TEST_MESSAGE( "Updating issuer to bob" );
-      update_issuer( test_id, nathan_id(db), bob_id(db), nathan_owner );
+      update_issuer( test_id, rsquaredchp1_id(db), bob_id(db), rsquaredchp1_owner );
 
       BOOST_CHECK(test_id(db).issuer == bob_id);
 
@@ -599,12 +601,12 @@ BOOST_AUTO_TEST_CASE( issue_uia )
       INVOKE(create_uia);
 
       const asset_object& test_asset = get_asset(UIA_TEST_SYMBOL);
-      const account_object& nathan_account = get_account("nathan");
+      const account_object& rsquaredchp1_account = get_account("rsquaredchp1");
 
       asset_issue_operation op;
       op.issuer = test_asset.issuer;
       op.asset_to_issue =  test_asset.amount(5000000);
-      op.issue_to_account = nathan_account.id;
+      op.issue_to_account = rsquaredchp1_account.id;
       trx.operations.push_back(op);
 
       REQUIRE_THROW_WITH_VALUE(op, asset_to_issue, asset(200));
@@ -615,14 +617,14 @@ BOOST_AUTO_TEST_CASE( issue_uia )
       PUSH_TX( db, trx, ~0 );
 
       const asset_dynamic_data_object& test_dynamic_data = test_asset.dynamic_asset_data_id(db);
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, test_asset), 5000000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, test_asset), 5000000);
       BOOST_CHECK(test_dynamic_data.current_supply == 5000000);
       BOOST_CHECK(test_dynamic_data.accumulated_fees == 0);
       BOOST_CHECK(test_dynamic_data.fee_pool == 0);
 
       PUSH_TX( db, trx, ~0 );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, test_asset), 10000000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, test_asset), 10000000);
       BOOST_CHECK(test_dynamic_data.current_supply == 10000000);
       BOOST_CHECK(test_dynamic_data.accumulated_fees == 0);
       BOOST_CHECK(test_dynamic_data.fee_pool == 0);
@@ -638,22 +640,22 @@ BOOST_AUTO_TEST_CASE( transfer_uia )
       INVOKE(issue_uia);
 
       const asset_object& uia = get_asset(UIA_TEST_SYMBOL);
-      const account_object& nathan = get_account("nathan");
+      const account_object& rsquaredchp1 = get_account("rsquaredchp1");
       const account_object& committee = account_id_type()(db);
 
-      BOOST_CHECK_EQUAL(get_balance(nathan, uia), 10000000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, uia), 10000000);
       transfer_operation top;
-      top.from = nathan.id;
+      top.from = rsquaredchp1.id;
       top.to = committee.id;
       top.amount = uia.amount(5000);
       trx.operations.push_back(top);
-      BOOST_TEST_MESSAGE( "Transfering 5000 TEST from nathan to committee" );
+      BOOST_TEST_MESSAGE( "Transfering 5000 TEST from rsquaredchp1 to committee" );
       PUSH_TX( db, trx, ~0 );
-      BOOST_CHECK_EQUAL(get_balance(nathan, uia), 10000000 - 5000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, uia), 10000000 - 5000);
       BOOST_CHECK_EQUAL(get_balance(committee, uia), 5000);
 
       PUSH_TX( db, trx, ~0 );
-      BOOST_CHECK_EQUAL(get_balance(nathan, uia), 10000000 - 10000);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1, uia), 10000000 - 10000);
       BOOST_CHECK_EQUAL(get_balance(committee, uia), 10000);
    } catch(fc::exception& e) {
       edump((e.to_detail_string()));
@@ -671,7 +673,7 @@ BOOST_AUTO_TEST_CASE( uia_fees )
 
       const asset_object& test_asset = get_asset(UIA_TEST_SYMBOL);
       const asset_dynamic_data_object& asset_dynamic = test_asset.dynamic_asset_data_id(db);
-      const account_object& nathan_account = get_account("nathan");
+      const account_object& rsquaredchp1_account = get_account("rsquaredchp1");
       const account_object& committee_account = account_id_type()(db);
       const share_type prec = asset::scaled_precision( asset_id_type()(db).precision );
 
@@ -680,19 +682,19 @@ BOOST_AUTO_TEST_CASE( uia_fees )
 
       transfer_operation op;
       op.fee = test_asset.amount(0);
-      op.from = nathan_account.id;
+      op.from = rsquaredchp1_account.id;
       op.to   = committee_account.id;
       op.amount = test_asset.amount(100);
       op.fee = db.current_fee_schedule().calculate_fee( op, test_asset.options.core_exchange_rate );
       BOOST_CHECK(op.fee.asset_id == test_asset.id);
-      asset old_balance = db.get_balance(nathan_account.get_id(), test_asset.get_id());
+      asset old_balance = db.get_balance(rsquaredchp1_account.get_id(), test_asset.get_id());
       asset fee = op.fee;
       BOOST_CHECK(fee.amount > 0);
       asset core_fee = fee*test_asset.options.core_exchange_rate;
       trx.operations.push_back(std::move(op));
       PUSH_TX( db, trx, ~0 );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, test_asset),
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, test_asset),
                         (old_balance - fee - test_asset.amount(100)).amount.value);
       BOOST_CHECK_EQUAL(get_balance(committee_account, test_asset), 100);
       BOOST_CHECK(asset_dynamic.accumulated_fees == fee.amount);
@@ -700,7 +702,7 @@ BOOST_AUTO_TEST_CASE( uia_fees )
 
       //Do it again, for good measure.
       PUSH_TX( db, trx, ~0 );
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, test_asset),
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, test_asset),
                         (old_balance - fee - fee - test_asset.amount(200)).amount.value);
       BOOST_CHECK_EQUAL(get_balance(committee_account, test_asset), 200);
       BOOST_CHECK(asset_dynamic.accumulated_fees == fee.amount + fee.amount);
@@ -710,15 +712,15 @@ BOOST_AUTO_TEST_CASE( uia_fees )
       trx.operations.clear();
       op.amount = asset(20);
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, asset_id_type()(db)), 0);
-      transfer(committee_account, nathan_account, asset(20));
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, asset_id_type()(db)), 20);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, asset_id_type()(db)), 0);
+      transfer(committee_account, rsquaredchp1_account, asset(20));
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, asset_id_type()(db)), 20);
 
       trx.operations.emplace_back(std::move(op));
       PUSH_TX( db, trx, ~0 );
 
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, asset_id_type()(db)), 0);
-      BOOST_CHECK_EQUAL(get_balance(nathan_account, test_asset),
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, asset_id_type()(db)), 0);
+      BOOST_CHECK_EQUAL(get_balance(rsquaredchp1_account, test_asset),
                         (old_balance - fee - fee - fee - test_asset.amount(200)).amount.value);
       BOOST_CHECK_EQUAL(get_balance(committee_account, test_asset), 200);
       BOOST_CHECK(asset_dynamic.accumulated_fees == fee.amount.value * 3);
@@ -739,8 +741,8 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
    generate_block();
 
    // Make an account and upgrade it to prime, so that witnesses get some pay
-   create_account("nathan", init_account_pub_key);
-   transfer(account_id_type()(db), get_account("nathan"), asset(20000*prec));
+   create_account("rsquaredchp1", init_account_pub_key);
+   transfer(account_id_type()(db), get_account("rsquaredchp1"), asset(20000*prec));
    transfer(account_id_type()(db), get_account("init3"), asset(20*prec));
    generate_block();
 
@@ -754,7 +756,7 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
 
    const auto block_interval = db.get_global_properties().parameters.block_interval;
    const asset_object* core = &asset_id_type()(db);
-   const account_object* nathan = &get_account("nathan");
+   const account_object* rsquaredchp1 = &get_account("rsquaredchp1");
    enable_fees();
    BOOST_CHECK_GT(db.current_fee_schedule().get<account_upgrade_operation>().membership_lifetime_fee, 0u);
    // Based on the size of the reserve fund later in the test, the witness budget will be set to this value
@@ -782,7 +784,7 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
    BOOST_CHECK_EQUAL(core->dynamic_asset_data_id(db).accumulated_fees.value, 0);
    BOOST_TEST_MESSAGE( "Upgrading account" );
    account_upgrade_operation uop;
-   uop.account_to_upgrade = nathan->get_id();
+   uop.account_to_upgrade = rsquaredchp1->get_id();
    uop.upgrade_to_lifetime_member = true;
    set_expiration( db, trx );
    trx.operations.push_back(uop);
@@ -792,10 +794,10 @@ BOOST_AUTO_TEST_CASE( witness_pay_test )
    PUSH_TX( db, trx );
    auto pay_fee_time = db.head_block_time().sec_since_epoch();
    trx.clear();
-   BOOST_CHECK( get_balance(*nathan, *core) == 20000*prec - account_upgrade_operation::fee_parameters_type().membership_lifetime_fee );;
+   BOOST_CHECK( get_balance(*rsquaredchp1, *core) == 20000*prec - account_upgrade_operation::fee_parameters_type().membership_lifetime_fee );;
 
    generate_block();
-   nathan = &get_account("nathan");
+   rsquaredchp1 = &get_account("rsquaredchp1");
    core = &asset_id_type()(db);
    BOOST_CHECK_EQUAL( last_witness_vbo_balance().value, 0 );
 

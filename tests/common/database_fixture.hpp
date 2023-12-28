@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -249,7 +251,7 @@ struct database_fixture_base {
    uint32_t generate_blocks(fc::time_point_sec timestamp, bool miss_intermediate_blocks = true, uint32_t skip = ~0);
 
    account_create_operation make_account(
-      const std::string& name = "nathan",
+      const std::string& name = "rsquaredchp1",
       public_key_type = public_key_type()
       );
 

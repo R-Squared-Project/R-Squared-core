@@ -1,5 +1,7 @@
 /*
  * Copyright (c) 2018 oxarbitrage and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -42,7 +44,7 @@ using namespace graphene::chain::test;
 using namespace graphene::app;
 
 extern std::string GRAPHENE_TESTING_ES_URL;
-const std::string es_index_prefix = "revpop-";
+const std::string es_index_prefix = "rsquared-";
 const std::string es_obj_index_prefix = "objects-";
 
 BOOST_FIXTURE_TEST_SUITE( elasticsearch_tests, database_fixture )
@@ -66,8 +68,8 @@ BOOST_AUTO_TEST_CASE(elasticsearch_account_history) {
       if(delete_account_history) { // all records deleted
 
          //account_id_type() do 3 ops
-         auto nathan = create_account("nathan");
-         create_user_issued_asset("USD", nathan, 0);
+         auto rsquaredchp1 = create_account("rsquaredchp1");
+         create_user_issued_asset("USD", rsquaredchp1, 0);
          auto dan = create_account("dan");
          auto bob = create_account("bob");
 
@@ -163,8 +165,8 @@ BOOST_AUTO_TEST_CASE(elasticsearch_objects) {
       if(delete_objects) { // all records deleted
 
          // asset and bitasset
-         auto nathan = create_account("nathan");
-         create_user_issued_asset("USD", nathan, 0);
+         auto rsquaredchp1 = create_account("rsquaredchp1");
+         create_user_issued_asset("USD", rsquaredchp1, 0);
          generate_block();
 
          string query = "{ \"query\" : { \"bool\" : { \"must\" : [{\"match_all\": {}}] } } }";

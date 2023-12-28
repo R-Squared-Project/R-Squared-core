@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2018-2022 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ * Copyright (c) 2023 R-Squared Labs LLC, and contributors.
  *
  * The MIT License
  *
@@ -500,7 +501,7 @@ class wallet_api
        */
       string  gethelp(const string& method)const;
 
-      /** Loads a specified RevPop wallet.
+      /** Loads a specified R-Squared wallet.
        *
        * The current wallet is closed before the new wallet is loaded.
        *
@@ -607,6 +608,9 @@ class wallet_api
       vector< signed_transaction > import_balance( string account_name_or_id, const vector<string>& wif_keys,
                                                    bool broadcast );
 
+      vector< signed_transaction > ico_import_balance( string account_name_or_id, string eth_pub_key, string eth_sign,
+                                                   bool broadcast );
+
       /** Transforms a brain key to reduce the chance of errors when re-entering the key from memory.
        *
        * This takes a user-supplied brain key and normalizes it into the form used
@@ -689,7 +693,7 @@ class wallet_api
       /** Transfer an amount from one account to another.
        * @param from the name or id of the account sending the funds
        * @param to the name or id of the account receiving the funds
-       * @param amount the amount to send (in nominal units -- to send half of a RVP, specify 0.5)
+       * @param amount the amount to send (in nominal units -- to send half of a RQRX, specify 0.5)
        * @param asset_symbol_or_id the symbol or id of the asset to send
        * @param memo a memo to attach to the transaction.  The memo will be encrypted in the
        *             transaction and readable for the receiver.  There is no length limit
@@ -764,128 +768,17 @@ class wallet_api
        */
       bool verify_encapsulated_message( string message );
 
-      /** These methods are used for stealth transfers */
-      ///@{
-      /**
-       * This method can be used to set a label for a public key
-       *
-       * @note No two keys can have the same label.
-       * @param key a public key
-       * @param label a user-defined string as label
-       * @return true if the label was set, otherwise false
-       */
-      bool                        set_key_label( public_key_type key, string label );
-
-      /**
-       * Get label of a public key.
-       * @param key a public key
-       * @return the label if already set by \c set_key_label(), or an empty string if not set
-       */
-      string                      get_key_label( public_key_type key )const;
-
-      /**
-       * Generates a new blind account for the given brain key and assigns it the given label.
-       * @param label a label
-       * @param brain_key the brain key to be used to generate a new blind account
-       * @return the public key of the new account
-       */
-      public_key_type             create_blind_account( string label, string brain_key  );
-
-      /**
-       * Return the total balances of all blinded commitments that can be claimed by the
-       * given account key or label.
-       * @param key_or_label a public key in Base58 format or a label
-       * @return the total balances of all blinded commitments that can be claimed by the
-       * given account key or label
-       */
-      vector<asset>                get_blind_balances( string key_or_label );
-      /**
-       * Get all blind accounts.
-       * @return all blind accounts
-       */
-      map<string,public_key_type> get_blind_accounts()const;
-      /**
-       * Get all blind accounts for which this wallet has the private key.
-       * @return all blind accounts for which this wallet has the private key
-       */
-      map<string,public_key_type> get_my_blind_accounts()const;
       /**
        * Get the public key associated with a given label.
        * @param label a label
        * @return the public key associated with the given label
        */
       public_key_type             get_public_key( string label )const;
-      ///@}
-
-      /**
-       * Get all blind receipts to/form a particular account
-       * @param key_or_account a public key in Base58 format or an account
-       * @return all blind receipts to/form the account
-       */
-      vector<blind_receipt> blind_history( string key_or_account );
-
-      /**
-       * Given a confirmation receipt, this method will parse it for a blinded balance and confirm
-       * that it exists in the blockchain.  If it exists then it will report the amount received and
-       * who sent it.
-       *
-       * @param confirmation_receipt a base58 encoded stealth confirmation
-       * @param opt_from if not empty and the sender is a unknown public key,
-       *                 then the unknown public key will be given the label \c opt_from
-       * @param opt_memo a self-defined label for this transfer to be saved in local wallet file
-       * @return a blind receipt
-       */
-      blind_receipt receive_blind_transfer( string confirmation_receipt, string opt_from, string opt_memo );
-
-      /**
-       * Transfers a public balance from \c from_account_name_or_id to one or more blinded balances using a
-       * stealth transfer.
-       * @param from_account_name_or_id name or ID of an account to transfer from
-       * @param asset_symbol_or_id symbol or ID of the asset to be transferred
-       * @param to_amounts map from key or label to amount
-       * @param broadcast true to broadcast the transaction on the network
-       * @return a blind confirmation
-       */
-      blind_confirmation transfer_to_blind( string from_account_name_or_id,
-                                            string asset_symbol_or_id,
-                                            vector<pair<string, string>> to_amounts,
-                                            bool broadcast = false );
-
-      /**
-       * Transfers funds from a set of blinded balances to a public account balance.
-       * @param from_blind_account_key_or_label a public key in Base58 format or a label to transfer from
-       * @param to_account_name_or_id name or ID of an account to transfer to
-       * @param amount the amount to be transferred
-       * @param asset_symbol_or_id symbol or ID of the asset to be transferred
-       * @param broadcast true to broadcast the transaction on the network
-       * @return a blind confirmation
-       */
-      blind_confirmation transfer_from_blind(
-                                            string from_blind_account_key_or_label,
-                                            string to_account_name_or_id,
-                                            string amount,
-                                            string asset_symbol_or_id,
-                                            bool broadcast = false );
-
-      /**
-       * Transfer from one set of blinded balances to another.
-       * @param from_key_or_label a public key in Base58 format or a label to transfer from
-       * @param to_key_or_label a public key in Base58 format or a label to transfer to
-       * @param amount the amount to be transferred
-       * @param symbol_or_id symbol or ID of the asset to be transferred
-       * @param broadcast true to broadcast the transaction on the network
-       * @return a blind confirmation
-       */
-      blind_confirmation blind_transfer( string from_key_or_label,
-                                         string to_key_or_label,
-                                         string amount,
-                                         string symbol_or_id,
-                                         bool broadcast = false );
 
       /** Place a limit order attempting to sell one asset for another.
        *
-       * Buying and selling are the same operation on RevPop; if you want to buy RVP
-       * with USD, you should sell USD for RVP.
+       * Buying and selling are the same operation on R-Squared; if you want to buy RQRX
+       * with USD, you should sell USD for RQRX.
        *
        * The blockchain will attempt to sell the \c symbol_or_id_to_sell for as
        * much \c symbol_or_id_to_receive as possible, as long as the price is at
@@ -1535,6 +1428,23 @@ class wallet_api
        */
       operation get_prototype_operation(string operation_type);
 
+      /** Creates a transaction to propose a parameter extension change.
+       *
+       * Multiple parameters can be specified if an atomic change is
+       * desired.
+       *
+       * @param proposing_account The account paying the fee to propose the tx
+       * @param expiration_time Timestamp specifying when the proposal will either take effect or expire.
+       * @param changed_extensions The values to change; all other chain parameters are filled in with default values
+       * @param broadcast true if you wish to broadcast the transaction
+       * @return the signed version of the transaction
+       */
+      signed_transaction propose_parameter_extension_change(
+         const string& proposing_account,
+         fc::time_point_sec expiration_time,
+         const variant_object& changed_extensions,
+         bool broadcast = false);
+
       /** Creates a transaction to propose a parameter change.
        *
        * Multiple parameters can be specified if an atomic change is
@@ -1611,27 +1521,11 @@ class wallet_api
        * @param operator_account an account who is permitted to use personal data.
        * @param url a url to the content storage.
        * @param hash a hash of a personal data.
-       * @param broadcast true if you wish to broadcast the transaction.
-       * @return the signed version of the transaction.
-      */
-      signed_transaction create_personal_data(
-            const string& subject_account,
-            const string& operator_account,
-            const string& url,
-            const string& hash,
-            bool broadcast = false );
-
-      /** Create personal data v2 with permission.
-       *
-       * @param subject_account the owner of personal data.
-       * @param operator_account an account who is permitted to use personal data.
-       * @param url a url to the content storage.
-       * @param hash a hash of a personal data.
        * @param storage_data data specific to the cloud storage (content id in the cloud storage).
        * @param broadcast true if you wish to broadcast the transaction.
        * @return the signed version of the transaction.
       */
-      signed_transaction create_personal_data_v2(
+      signed_transaction create_personal_data(
             const string& subject_account,
             const string& operator_account,
             const string& url,
@@ -1655,21 +1549,6 @@ class wallet_api
             bool broadcast = false );
 
       /**
-       * Removes the personal data v2 object.
-       * 
-       * @param subject_account the owner of personal data.
-       * @param operator_account an account who is permitted to use personal data.
-       * @param hash a hash of a personal data
-       * @param broadcast true if you wish to broadcast the transaction.
-       * @returns the signed version of the transaction.
-       */
-      signed_transaction remove_personal_data_v2(
-            const string& subject_account,
-            const string& operator_account,
-            const string& hash,
-            bool broadcast = false );
-
-      /**
        * Returns the personal data object list.
        * 
        * @param subject_account the owner of personal data.
@@ -1677,17 +1556,6 @@ class wallet_api
        * @returns the personal data object list.
        */
       std::vector<personal_data_object> get_personal_data(
-            const string& subject_account,
-            const string& operator_account) const;
-
-      /**
-       * Returns the personal data v2 object list.
-       * 
-       * @param subject_account the owner of personal data.
-       * @param operator_account an account who is permitted to use personal data.
-       * @returns the personal data object list.
-       */
-      std::vector<personal_data_v2_object> get_personal_data_v2(
             const string& subject_account,
             const string& operator_account) const;
 
@@ -1703,38 +1571,6 @@ class wallet_api
             const string& operator_account) const;
 
       /**
-       * Returns last added personal data v2 object.
-       * 
-       * @param subject_account the owner of personal data.
-       * @param operator_account an account who is permitted to use personal data.
-       * @returns the personal data object.
-       */
-      personal_data_v2_object get_last_personal_data_v2(
-            const string& subject_account,
-            const string& operator_account) const;
-
-      /**
-       * Create a content card.
-       * 
-       * @param subject_account an owner of a content.
-       * @param hash an hash value getted from content.
-       * @param url a url to the content storage.
-       * @param type a type of a content (jpg, mp3, mp4, html, est.).
-       * @param description a text description of content to convenient full text search.
-       * @param content_key a encrypted symmetric key to decrypt content, can be decrypted by subject account.
-       * @param broadcast true if you wish to broadcast the transaction.
-       * @returns the signed version of the transaction.
-       */
-      signed_transaction create_content_card(
-            const string& subject_account,
-            const string& hash,
-            const string& url,
-            const string& type,
-            const string& description,
-            const string& content_key,
-            bool broadcast = false ) const;
-
-      /**
        * Create a content card.
        * 
        * @param subject_account an owner of a content.
@@ -1747,7 +1583,7 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction.
        * @returns the signed version of the transaction.
        */
-      signed_transaction create_content_card_v2(
+      signed_transaction create_content_card(
             const string& subject_account,
             const string& hash,
             const string& url,
@@ -1766,32 +1602,11 @@ class wallet_api
        * @param type a type of a content (jpg, mp3, mp4, html, est.).
        * @param description a text description of content to convenient full text search.
        * @param content_key a encrypted symmetric key to decrypt content, can be decrypted by subject account.
-       * @param broadcast true if you wish to broadcast the transaction.
-       * @returns the signed version of the transaction.
-       */
-      signed_transaction update_content_card(
-            const string& subject_account,
-            const string& hash,
-            const string& url,
-            const string& type,
-            const string& description,
-            const string& content_key,
-            bool broadcast = false ) const;
-
-      /**
-       * Update a content card.
-       * 
-       * @param subject_account an owner of a content.
-       * @param hash an hash value getted from content.
-       * @param url a url to the content storage.
-       * @param type a type of a content (jpg, mp3, mp4, html, est.).
-       * @param description a text description of content to convenient full text search.
-       * @param content_key a encrypted symmetric key to decrypt content, can be decrypted by subject account.
        * @param storage_data data specific to the cloud storage (content id in the cloud storage).
        * @param broadcast true if you wish to broadcast the transaction.
        * @returns the signed version of the transaction.
        */
-      signed_transaction update_content_card_v2(
+      signed_transaction update_content_card(
             const string& subject_account,
             const string& hash,
             const string& url,
@@ -1810,19 +1625,6 @@ class wallet_api
        * @returns the signed version of the transaction
        */
       signed_transaction remove_content_card(
-            const string& subject_account,
-            uint64_t content_id,
-            bool broadcast = false ) const;
-
-      /**
-       * Remove a content card v2.
-       * 
-       * @param subject_account an owner of a content.
-       * @param content_id a content card id.
-       * @param broadcast true if you wish to broadcast the transaction.
-       * @returns the signed version of the transaction
-       */
-      signed_transaction remove_content_card_v2(
             const string& subject_account,
             uint64_t content_id,
             bool broadcast = false ) const;
@@ -1867,7 +1669,6 @@ class wallet_api
        * @returns the content card object.
        */
       content_card_object get_content_card_by_id( uint64_t content_id ) const;
-      content_card_v2_object get_content_card_v2_by_id( uint64_t content_id ) const;
 
       /**
        * Returns a list of content card objects for choosen account
@@ -1878,9 +1679,6 @@ class wallet_api
        * @returns the list of a content card objects.
        */
       std::vector<content_card_object> get_content_cards( const string& subject_account,
-            uint64_t content_id,
-            unsigned limit = 100 ) const;
-      std::vector<content_card_v2_object> get_content_cards_v2( const string& subject_account,
             uint64_t content_id,
             unsigned limit = 100 ) const;
       /**
@@ -1914,16 +1712,6 @@ class wallet_api
 
       void network_add_nodes( const vector<string>& nodes );
       vector< variant > network_get_connected_peers();
-
-      /**
-       *  Used to transfer from one set of blinded balances to another
-       */
-      blind_confirmation blind_transfer_help( string from_key_or_label,
-                                         string to_key_or_label,
-                                         string amount,
-                                         string symbol,
-                                         bool broadcast = false,
-                                         bool to_temp = false );
 
 
       std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const;
@@ -1992,6 +1780,7 @@ FC_API( graphene::wallet::wallet_api,
         (get_asset_count)
         (import_key)
         (import_balance)
+        (ico_import_balance)
         (suggest_brain_key)
         (derive_owner_keys_from_brain_key)
         (register_account)
@@ -2067,6 +1856,7 @@ FC_API( graphene::wallet::wallet_api,
         (get_transaction_signers)
         (get_key_references)
         (get_prototype_operation)
+        (propose_parameter_extension_change)
         (propose_parameter_change)
         (propose_fee_change)
         (approve_proposal)
@@ -2085,18 +1875,7 @@ FC_API( graphene::wallet::wallet_api,
         (verify_message)
         (verify_signed_message)
         (verify_encapsulated_message)
-        (set_key_label)
-        (get_key_label)
         (get_public_key)
-        (get_blind_accounts)
-        (get_my_blind_accounts)
-        (get_blind_balances)
-        (create_blind_account)
-        (transfer_to_blind)
-        (transfer_from_blind)
-        (blind_transfer)
-        (blind_history)
-        (receive_blind_transfer)
         (get_order_book)
         (account_store_map)
         (get_account_storage)
@@ -2114,13 +1893,4 @@ FC_API( graphene::wallet::wallet_api,
         (get_content_cards)
         (get_permission_by_id)
         (get_permissions)
-        (create_content_card_v2)
-        (update_content_card_v2)
-        (remove_content_card_v2)
-        (get_content_card_v2_by_id)
-        (get_content_cards_v2)
-        (create_personal_data_v2)
-        (remove_personal_data_v2)
-        (get_personal_data_v2)
-        (get_last_personal_data_v2)
       )
