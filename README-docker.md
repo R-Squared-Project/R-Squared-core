@@ -87,13 +87,13 @@ or
       - "rsquared-fullnode:/var/lib/rsquared"
 
 
-# Amazon Elastic Container Registry (ECR)
+# GitHub Container registry (GHCR)
 
-This container is properly registered with the Amazon ECR service:
+This container is properly registered with the GitHub Container registry:
 
-* [rsquared/rsquared-core](https://gallery.ecr.aws/rsquared/rsquared-core)
-
-Going forward, every release tag will be built into ready-to-run containers, there.
+```sh
+$ docker pull ghcr.io/r-squared-project/r-squared-core:latest
+```
 
 # Docker Compose
 
@@ -105,14 +105,14 @@ version: '3'
 services:
 
  fullnode:
-  image: public.ecr.aws/rsquared/rsquared-core:latest
+  image: ghcr.io/r-squared-project/r-squared-core:latest
   ports:
    - "0.0.0.0:8090:8090"
   volumes:
   - "rsquared-fullnode:/var/lib/rsquared"
 
  delayed_node:
-  image: public.ecr.aws/rsquared/rsquared-core:latest
+  image: ghcr.io/r-squared-project/r-squared-core:latest
   environment:
    - 'RSQUAREDD_PLUGINS=delayed_node witness'
    - 'RSQUAREDD_TRUSTED_NODE=ws://fullnode:8090'
